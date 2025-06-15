@@ -4,6 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
+import { ScrollArea } from "@/components/ui/scroll-area";
 import { MessageCircle, Send, User, Bot, BookOpen } from "lucide-react";
 import { InteractiveReadingText } from "./InteractiveReadingText";
 
@@ -94,9 +95,9 @@ export const ChatInterface = () => {
   }
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-4 h-full">
       <Card className="h-[600px] flex flex-col">
-        <CardHeader className="pb-3">
+        <CardHeader className="pb-3 flex-shrink-0">
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-3">
               <div className="p-2 bg-blue-100 rounded-full">
@@ -119,50 +120,52 @@ export const ChatInterface = () => {
           </div>
         </CardHeader>
         
-        <CardContent className="flex-1 flex flex-col p-0">
-          <div className="flex-1 overflow-y-auto p-4 space-y-4">
-            {messages.map((message) => (
-              <div
-                key={message.id}
-                className={`flex ${message.sender === 'teacher' ? 'justify-end' : 'justify-start'}`}
-              >
-                <div className={`max-w-[80%] ${message.sender === 'teacher' ? 'order-2' : 'order-1'}`}>
-                  <div className="flex items-center space-x-2 mb-1">
-                    {message.sender === 'agent' && (
-                      <>
-                        <Bot className="h-4 w-4 text-purple-600" />
-                        <Badge variant="secondary" className="bg-purple-100 text-purple-800 text-xs">
-                          AI Agent
-                        </Badge>
-                      </>
-                    )}
-                    {message.sender === 'teacher' && (
-                      <>
-                        <User className="h-4 w-4 text-blue-600" />
-                        <Badge variant="secondary" className="bg-blue-100 text-blue-800 text-xs">
-                          Teacher
-                        </Badge>
-                      </>
-                    )}
-                    <span className="text-xs text-muted-foreground">
-                      {formatTime(message.timestamp)}
-                    </span>
-                  </div>
-                  <div
-                    className={`p-3 rounded-lg ${
-                      message.sender === 'teacher'
-                        ? 'bg-blue-500 text-white'
-                        : 'bg-gray-100 text-gray-900'
-                    }`}
-                  >
-                    <p className="text-sm">{message.content}</p>
+        <CardContent className="flex-1 flex flex-col p-0 min-h-0">
+          <ScrollArea className="flex-1 px-4">
+            <div className="space-y-4 py-4">
+              {messages.map((message) => (
+                <div
+                  key={message.id}
+                  className={`flex ${message.sender === 'teacher' ? 'justify-end' : 'justify-start'}`}
+                >
+                  <div className={`max-w-[80%] ${message.sender === 'teacher' ? 'order-2' : 'order-1'}`}>
+                    <div className="flex items-center space-x-2 mb-1">
+                      {message.sender === 'agent' && (
+                        <>
+                          <Bot className="h-4 w-4 text-purple-600" />
+                          <Badge variant="secondary" className="bg-purple-100 text-purple-800 text-xs">
+                            AI Agent
+                          </Badge>
+                        </>
+                      )}
+                      {message.sender === 'teacher' && (
+                        <>
+                          <User className="h-4 w-4 text-blue-600" />
+                          <Badge variant="secondary" className="bg-blue-100 text-blue-800 text-xs">
+                            Teacher
+                          </Badge>
+                        </>
+                      )}
+                      <span className="text-xs text-muted-foreground">
+                        {formatTime(message.timestamp)}
+                      </span>
+                    </div>
+                    <div
+                      className={`p-3 rounded-lg ${
+                        message.sender === 'teacher'
+                          ? 'bg-blue-500 text-white'
+                          : 'bg-gray-100 text-gray-900'
+                      }`}
+                    >
+                      <p className="text-sm">{message.content}</p>
+                    </div>
                   </div>
                 </div>
-              </div>
-            ))}
-          </div>
+              ))}
+            </div>
+          </ScrollArea>
           
-          <div className="border-t p-4">
+          <div className="border-t p-4 flex-shrink-0">
             <div className="flex space-x-2">
               <Input
                 value={newMessage}
