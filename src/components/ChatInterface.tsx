@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -18,24 +17,32 @@ export const ChatInterface = () => {
     {
       id: "1",
       sender: "agent",
-      content: "Hello! I'm your AI teaching assistant. How can I help you today?",
+      content: "Hello! I'm your AI English teaching assistant. How can I help you improve your students' English learning today?",
       timestamp: new Date(Date.now() - 300000)
     },
     {
       id: "2", 
       sender: "teacher",
-      content: "I'm concerned about Alex Chen's performance in mathematics. What insights do you have?",
+      content: "I'm concerned about Emma's pronunciation and speaking confidence in English. She seems hesitant to participate in oral activities.",
       timestamp: new Date(Date.now() - 240000)
     },
     {
       id: "3",
       sender: "agent", 
-      content: "Based on my analysis, Alex is struggling with abstract mathematical concepts. I recommend implementing visual learning aids and breaking down complex problems into smaller steps. His engagement improves significantly with interactive exercises.",
+      content: "Based on my analysis, Emma shows strong reading comprehension but struggles with speaking confidence. I recommend implementing pair work activities, pronunciation drills with audio feedback, and creating a supportive environment for oral practice. Her engagement increases significantly with interactive speaking games and peer collaboration.",
       timestamp: new Date(Date.now() - 180000)
     }
   ]);
   
   const [newMessage, setNewMessage] = useState("");
+
+  const englishLearningResponses = [
+    "That's a great question about English learning. Let me analyze the student's language acquisition patterns and suggest targeted vocabulary building exercises.",
+    "I recommend incorporating more interactive listening activities and pronunciation practice to improve their English fluency.",
+    "Based on language learning data, this student would benefit from focused grammar exercises and speaking practice sessions.",
+    "I suggest implementing a reading comprehension program with gradually increasing difficulty levels to enhance their English skills.",
+    "Let me provide you with specific strategies for improving their English writing skills and sentence structure understanding."
+  ];
 
   const handleSendMessage = () => {
     if (newMessage.trim()) {
@@ -50,10 +57,11 @@ export const ChatInterface = () => {
       
       // Simulate AI response after a short delay
       setTimeout(() => {
+        const randomResponse = englishLearningResponses[Math.floor(Math.random() * englishLearningResponses.length)];
         const aiResponse: Message = {
           id: (Date.now() + 1).toString(),
           sender: "agent",
-          content: "I understand your concern. Let me analyze the latest data and provide you with specific recommendations.",
+          content: randomResponse,
           timestamp: new Date()
         };
         setMessages(prev => [...prev, aiResponse]);
