@@ -2,11 +2,12 @@
 import { useState } from "react";
 import { TeacherDashboard } from "@/components/TeacherDashboard";
 import { AgentDashboard } from "@/components/AgentDashboard";
+import { ChatInterface } from "@/components/ChatInterface";
 import { Button } from "@/components/ui/button";
-import { User, Bot } from "lucide-react";
+import { User, Bot, MessageCircle } from "lucide-react";
 
 const StudentLearningStatus = () => {
-  const [activeView, setActiveView] = useState<'teacher' | 'agent'>('teacher');
+  const [activeView, setActiveView] = useState<'teacher' | 'agent' | 'chat'>('teacher');
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50">
@@ -38,11 +39,21 @@ const StudentLearningStatus = () => {
               <Bot className="h-4 w-4" />
               <span>AI Agent View</span>
             </Button>
+            <Button
+              variant={activeView === 'chat' ? 'default' : 'ghost'}
+              onClick={() => setActiveView('chat')}
+              className="flex items-center space-x-2"
+            >
+              <MessageCircle className="h-4 w-4" />
+              <span>Chat</span>
+            </Button>
           </div>
         </div>
 
         <div className="bg-white rounded-xl shadow-lg p-6 md:p-8">
-          {activeView === 'teacher' ? <TeacherDashboard /> : <AgentDashboard />}
+          {activeView === 'teacher' && <TeacherDashboard />}
+          {activeView === 'agent' && <AgentDashboard />}
+          {activeView === 'chat' && <ChatInterface />}
         </div>
       </div>
     </div>
