@@ -133,10 +133,10 @@ const Index = () => {
       <div className="container mx-auto px-4 py-8">
         <div className="text-center mb-8">
           <h2 className="text-3xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent mb-4">
-            Student Learning Status Dashboard
+            English Learning Progress Dashboard
           </h2>
           <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-            Comprehensive monitoring of student progress from multiple perspectives
+            Comprehensive monitoring of student English learning progress from multiple perspectives
           </p>
         </div>
 

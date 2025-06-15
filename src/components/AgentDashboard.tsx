@@ -8,27 +8,27 @@ import { Bot, Brain, Target, TrendingUp } from "lucide-react";
 const mockStudents = [
   {
     id: "1",
-    name: "Emma Johnson",
-    grade: "10A",
+    name: "Student A",
+    grade: "Intermediate",
     overallProgress: 87,
     subjects: [
-      { name: "Mathematics", progress: 92, status: 'excellent' as const },
-      { name: "Science", progress: 85, status: 'good' as const },
-      { name: "Literature", progress: 83, status: 'good' as const },
-      { name: "History", progress: 78, status: 'needs-improvement' as const }
+      { name: "Reading Comprehension", progress: 92, status: 'excellent' as const },
+      { name: "Vocabulary", progress: 85, status: 'good' as const },
+      { name: "Grammar", progress: 83, status: 'good' as const },
+      { name: "Speaking", progress: 78, status: 'needs-improvement' as const }
     ],
     lastActivity: "2 hours ago"
   },
   {
     id: "2", 
-    name: "Alex Chen",
-    grade: "10A",
+    name: "Student B",
+    grade: "Beginner",
     overallProgress: 72,
     subjects: [
-      { name: "Mathematics", progress: 68, status: 'needs-improvement' as const },
-      { name: "Science", progress: 79, status: 'good' as const },
-      { name: "Literature", progress: 74, status: 'good' as const },
-      { name: "History", progress: 67, status: 'needs-improvement' as const }
+      { name: "Reading Comprehension", progress: 68, status: 'needs-improvement' as const },
+      { name: "Vocabulary", progress: 79, status: 'good' as const },
+      { name: "Grammar", progress: 74, status: 'good' as const },
+      { name: "Speaking", progress: 67, status: 'needs-improvement' as const }
     ],
     lastActivity: "1 day ago"
   }
@@ -36,22 +36,22 @@ const mockStudents = [
 
 const agentInsights = [
   {
-    student: "Emma Johnson",
-    insight: "Strong in STEM subjects. Recommend advanced mathematics modules.",
+    student: "Student A",
+    insight: "Strong in reading comprehension and vocabulary. Recommend more speaking practice sessions.",
     confidence: 94,
-    action: "Accelerate learning path"
+    action: "Focus on pronunciation"
   },
   {
-    student: "Alex Chen", 
-    insight: "Struggling with mathematical concepts. Suggest visual learning approach.",
+    student: "Student B", 
+    insight: "Struggling with reading comprehension. Suggest phonics-based learning approach.",
     confidence: 87,
-    action: "Adaptive intervention"
+    action: "Reading intervention"
   },
   {
-    student: "Sofia Rodriguez",
-    insight: "Exceptional performance across all subjects. Ready for advanced curriculum.",
+    student: "Student C",
+    insight: "Exceptional English progress. Ready for advanced literature and writing exercises.",
     confidence: 96,
-    action: "Enrichment program"
+    action: "Advanced curriculum"
   }
 ];
 
@@ -64,7 +64,7 @@ export const AgentDashboard = () => {
         </div>
         <div>
           <h2 className="text-2xl font-bold text-purple-600">AI Agent View</h2>
-          <p className="text-muted-foreground">Intelligent analysis and personalized recommendations</p>
+          <p className="text-muted-foreground">AI-powered English learning insights and recommendations</p>
         </div>
       </div>
 
@@ -78,7 +78,7 @@ export const AgentDashboard = () => {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">92%</div>
-            <p className="text-xs text-muted-foreground">Prediction accuracy</p>
+            <p className="text-xs text-muted-foreground">English learning prediction accuracy</p>
           </CardContent>
         </Card>
         
@@ -86,12 +86,12 @@ export const AgentDashboard = () => {
           <CardHeader className="pb-2">
             <CardTitle className="text-sm font-medium flex items-center">
               <Target className="h-4 w-4 mr-2 text-purple-600" />
-              Interventions
+              Learning Interventions
             </CardTitle>
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">7</div>
-            <p className="text-xs text-muted-foreground">Active recommendations</p>
+            <p className="text-xs text-muted-foreground">Active English recommendations</p>
           </CardContent>
         </Card>
         
@@ -99,19 +99,19 @@ export const AgentDashboard = () => {
           <CardHeader className="pb-2">
             <CardTitle className="text-sm font-medium flex items-center">
               <TrendingUp className="h-4 w-4 mr-2 text-purple-600" />
-              Improvement Rate
+              English Improvement
             </CardTitle>
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">+15%</div>
-            <p className="text-xs text-muted-foreground">This month</p>
+            <p className="text-xs text-muted-foreground">Average progress this month</p>
           </CardContent>
         </Card>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <div className="space-y-4">
-          <h3 className="text-lg font-semibold">AI Insights & Recommendations</h3>
+          <h3 className="text-lg font-semibold">AI English Learning Insights</h3>
           <div className="space-y-4">
             {agentInsights.map((insight, index) => (
               <Card key={index} className="border-l-4 border-l-purple-500">
@@ -138,7 +138,7 @@ export const AgentDashboard = () => {
         </div>
 
         <div className="space-y-4">
-          <h3 className="text-lg font-semibold">Monitored Students</h3>
+          <h3 className="text-lg font-semibold">Monitored English Learners</h3>
           <div className="space-y-4">
             {mockStudents.map((student) => (
               <StudentProgressCard key={student.id} student={student} />
