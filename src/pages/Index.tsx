@@ -1,14 +1,14 @@
-
 import { useState } from "react";
 import { TeacherDashboard } from "@/components/TeacherDashboard";
 import { AgentDashboard } from "@/components/AgentDashboard";
 import { ChatInterface } from "@/components/ChatInterface";
 import { ParentCompanionView } from "@/components/ParentCompanionView";
+import { StudentDashboard } from "@/components/StudentDashboard";
 import { Button } from "@/components/ui/button";
 import { User, Bot, MessageCircle, Heart, BookOpen, Settings } from "lucide-react";
 
 const Index = () => {
-  const [activeView, setActiveView] = useState<'teacher' | 'agent' | 'chat' | 'parent'>('teacher');
+  const [activeView, setActiveView] = useState<'teacher' | 'student' | 'agent' | 'chat' | 'parent'>('teacher');
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50">
@@ -33,6 +33,14 @@ const Index = () => {
               >
                 <User className="h-4 w-4" />
                 <span>Teacher</span>
+              </Button>
+              <Button
+                variant={activeView === 'student' ? 'default' : 'ghost'}
+                onClick={() => setActiveView('student')}
+                className="flex items-center space-x-2"
+              >
+                <User className="h-4 w-4 text-green-600" />
+                <span>Student</span>
               </Button>
               <Button
                 variant={activeView === 'agent' ? 'default' : 'ghost'}
@@ -81,6 +89,15 @@ const Index = () => {
                 <span>Teacher</span>
               </Button>
               <Button
+                variant={activeView === 'student' ? 'default' : 'ghost'}
+                onClick={() => setActiveView('student')}
+                size="sm"
+                className="flex items-center space-x-1"
+              >
+                <User className="h-3 w-3 text-green-600" />
+                <span>Student</span>
+              </Button>
+              <Button
                 variant={activeView === 'agent' ? 'default' : 'ghost'}
                 onClick={() => setActiveView('agent')}
                 size="sm"
@@ -125,6 +142,7 @@ const Index = () => {
 
         <div className="bg-white rounded-xl shadow-lg p-6 md:p-8">
           {activeView === 'teacher' && <TeacherDashboard />}
+          {activeView === 'student' && <StudentDashboard />}
           {activeView === 'agent' && <AgentDashboard />}
           {activeView === 'chat' && <ChatInterface />}
           {activeView === 'parent' && <ParentCompanionView />}
