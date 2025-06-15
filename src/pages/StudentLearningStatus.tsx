@@ -3,11 +3,12 @@ import { useState } from "react";
 import { TeacherDashboard } from "@/components/TeacherDashboard";
 import { AgentDashboard } from "@/components/AgentDashboard";
 import { ChatInterface } from "@/components/ChatInterface";
+import { ParentCompanionView } from "@/components/ParentCompanionView";
 import { Button } from "@/components/ui/button";
-import { User, Bot, MessageCircle } from "lucide-react";
+import { User, Bot, MessageCircle, Heart } from "lucide-react";
 
 const StudentLearningStatus = () => {
-  const [activeView, setActiveView] = useState<'teacher' | 'agent' | 'chat'>('teacher');
+  const [activeView, setActiveView] = useState<'teacher' | 'agent' | 'chat' | 'parent'>('teacher');
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50">
@@ -17,7 +18,7 @@ const StudentLearningStatus = () => {
             Student Learning Status Dashboard
           </h1>
           <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-            Comprehensive monitoring of student progress from both teacher and AI agent perspectives
+            Comprehensive monitoring of student progress from multiple perspectives
           </p>
         </div>
 
@@ -47,6 +48,14 @@ const StudentLearningStatus = () => {
               <MessageCircle className="h-4 w-4" />
               <span>Chat</span>
             </Button>
+            <Button
+              variant={activeView === 'parent' ? 'default' : 'ghost'}
+              onClick={() => setActiveView('parent')}
+              className="flex items-center space-x-2"
+            >
+              <Heart className="h-4 w-4" />
+              <span>Parent View</span>
+            </Button>
           </div>
         </div>
 
@@ -54,6 +63,7 @@ const StudentLearningStatus = () => {
           {activeView === 'teacher' && <TeacherDashboard />}
           {activeView === 'agent' && <AgentDashboard />}
           {activeView === 'chat' && <ChatInterface />}
+          {activeView === 'parent' && <ParentCompanionView />}
         </div>
       </div>
     </div>

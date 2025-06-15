@@ -3,12 +3,15 @@ import { useState, useRef } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Eye, EyeOff } from "lucide-react";
+import { Eye, EyeOff, BookOpen, Settings, BarChart3 } from "lucide-react";
 import { GazeOverlay } from "./GazeOverlay";
 import { VocabularyPopup } from "./VocabularyPopup";
 import { SentenceAssistanceTooltip } from "./SentenceAssistanceTooltip";
 import { FollowAlongWidget } from "./FollowAlongWidget";
 import { PronunciationFeedback } from "./PronunciationFeedback";
+import { PersonalizedReviewPanel } from "./PersonalizedReviewPanel";
+import { AttentionTimeline } from "./AttentionTimeline";
+import { SettingsPanel } from "./SettingsPanel";
 
 export const InteractiveReadingText = () => {
   const [gazeTrackingActive, setGazeTrackingActive] = useState(false);
@@ -16,6 +19,8 @@ export const InteractiveReadingText = () => {
   const [selectedSentence, setSelectedSentence] = useState<{ sentence: string; position: { x: number; y: number } } | null>(null);
   const [followAlongTarget, setFollowAlongTarget] = useState<{ text: string; position: { x: number; y: number } } | null>(null);
   const [feedbackData, setFeedbackData] = useState<{ audioBlob: Blob; text: string } | null>(null);
+  const [showReviewPanel, setShowReviewPanel] = useState(false);
+  const [showSettingsPanel, setShowSettingsPanel] = useState(false);
   
   const textRef = useRef<HTMLDivElement>(null);
 
@@ -118,6 +123,22 @@ export const InteractiveReadingText = () => {
             Tap words for definitions • Tap sentences for grammar help
           </Badge>
           <Button
+            variant="outline"
+            size="sm"
+            onClick={() => setShowReviewPanel(true)}
+          >
+            <BookOpen className="h-4 w-4 mr-1" />
+            Review
+          </Button>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => setShowSettingsPanel(true)}
+          >
+            <Settings className="h-4 w-4 mr-1" />
+            Settings
+          </Button>
+          <Button
             variant={gazeTrackingActive ? "default" : "outline"}
             size="sm"
             onClick={() => setGazeTrackingActive(!gazeTrackingActive)}
@@ -139,6 +160,8 @@ export const InteractiveReadingText = () => {
           </div>
         </CardContent>
       </Card>
+
+      <AttentionTimeline />
 
       <GazeOverlay 
         isActive={gazeTrackingActive} 
@@ -176,6 +199,14 @@ export const InteractiveReadingText = () => {
           originalText={feedbackData.text}
           onClose={() => setFeedbackData(null)}
         />
+      )}
+
+      {showReviewPanel && (
+        <PersonalizedReviewPanel onClose={() => setShowReviewPanel(false)} />
+      )}
+
+      {showSettingsPanel && (
+        <SettingsPanel onClose={() => setShowSettingsPanel(false)} />
       )}
     </div>
   );
