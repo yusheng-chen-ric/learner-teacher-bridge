@@ -73,7 +73,14 @@ export const TextDisplay = ({ textContent, elementPositionsRef, distractionEleme
         positions.set(element.id, rect);
       });
       
-      elementPositionsRef.current = positions;
+      // Create new Map and assign it to the ref
+      const newPositions = new Map(positions);
+      if (elementPositionsRef.current) {
+        elementPositionsRef.current.clear();
+        positions.forEach((value, key) => {
+          elementPositionsRef.current!.set(key, value);
+        });
+      }
     };
 
     // Update positions after DOM is ready
