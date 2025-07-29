@@ -1,5 +1,5 @@
-
 import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -17,6 +17,7 @@ interface Assignment {
 
 export const EnhancedStudentDashboard = () => {
   const { user } = useAuth();
+  const navigate = useNavigate();
   const [assignments, setAssignments] = useState<Assignment[]>([]);
   const [isLoading, setIsLoading] = useState(false);
 
@@ -50,12 +51,16 @@ export const EnhancedStudentDashboard = () => {
 
   const handleStartReading = (assignmentId: string) => {
     console.log('Starting reading for assignment:', assignmentId);
-    // This would navigate to the ReaderComponent
+    // Generate a unique session ID and navigate to reader
+    const sessionId = `session-${Date.now()}-${assignmentId}`;
+    navigate(`/reader/${sessionId}`);
   };
 
   const handleUploadFile = () => {
     console.log('Opening file upload for self-paced reading');
-    // This would open a file upload dialog
+    // For now, simulate file upload and start reading
+    const sessionId = `session-${Date.now()}-selfpaced`;
+    navigate(`/reader/${sessionId}`);
   };
 
   const getDaysUntilDue = (dueDate: string) => {
