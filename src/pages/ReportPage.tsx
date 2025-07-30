@@ -7,13 +7,15 @@ import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { ArrowLeft, Clock, Eye, Target, BookOpen } from 'lucide-react';
 import type { ReportData } from '@/types';
+import { useReviewWords } from '@/hooks/useReviewWords';
 
 export const ReportPage = () => {
   const { sessionId } = useParams<{ sessionId: string }>();
   const navigate = useNavigate();
-  
+
   const [reportData, setReportData] = useState<ReportData | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const { addWord } = useReviewWords();
 
   useEffect(() => {
     const fetchReport = async () => {
@@ -105,6 +107,7 @@ export const ReportPage = () => {
               <span>Back</span>
             </Button>
             <h1 className="text-2xl font-bold text-gray-800">Reading Analysis Report</h1>
+            <Button size="sm" className="ml-2" onClick={() => navigate('/')}>Finish</Button>
           </div>
           
           <Badge variant="secondary">Session ID: {sessionId}</Badge>
@@ -229,7 +232,10 @@ export const ReportPage = () => {
                   <h3 className="font-semibold mb-3">Words That Required Extra Attention</h3>
                   <div className="space-y-3">
                     {reportData.difficultWords.map((word, index) => (
-                      <div key={index} className="flex items-center justify-between p-3 bg-yellow-50 rounded-lg">
+                      <div
+                        key={index}
+                        className="flex items-center justify-between p-3 bg-yellow-50 rounded-lg"
+                      >
                         <div>
                           <span className="font-medium">{word.word}</span>
                           {word.lookupCount > 0 && (
@@ -238,8 +244,15 @@ export const ReportPage = () => {
                             </Badge>
                           )}
                         </div>
-                        <div className="text-sm text-gray-600">
-                          {word.fixationTime}ms fixation
+                        <div className="flex items-center space-x-2 text-sm text-gray-600">
+                          <span>{word.fixationTime}ms fixation</span>
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            onClick={() => addWord(word.word)}
+                          >
+                            Add
+                          </Button>
                         </div>
                       </div>
                     ))}

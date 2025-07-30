@@ -21,6 +21,7 @@ interface WordDefinition {
 export const WordPopup = ({ word, position, onClose }: WordPopupProps) => {
   const [definition, setDefinition] = useState<WordDefinition | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [isFlipped, setIsFlipped] = useState(false);
 
   useEffect(() => {
     // Simulate API call for word definition
@@ -58,8 +59,8 @@ export const WordPopup = ({ word, position, onClose }: WordPopupProps) => {
   };
 
   return (
-    <div className="fixed inset-0 z-50" onClick={onClose}>
-      <Card 
+    <div className="fixed inset-0 z-50" data-word-popup onClick={onClose}>
+      <Card
         className="absolute w-80 shadow-lg border-2 border-blue-200 bg-white"
         style={{
           left: Math.min(position.left, window.innerWidth - 320),
@@ -95,25 +96,33 @@ export const WordPopup = ({ word, position, onClose }: WordPopupProps) => {
                   <X className="h-4 w-4" />
                 </Button>
               </div>
-              
-              <div className="space-y-2">
-                <div className="text-sm text-gray-600 italic">
-                  {definition.pronunciation} • {definition.partOfSpeech}
+
+              {!isFlipped ? (
+                <div className="space-y-2" onClick={() => setIsFlipped(true)}>
+                  <div className="text-sm text-gray-600 italic">
+                    {definition.pronunciation} • {definition.partOfSpeech}
+                  </div>
+
+                  <div className="text-sm text-gray-800 leading-relaxed">
+                    {definition.definition}
+                  </div>
+
+                  <div className="space-y-1">
+                    <div className="text-xs font-medium text-gray-700">Examples:</div>
+                    {definition.examples.map((example, index) => (
+                      <div key={index} className="text-xs text-gray-600 italic">
+                        • {example}
+                      </div>
+                    ))}
+                  </div>
+                  <div className="text-xs text-gray-500 text-right">Click to flip</div>
                 </div>
-                
-                <div className="text-sm text-gray-800 leading-relaxed">
-                  {definition.definition}
+              ) : (
+                <div className="text-sm text-gray-800" onClick={() => setIsFlipped(false)}>
+                  <p className="mb-2">Add this word to your review list!</p>
+                  <p className="text-xs text-gray-500">Click to return</p>
                 </div>
-                
-                <div className="space-y-1">
-                  <div className="text-xs font-medium text-gray-700">Examples:</div>
-                  {definition.examples.map((example, index) => (
-                    <div key={index} className="text-xs text-gray-600 italic">
-                      • {example}
-                    </div>
-                  ))}
-                </div>
-              </div>
+              )}
             </div>
           )}
         </CardContent>
