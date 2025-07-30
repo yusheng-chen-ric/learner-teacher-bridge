@@ -32,6 +32,7 @@ export const ReaderPage = () => {
 
   // Enhanced interaction states
   const [newWords, setNewWords] = useState<string[]>([]);
+  const [demoMode, setDemoMode] = useState(false);
 
   // Refs for performance optimization
   const elementPositionsRef = useRef<Map<string, DOMRect>>(new Map());
@@ -183,8 +184,44 @@ export const ReaderPage = () => {
     setIsGazeActive(false);
   };
 
+  const triggerDistractionDemo = () => {
+    const sentence = document.querySelector('[id^="sentence-"]');
+    if (sentence) {
+      const id = sentence.id;
+      setDistractionElementId(id);
+      setTimeout(() => setDistractionElementId(null), 3000);
+    }
+  };
+
+  const triggerNodDemo = () => {
+    setWordPopup({
+      visible: true,
+      wordId: 'demo',
+      word: 'example',
+      position: { top: window.innerHeight / 2, left: window.innerWidth / 2 - 120 }
+    });
+    setNewWords(prev => (prev.includes('example') ? prev : [...prev, 'example']));
+  };
+
+  const triggerDoubleNodDemo = () => {
+    const word = wordPopup?.word || 'example';
+    if ('speechSynthesis' in window) {
+      const u = new SpeechSynthesisUtterance(word);
+      u.lang = 'en-US';
+      u.rate = 0.8;
+      speechSynthesis.speak(u);
+    }
+  };
+
+  const triggerShakeDemo = () => setWordPopup(null);
+
   const handleFinishReading = async () => {
     setIsGazeActive(false);
+
+    const stored = localStorage.getItem('reviewWords');
+    const existing: string[] = stored ? JSON.parse(stored) : [];
+    const updated = Array.from(new Set([...existing, ...newWords]));
+    localStorage.setItem('reviewWords', JSON.stringify(updated));
 
     console.log('Uploading session data:', {
       sessionId,
@@ -308,6 +345,27 @@ export const ReaderPage = () => {
               </div>
             </div>
           </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-lg flex justify-between">
+              Demo Mode
+              <Button size="sm" variant="outline" onClick={() => setDemoMode(!demoMode)}>
+                {demoMode ? 'Hide' : 'Show'}
+              </Button>
+            </CardTitle>
+          </CardHeader>
+          {demoMode && (
+            <CardContent>
+              <div className="flex flex-wrap gap-2">
+                <Button onClick={triggerDistractionDemo}>Trigger Distraction</Button>
+                <Button onClick={triggerNodDemo}>Nod Once</Button>
+                <Button onClick={triggerDoubleNodDemo}>Nod Twice</Button>
+                <Button variant="outline" onClick={triggerShakeDemo}>Shake</Button>
+              </div>
+            </CardContent>
+          )}
         </Card>
       </div>
 
