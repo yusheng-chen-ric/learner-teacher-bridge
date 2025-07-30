@@ -32,7 +32,9 @@ export const ReaderPage = () => {
 
   // Enhanced interaction states
   const [newWords, setNewWords] = useState<string[]>([]);
+
   const [demoMode, setDemoMode] = useState(false);
+
 
   // Refs for performance optimization
   const elementPositionsRef = useRef<Map<string, DOMRect>>(new Map());
@@ -222,6 +224,7 @@ export const ReaderPage = () => {
     const existing: string[] = stored ? JSON.parse(stored) : [];
     const updated = Array.from(new Set([...existing, ...newWords]));
     localStorage.setItem('reviewWords', JSON.stringify(updated));
+
 
     console.log('Uploading session data:', {
       sessionId,
