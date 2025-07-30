@@ -3,9 +3,10 @@ import { useRef, useCallback } from 'react';
 interface GazeEventHandlers {
   onFixation: (payload: { wordId: string; element: HTMLElement; word: string }) => void;
   onRegression: (payload: { sentenceId: string; element: HTMLElement; sentence: string }) => void;
-  onDistraction: () => void;
+  onDistraction: (payload: { sentenceId: string | null }) => void;
   onNodOnce: (payload: { wordId: string; element: HTMLElement; word: string }) => void;
   onNodTwice: (payload: { wordId: string; element: HTMLElement; word: string }) => void;
+  onShake: () => void;
 }
 
 export const useGazeEvents = (handlers: GazeEventHandlers) => {
@@ -24,8 +25,21 @@ export const useGazeEvents = (handlers: GazeEventHandlers) => {
     verticalMovements: [],
     lastMovementTime: 0
   });
+  const shakeDetectionRef = useRef<{ xMovements: number[]; lastTime: number }>({ xMovements: [], lastTime: 0 });
+  const lastSentenceIdRef = useRef<string | null>(null);
+  const wordPopupVisibleRef = useRef<boolean>(false);
+  const setWordPopupVisible = useCallback((visible: boolean) => {
+    wordPopupVisibleRef.current = visible;
+  }, []);
 
-  const processEvent = useCallback((hoveredElement: Element | null, timestamp: number, gazeValid: boolean, gazeY?: number) => {
+  const processEvent = useCallback(
+    (
+      hoveredElement: Element | null,
+      timestamp: number,
+      gazeValid: boolean,
+      gazeX?: number,
+      gazeY?: number
+    ) => {
     // Update last valid gaze time for distraction detection
     if (gazeValid && hoveredElement) {
       lastValidGazeTime.current = timestamp;
@@ -111,6 +125,8 @@ export const useGazeEvents = (handlers: GazeEventHandlers) => {
     if (sentenceElement?.id.startsWith('sentence-')) {
       const sentenceId = sentenceElement.id;
       const currentIndex = parseInt(sentenceId.split('-')[1]);
+
+      lastSentenceIdRef.current = sentenceId;
       
       if (currentIndex < maxReadSentenceIndexRef.current) {
         // Regression detected
@@ -128,7 +144,32 @@ export const useGazeEvents = (handlers: GazeEventHandlers) => {
     // 3. Distraction Detection
     const timeSinceLastValidGaze = timestamp - lastValidGazeTime.current;
     if (!gazeValid || !hoveredElement || timeSinceLastValidGaze > 3000) {
-      handlers.onDistraction();
+      handlers.onDistraction({ sentenceId: lastSentenceIdRef.current });
+    }
+
+    // 4. Shake Detection for closing popups
+    if (wordPopupVisibleRef.current && !hoveredElement?.closest('[data-word-popup]')) {
+      if (gazeX !== undefined) {
+        const dt = timestamp - shakeDetectionRef.current.lastTime;
+        if (dt < 400) {
+          shakeDetectionRef.current.xMovements.push(gazeX);
+        } else {
+          shakeDetectionRef.current.xMovements = [gazeX];
+        }
+        shakeDetectionRef.current.lastTime = timestamp;
+        const len = shakeDetectionRef.current.xMovements.length;
+        if (len >= 3) {
+          const a = shakeDetectionRef.current.xMovements[len - 3];
+          const b = shakeDetectionRef.current.xMovements[len - 2];
+          const c = shakeDetectionRef.current.xMovements[len - 1];
+          if (Math.abs(b - a) > 20 && Math.abs(c - b) > 20 && Math.sign(b - a) !== Math.sign(c - b)) {
+            handlers.onShake();
+            shakeDetectionRef.current.xMovements = [];
+          }
+        }
+      }
+    } else {
+      shakeDetectionRef.current.xMovements = [];
     }
   }, [handlers]);
 
@@ -139,5 +180,5 @@ export const useGazeEvents = (handlers: GazeEventHandlers) => {
     nodDetectionRef.current = { wordId: null, verticalMovements: [], lastMovementTime: 0 };
   }, []);
 
-  return { processEvent, resetSession };
+  return { processEvent, resetSession, setWordPopupVisible };
 };
