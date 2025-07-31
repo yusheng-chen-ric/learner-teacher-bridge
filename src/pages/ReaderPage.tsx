@@ -34,6 +34,9 @@ export const ReaderPage = () => {
   const [newWords, setNewWords] = useState<string[]>([]);
   const [demoMode, setDemoMode] = useState(false);
 
+
+
+
   // Refs for performance optimization
   const elementPositionsRef = useRef<Map<string, DOMRect>>(new Map());
   const gazeDataQueue = useRef<GazePacket[]>([]);
@@ -82,7 +85,17 @@ export const ReaderPage = () => {
       setNewWords(prev => (prev.includes(word) ? prev : [...prev, word]));
     },
     onNodTwice: ({ wordId, element, word }) => {
-      // Immediately play pronunciation
+      // Show word definition popup above the text
+      const rect = element.getBoundingClientRect();
+      setWordPopup({
+        visible: true,
+        wordId,
+        word,
+        position: { top: rect.bottom, left: rect.left }
+      });
+      setGrammarCard(null);
+
+      // Play pronunciation as additional feedback
       if ('speechSynthesis' in window) {
         const utterance = new SpeechSynthesisUtterance(word);
         utterance.lang = 'en-US';
@@ -91,7 +104,7 @@ export const ReaderPage = () => {
       }
 
       setSessionData(prev => ({ ...prev, nodEvents: prev.nodEvents + 1 }));
-      // do not close the popup here
+
     },
     onShake: () => {
       setWordPopup(null);
