@@ -20,8 +20,8 @@ interface VocabularyPopupProps {
 export const VocabularyPopup = ({ word, position, onClose }: VocabularyPopupProps) => {
   const [vocabularyData] = useState<VocabularyData>({
     word: word,
-    partOfSpeech: "noun",
-    definition: `Definition of "${word}" - A detailed explanation of this English word with context and usage examples.`,
+    partOfSpeech: "名詞",
+    definition: `"${word}" 的定義與使用範例。`,
   });
 
   const playPronunciation = () => {

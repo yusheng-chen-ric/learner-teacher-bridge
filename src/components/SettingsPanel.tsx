@@ -68,7 +68,7 @@ export const SettingsPanel = ({ onClose }: { onClose: () => void }) => {
           <div className="flex items-center justify-between">
             <CardTitle className="text-xl flex items-center">
               <Settings className="h-6 w-6 text-blue-600 mr-2" />
-              Settings & Calibration
+              設定與校準
             </CardTitle>
             <Button variant="ghost" onClick={onClose}>✕</Button>
           </div>
@@ -77,10 +77,10 @@ export const SettingsPanel = ({ onClose }: { onClose: () => void }) => {
         <CardContent className="h-full overflow-y-auto">
           <Tabs defaultValue="calibration" className="h-full">
             <TabsList className="grid w-full grid-cols-4">
-              <TabsTrigger value="calibration">Calibration</TabsTrigger>
-              <TabsTrigger value="thresholds">Thresholds</TabsTrigger>
-              <TabsTrigger value="interface">Interface</TabsTrigger>
-              <TabsTrigger value="language">Language</TabsTrigger>
+              <TabsTrigger value="calibration">校準</TabsTrigger>
+              <TabsTrigger value="thresholds">觸發門檻</TabsTrigger>
+              <TabsTrigger value="interface">介面</TabsTrigger>
+              <TabsTrigger value="language">語言</TabsTrigger>
             </TabsList>
             
             <TabsContent value="calibration" className="space-y-4">
@@ -88,23 +88,23 @@ export const SettingsPanel = ({ onClose }: { onClose: () => void }) => {
                 <CardHeader>
                   <CardTitle className="text-lg flex items-center">
                     <Target className="h-5 w-5 mr-2 text-red-600" />
-                    Gaze Calibration Tool
+                    視線校準工具
                   </CardTitle>
                   <p className="text-sm text-muted-foreground">
-                    Calibrate the eye tracker for accurate gaze detection
+                    校準眼動追蹤器以獲得準確偵測
                   </p>
                 </CardHeader>
                 <CardContent className="space-y-4">
                   {calibrationComplete ? (
                     <div className="text-center space-y-4">
                       <Badge variant="default" className="bg-green-100 text-green-800">
-                        ✓ Calibration Complete
+                        ✓ 校準完成
                       </Badge>
                       <p className="text-sm text-muted-foreground">
-                        Eye tracking is ready for use. Recalibrate if you experience accuracy issues.
+                        眼動追蹤已就緒，如有不準可重新校準。
                       </p>
                       <Button variant="outline" onClick={() => setCalibrationComplete(false)}>
-                        Recalibrate
+                        重新校準
                       </Button>
                     </div>
                   ) : (
@@ -112,10 +112,10 @@ export const SettingsPanel = ({ onClose }: { onClose: () => void }) => {
                       <CalibrationTargets />
                       <div className="text-center space-y-2">
                         <Button onClick={startCalibration} className="bg-red-600 hover:bg-red-700">
-                          Start Calibration
+                          開始校準
                         </Button>
                         <p className="text-xs text-muted-foreground">
-                          Ensure good lighting and sit 50-70cm from the screen
+                          請保持光線充足並距離螢幕 50-70cm
                         </p>
                       </div>
                     </div>
@@ -127,15 +127,15 @@ export const SettingsPanel = ({ onClose }: { onClose: () => void }) => {
             <TabsContent value="thresholds" className="space-y-4">
               <Card>
                 <CardHeader>
-                  <CardTitle className="text-lg">Interaction Thresholds</CardTitle>
+                  <CardTitle className="text-lg">互動門檻設定</CardTitle>
                   <p className="text-sm text-muted-foreground">
-                    Adjust sensitivity for vocabulary and assistance triggers
+                    調整單字與協助觸發的靈敏度
                   </p>
                 </CardHeader>
                 <CardContent className="space-y-6">
                   <div className="space-y-2">
                     <label className="text-sm font-medium">
-                      Vocabulary Popup Dwell Time: {dwellTime[0]}ms
+                      單字視窗停留時間：{dwellTime[0]}ms
                     </label>
                     <Slider
                       value={dwellTime}
@@ -145,14 +145,14 @@ export const SettingsPanel = ({ onClose }: { onClose: () => void }) => {
                       step={100}
                       className="w-full"
                     />
-                    <p className="text-xs text-muted-foreground">
-                      Time to look at a word before definition appears
-                    </p>
+                      <p className="text-xs text-muted-foreground">
+                        注視單字多久後顯示定義
+                      </p>
                   </div>
                   
                   <div className="space-y-2">
                     <label className="text-sm font-medium">
-                      Regression Alert Count: {regressionCount[0]}
+                      回視警示次數：{regressionCount[0]}
                     </label>
                     <Slider
                       value={regressionCount}
@@ -163,7 +163,7 @@ export const SettingsPanel = ({ onClose }: { onClose: () => void }) => {
                       className="w-full"
                     />
                     <p className="text-xs text-muted-foreground">
-                      Number of regressions before marking as difficult
+                      回視達此次數即標記為困難
                     </p>
                   </div>
                 </CardContent>
@@ -181,8 +181,8 @@ export const SettingsPanel = ({ onClose }: { onClose: () => void }) => {
                 <CardContent className="space-y-4">
                   <div className="flex items-center justify-between">
                     <div>
-                      <label className="text-sm font-medium">Gaze Tracking Overlay</label>
-                      <p className="text-xs text-muted-foreground">Show real-time gaze position</p>
+                    <label className="text-sm font-medium">顯示視線軌跡</label>
+                      <p className="text-xs text-muted-foreground">即時顯示視線位置</p>
                     </div>
                     <Switch
                       checked={gazeTrackingEnabled}
@@ -194,9 +194,9 @@ export const SettingsPanel = ({ onClose }: { onClose: () => void }) => {
                     <div>
                       <label className="text-sm font-medium flex items-center">
                         <Volume2 className="h-4 w-4 mr-1" />
-                        Sound Effects
+                        音效
                       </label>
-                      <p className="text-xs text-muted-foreground">Audio feedback for interactions</p>
+                      <p className="text-xs text-muted-foreground">互動時播放聲音反饋</p>
                     </div>
                     <Switch
                       checked={soundEnabled}
@@ -217,7 +217,7 @@ export const SettingsPanel = ({ onClose }: { onClose: () => void }) => {
                 </CardHeader>
                 <CardContent className="space-y-4">
                   <div>
-                    <label className="text-sm font-medium">Interface Language</label>
+                    <label className="text-sm font-medium">介面語言</label>
                     <div className="mt-2 space-y-2">
                       <Button
                         variant={language === 'en' ? 'default' : 'outline'}
@@ -231,7 +231,7 @@ export const SettingsPanel = ({ onClose }: { onClose: () => void }) => {
                         onClick={() => setLanguage('zh')}
                         className="w-full justify-start"
                       >
-                        中文 (Chinese)
+                        中文
                       </Button>
                     </div>
                   </div>
@@ -242,10 +242,10 @@ export const SettingsPanel = ({ onClose }: { onClose: () => void }) => {
           
           <div className="flex justify-between pt-4 border-t">
             <Button variant="outline" onClick={resetSettings}>
-              Reset to Defaults
+              回復預設
             </Button>
             <Button onClick={onClose} className="bg-blue-600 hover:bg-blue-700">
-              Save Settings
+              儲存設定
             </Button>
           </div>
         </CardContent>

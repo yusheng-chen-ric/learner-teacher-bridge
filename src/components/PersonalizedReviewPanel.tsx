@@ -76,7 +76,7 @@ export const PersonalizedReviewPanel = ({ onClose }: { onClose: () => void }) =>
           <div className="flex items-center justify-between">
             <CardTitle className="text-xl flex items-center">
               <BookOpen className="h-6 w-6 text-blue-600 mr-2" />
-              Personalized Review List
+              個人化複習清單
             </CardTitle>
             <Button variant="ghost" onClick={onClose}>✕</Button>
           </div>
@@ -85,9 +85,9 @@ export const PersonalizedReviewPanel = ({ onClose }: { onClose: () => void }) =>
         <CardContent className="h-full overflow-y-auto">
           <Tabs defaultValue="words" className="h-full">
             <TabsList className="grid w-full grid-cols-3">
-              <TabsTrigger value="words">Words ({words.length})</TabsTrigger>
-              <TabsTrigger value="sentences">Sentences ({sentences.length})</TabsTrigger>
-              <TabsTrigger value="phrases">Phrases ({phrases.length})</TabsTrigger>
+              <TabsTrigger value="words">單字 ({words.length})</TabsTrigger>
+              <TabsTrigger value="sentences">句子 ({sentences.length})</TabsTrigger>
+              <TabsTrigger value="phrases">片語 ({phrases.length})</TabsTrigger>
             </TabsList>
             
             <TabsContent value="words" className="space-y-3">
@@ -100,7 +100,7 @@ export const PersonalizedReviewPanel = ({ onClose }: { onClose: () => void }) =>
                         {item.difficulty}
                       </Badge>
                       <span className="text-sm text-gray-500">
-                        Dwell: {item.dwellTime}ms
+                        停留 {item.dwellTime} 毫秒
                       </span>
                     </div>
                     <Button 
@@ -108,7 +108,7 @@ export const PersonalizedReviewPanel = ({ onClose }: { onClose: () => void }) =>
                       onClick={() => startPractice(item)}
                       className="bg-blue-600 hover:bg-blue-700"
                     >
-                      Practice
+                      練習
                     </Button>
                   </div>
                 </Card>
@@ -124,7 +124,7 @@ export const PersonalizedReviewPanel = ({ onClose }: { onClose: () => void }) =>
                         {item.difficulty}
                       </Badge>
                       <span className="text-sm text-gray-500">
-                        Dwell: {item.dwellTime}ms
+                        停留 {item.dwellTime} 毫秒
                       </span>
                     </div>
                     <p className="text-base">{item.text}</p>
@@ -133,7 +133,7 @@ export const PersonalizedReviewPanel = ({ onClose }: { onClose: () => void }) =>
                       onClick={() => startPractice(item)}
                       className="bg-green-600 hover:bg-green-700"
                     >
-                      Practice Grammar
+                      文法練習
                     </Button>
                   </div>
                 </Card>
@@ -152,12 +152,12 @@ export const PersonalizedReviewPanel = ({ onClose }: { onClose: () => void }) =>
                         {item.regressionCount && (
                           <Badge variant="outline" className="text-orange-600">
                             <RotateCcw className="h-3 w-3 mr-1" />
-                            {item.regressionCount} regressions
+                            回視 {item.regressionCount} 次
                           </Badge>
                         )}
                       </div>
                       <span className="text-sm text-gray-500">
-                        Dwell: {item.dwellTime}ms
+                        停留 {item.dwellTime} 毫秒
                       </span>
                     </div>
                     <p className="text-base font-medium">{item.text}</p>
@@ -166,7 +166,7 @@ export const PersonalizedReviewPanel = ({ onClose }: { onClose: () => void }) =>
                       onClick={() => startPractice(item)}
                       className="bg-purple-600 hover:bg-purple-700"
                     >
-                      Practice Phrase
+                      片語練習
                     </Button>
                   </div>
                 </Card>

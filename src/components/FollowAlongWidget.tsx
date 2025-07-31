@@ -61,7 +61,7 @@ export const FollowAlongWidget = ({ text, position, onClose, onRecordingComplete
             className="text-blue-600 hover:text-blue-800"
           >
             <Volume2 className="h-4 w-4 mr-1" />
-            Play
+            播放
           </Button>
           
           {hasPlayed && (
@@ -74,12 +74,12 @@ export const FollowAlongWidget = ({ text, position, onClose, onRecordingComplete
               {isRecording ? (
                 <>
                   <Square className="h-4 w-4 mr-1" />
-                  Stop
+                  停止
                 </>
               ) : (
                 <>
                   <Mic className="h-4 w-4 mr-1" />
-                  Record
+                  錄音
                 </>
               )}
             </Button>
@@ -88,7 +88,7 @@ export const FollowAlongWidget = ({ text, position, onClose, onRecordingComplete
         
         {isRecording && (
           <div className="mt-2 text-xs text-center text-red-600 animate-pulse">
-            Recording... Speak clearly
+            錄音中...請清楚朗讀
           </div>
         )}
       </div>

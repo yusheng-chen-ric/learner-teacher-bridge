@@ -8,8 +8,8 @@ import { Bot, Brain, Target, TrendingUp } from "lucide-react";
 const mockStudents = [
   {
     id: "1",
-    name: "Student A",
-    grade: "Intermediate",
+    name: "學生甲",
+    grade: "中級",
     overallProgress: 87,
     subjects: [
       { name: "Reading Comprehension", progress: 92, status: 'excellent' as const },
@@ -17,12 +17,12 @@ const mockStudents = [
       { name: "Grammar", progress: 83, status: 'good' as const },
       { name: "Speaking", progress: 78, status: 'needs-improvement' as const }
     ],
-    lastActivity: "2 hours ago"
+    lastActivity: "2 小時前"
   },
   {
-    id: "2", 
-    name: "Student B",
-    grade: "Beginner",
+    id: "2",
+    name: "學生乙",
+    grade: "初級",
     overallProgress: 72,
     subjects: [
       { name: "Reading Comprehension", progress: 68, status: 'needs-improvement' as const },
@@ -30,28 +30,28 @@ const mockStudents = [
       { name: "Grammar", progress: 74, status: 'good' as const },
       { name: "Speaking", progress: 67, status: 'needs-improvement' as const }
     ],
-    lastActivity: "1 day ago"
+    lastActivity: "1 天前"
   }
 ];
 
 const agentInsights = [
   {
-    student: "Student A",
-    insight: "Strong in reading comprehension and vocabulary. Recommend more speaking practice sessions.",
+    student: "學生甲",
+    insight: "閱讀理解與字彙能力佳，建議加強口說練習。",
     confidence: 94,
-    action: "Focus on pronunciation"
+    action: "著重發音"
   },
   {
-    student: "Student B", 
-    insight: "Struggling with reading comprehension. Suggest phonics-based learning approach.",
+    student: "學生乙",
+    insight: "閱讀理解較弱，建議採用自然發音法。",
     confidence: 87,
-    action: "Reading intervention"
+    action: "閱讀輔導"
   },
   {
-    student: "Student C",
-    insight: "Exceptional English progress. Ready for advanced literature and writing exercises.",
+    student: "學生丙",
+    insight: "英文表現優異，可進入進階文學與寫作練習。",
     confidence: 96,
-    action: "Advanced curriculum"
+    action: "進階課程"
   }
 ];
 
@@ -63,8 +63,8 @@ export const AgentDashboard = () => {
           <Bot className="h-6 w-6 text-purple-600" />
         </div>
         <div>
-          <h2 className="text-2xl font-bold text-purple-600">AI Agent View</h2>
-          <p className="text-muted-foreground">AI-powered English learning insights and recommendations</p>
+          <h2 className="text-2xl font-bold text-purple-600">AI 助理介面</h2>
+          <p className="text-muted-foreground">AI 提供的英文學習洞察與建議</p>
         </div>
       </div>
 
@@ -73,12 +73,12 @@ export const AgentDashboard = () => {
           <CardHeader className="pb-2">
             <CardTitle className="text-sm font-medium flex items-center">
               <Brain className="h-4 w-4 mr-2 text-purple-600" />
-              AI Confidence
+              AI 信心指數
             </CardTitle>
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">92%</div>
-            <p className="text-xs text-muted-foreground">English learning prediction accuracy</p>
+            <p className="text-xs text-muted-foreground">英文學習預測準確度</p>
           </CardContent>
         </Card>
         
@@ -86,12 +86,12 @@ export const AgentDashboard = () => {
           <CardHeader className="pb-2">
             <CardTitle className="text-sm font-medium flex items-center">
               <Target className="h-4 w-4 mr-2 text-purple-600" />
-              Learning Interventions
+              介入建議
             </CardTitle>
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">7</div>
-            <p className="text-xs text-muted-foreground">Active English recommendations</p>
+            <p className="text-xs text-muted-foreground">目前啟用的建議數</p>
           </CardContent>
         </Card>
         
@@ -99,19 +99,19 @@ export const AgentDashboard = () => {
           <CardHeader className="pb-2">
             <CardTitle className="text-sm font-medium flex items-center">
               <TrendingUp className="h-4 w-4 mr-2 text-purple-600" />
-              English Improvement
+              英文進步
             </CardTitle>
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">+15%</div>
-            <p className="text-xs text-muted-foreground">Average progress this month</p>
+            <p className="text-xs text-muted-foreground">本月平均進展</p>
           </CardContent>
         </Card>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <div className="space-y-4">
-          <h3 className="text-lg font-semibold">AI English Learning Insights</h3>
+          <h3 className="text-lg font-semibold">AI 英文學習洞察</h3>
           <div className="space-y-4">
             {agentInsights.map((insight, index) => (
               <Card key={index} className="border-l-4 border-l-purple-500">
@@ -119,7 +119,7 @@ export const AgentDashboard = () => {
                   <div className="flex justify-between items-start">
                     <CardTitle className="text-sm font-medium">{insight.student}</CardTitle>
                     <Badge variant="secondary" className="bg-purple-100 text-purple-800">
-                      {insight.confidence}% confidence
+                      信心水準 {insight.confidence}%
                     </Badge>
                   </div>
                 </CardHeader>
@@ -138,7 +138,7 @@ export const AgentDashboard = () => {
         </div>
 
         <div className="space-y-4">
-          <h3 className="text-lg font-semibold">Monitored English Learners</h3>
+          <h3 className="text-lg font-semibold">監控中的學生</h3>
           <div className="space-y-4">
             {mockStudents.map((student) => (
               <StudentProgressCard key={student.id} student={student} />
