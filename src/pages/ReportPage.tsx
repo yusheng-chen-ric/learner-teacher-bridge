@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { ArrowLeft, Clock, Eye, Target, BookOpen } from 'lucide-react';
+import { Heatmap } from '@/components/report/Heatmap';
 import type { ReportData } from '@/types';
 import { useReviewWords } from '@/hooks/useReviewWords';
 
@@ -179,10 +180,11 @@ export const ReportPage = () => {
           </CardHeader>
           <CardContent>
             <Tabs defaultValue="overview" className="w-full">
-              <TabsList className="grid w-full grid-cols-3">
+              <TabsList className="grid w-full grid-cols-4">
                 <TabsTrigger value="overview">Overview</TabsTrigger>
                 <TabsTrigger value="difficulties">Difficulties</TabsTrigger>
                 <TabsTrigger value="recommendations">Recommendations</TabsTrigger>
+                <TabsTrigger value="heatmap">Heatmap</TabsTrigger>
               </TabsList>
               
               <TabsContent value="overview" className="space-y-4">
@@ -303,6 +305,10 @@ export const ReportPage = () => {
                     </ul>
                   </div>
                 </div>
+              </TabsContent>
+
+              <TabsContent value="heatmap" className="pt-4">
+                <Heatmap points={reportData.heatmapData} />
               </TabsContent>
             </Tabs>
           </CardContent>
