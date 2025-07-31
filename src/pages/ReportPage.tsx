@@ -21,25 +21,38 @@ export const ReportPage = () => {
   useEffect(() => {
     const fetchReport = async () => {
       setIsLoading(true);
-      
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      
-      // Mock report data
+
+      await new Promise(resolve => setTimeout(resolve, 500));
+
+      const stored = localStorage.getItem(`session-${sessionId}`);
+      let gazeData;
+      if (stored) {
+        try {
+          const parsed = JSON.parse(stored);
+          gazeData = parsed.gazeData;
+        } catch {
+          gazeData = null;
+        }
+      }
+
+      if (!gazeData) {
+        const { defaultGazeData } = await import('@/data/defaultGazeData');
+        gazeData = defaultGazeData;
+      }
+
+      const { generateHeatmapData } = await import('@/lib/heatmap');
+      const heatmapData = generateHeatmapData(gazeData, 600, 400);
+
       const mockReport: ReportData = {
         summary: {
-          readingTime: 185000, // 3 minutes 5 seconds
+          readingTime: 185000,
           avgFixationDuration: 250,
           regressionRate: 12,
           focusScore: 85,
           wordsRead: 87,
           comprehensionLevel: 'high'
         },
-        heatmapData: [
-          { x: 100, y: 200, value: 0.8 },
-          { x: 150, y: 220, value: 0.6 },
-          { x: 200, y: 240, value: 0.9 }
-        ],
+        heatmapData,
         highlightSentences: ['sentence-2', 'sentence-5'],
         difficultWords: [
           { word: 'pronunciation', fixationTime: 1200, lookupCount: 1 },
@@ -47,7 +60,7 @@ export const ReportPage = () => {
           { word: 'particularly', fixationTime: 600, lookupCount: 0 }
         ]
       };
-      
+
       setReportData(mockReport);
       setIsLoading(false);
     };
