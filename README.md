@@ -34,3 +34,26 @@ interface ReadingMaterial {
 
 An example is available in the UI at `/schema` for reference.
 
+
+## Grammar annotation endpoint
+
+To provide grammar tips when a learner focuses on a sentence, the app can fetch a simple JSON payload. The file `public/grammar-demo.json` acts as a demo endpoint and returns data like:
+
+```json
+{
+  "sentences": [
+    {
+      "id": "sentence-0",
+      "text": "The system provides real-time feedback to students.",
+      "underlines": [
+        {
+          "phrase": "real-time feedback",
+          "explanation": "\u8907\u5408\u540d\u8a5e\uff0c\u4f5c\u70ba\u52d5\u8a5e provides \u7684\u53d7\u8a5e\u3002real-time \u662f\u5f62\u5bb9\u8a5e\uff0c\u5f37\u8abf\u300c\u5373\u6642\u300d\u9019\u500b\u7279\u6027\uff0c\u7528\u4f86\u4fee\u98fe feedback\uff08\u56de\u994b\uff09\u3002"
+        }
+      ]
+    }
+  ]
+}
+```
+
+Use `fetchGrammarDemo()` from `src/lib/grammarEndpoint.ts` to retrieve and parse this data on the client.
