@@ -33,12 +33,12 @@ export const WordPopup = ({ word, position, onClose }: WordPopupProps) => {
       
       const mockDefinition: WordDefinition = {
         word: word,
-        partOfSpeech: 'noun',
-        definition: `A detailed explanation of the word "${word}" with context and usage examples.`,
+        partOfSpeech: '名詞',
+        definition: `關於 "${word}" 的詳細解釋與用法範例。`,
         pronunciation: '/wɜːrd/',
         examples: [
-          `This ${word} is commonly used in English.`,
-          `Students often look up this ${word} when reading.`
+          `這個單字在英文中相當常見。`,
+          `學生閱讀時常查詢 ${word}。`
         ]
       };
       
@@ -108,19 +108,19 @@ export const WordPopup = ({ word, position, onClose }: WordPopupProps) => {
                   </div>
 
                   <div className="space-y-1">
-                    <div className="text-xs font-medium text-gray-700">Examples:</div>
+                    <div className="text-xs font-medium text-gray-700">例句：</div>
                     {definition.examples.map((example, index) => (
                       <div key={index} className="text-xs text-gray-600 italic">
                         • {example}
                       </div>
                     ))}
                   </div>
-                  <div className="text-xs text-gray-500 text-right">Click to flip</div>
+                  <div className="text-xs text-gray-500 text-right">點擊切換</div>
                 </div>
               ) : (
                 <div className="text-sm text-gray-800" onClick={() => setIsFlipped(false)}>
-                  <p className="mb-2">Add this word to your review list!</p>
-                  <p className="text-xs text-gray-500">Click to return</p>
+                  <p className="mb-2">將此單字加入複習清單！</p>
+                  <p className="text-xs text-gray-500">點擊返回</p>
                 </div>
               )}
             </div>

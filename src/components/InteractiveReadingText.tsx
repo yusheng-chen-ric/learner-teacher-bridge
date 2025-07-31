@@ -24,7 +24,7 @@ export const InteractiveReadingText = () => {
   
   const textRef = useRef<HTMLDivElement>(null);
 
-  const sampleText = `Emma has been learning English for two years. She finds reading comprehension relatively easy, but speaking still makes her nervous. The pronunciation of certain sounds, particularly the "th" sound in words like "think" and "through," continues to challenge her. Her teacher believes that with consistent practice and confidence-building exercises, Emma will become much more fluent in spoken English.`;
+  const sampleText = `Emma 學習英文已兩年。她覺得閱讀理解相對容易，但開口說仍讓她緊張。某些發音，特別是像 think 與 through 中的 th 音，仍然困擾著她。老師相信只要持續練習並建立自信，Emma 的口說會更加流利。閱讀文章能幫助她擴充字彙並理解不同句型。`;
 
   const handleWordClick = (event: React.MouseEvent, word: string) => {
     const rect = (event.target as HTMLElement).getBoundingClientRect();
@@ -117,10 +117,10 @@ export const InteractiveReadingText = () => {
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between">
-        <h3 className="text-lg font-semibold">Interactive English Reading</h3>
+        <h3 className="text-lg font-semibold">互動英文閱讀</h3>
         <div className="flex items-center space-x-2">
           <Badge variant="secondary" className="text-xs">
-            Tap words for definitions • Tap sentences for grammar help
+            點擊單字看解釋・點擊句子看文法
           </Badge>
           <Button
             variant="outline"
@@ -128,7 +128,7 @@ export const InteractiveReadingText = () => {
             onClick={() => setShowReviewPanel(true)}
           >
             <BookOpen className="h-4 w-4 mr-1" />
-            Review
+            複習清單
           </Button>
           <Button
             variant="outline"
@@ -136,7 +136,7 @@ export const InteractiveReadingText = () => {
             onClick={() => setShowSettingsPanel(true)}
           >
             <Settings className="h-4 w-4 mr-1" />
-            Settings
+            設定
           </Button>
           <Button
             variant={gazeTrackingActive ? "default" : "outline"}
@@ -144,7 +144,7 @@ export const InteractiveReadingText = () => {
             onClick={() => setGazeTrackingActive(!gazeTrackingActive)}
           >
             {gazeTrackingActive ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-            {gazeTrackingActive ? "Stop" : "Start"} Gaze Tracking
+            {gazeTrackingActive ? "停止" : "開始"} 追蹤視線
           </Button>
         </div>
       </div>

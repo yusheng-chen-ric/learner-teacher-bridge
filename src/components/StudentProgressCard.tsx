@@ -29,6 +29,15 @@ export const StudentProgressCard = ({ student }: StudentProgressCardProps) => {
     }
   };
 
+  const getStatusLabel = (status: string) => {
+    switch (status) {
+      case 'excellent': return '優秀';
+      case 'good': return '良好';
+      case 'needs-improvement': return '需加強';
+      default: return status;
+    }
+  };
+
   return (
     <Card className="hover:shadow-lg transition-shadow duration-200">
       <CardHeader className="pb-3">
@@ -61,7 +70,7 @@ export const StudentProgressCard = ({ student }: StudentProgressCardProps) => {
                   <div className="flex items-center space-x-2">
                     <Progress value={subject.progress} className="w-16 h-1" />
                     <Badge variant="secondary" className={getStatusColor(subject.status)}>
-                      {subject.status.replace('-', ' ')}
+                      {getStatusLabel(subject.status)}
                     </Badge>
                   </div>
                 </div>

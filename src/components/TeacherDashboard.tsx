@@ -7,42 +7,42 @@ import { User, Book, TrendingUp, Clock, Target, Award, Users, BarChart3, BookOpe
 const mockStudents = [
   {
     id: "1",
-    name: "Student A",
-    grade: "Intermediate",
+    name: "學生甲",
+    grade: "中級",
     overallProgress: 87,
     subjects: [
-      { name: "Reading Comprehension", progress: 92, status: 'excellent' as const },
-      { name: "Vocabulary", progress: 85, status: 'good' as const },
-      { name: "Grammar", progress: 83, status: 'good' as const },
-      { name: "Speaking", progress: 78, status: 'needs-improvement' as const }
+      { name: "閱讀理解", progress: 92, status: 'excellent' as const },
+      { name: "字彙", progress: 85, status: 'good' as const },
+      { name: "文法", progress: 83, status: 'good' as const },
+      { name: "口說", progress: 78, status: 'needs-improvement' as const }
     ],
-    lastActivity: "2 hours ago"
+    lastActivity: "2 小時前"
   },
   {
     id: "2",
-    name: "Student B",
-    grade: "Beginner",
+    name: "學生乙",
+    grade: "初級",
     overallProgress: 72,
     subjects: [
-      { name: "Reading Comprehension", progress: 68, status: 'needs-improvement' as const },
-      { name: "Vocabulary", progress: 79, status: 'good' as const },
-      { name: "Grammar", progress: 74, status: 'good' as const },
-      { name: "Speaking", progress: 67, status: 'needs-improvement' as const }
+      { name: "閱讀理解", progress: 68, status: 'needs-improvement' as const },
+      { name: "字彙", progress: 79, status: 'good' as const },
+      { name: "文法", progress: 74, status: 'good' as const },
+      { name: "口說", progress: 67, status: 'needs-improvement' as const }
     ],
-    lastActivity: "1 day ago"
+    lastActivity: "1 天前"
   },
   {
     id: "3",
-    name: "Student C",
-    grade: "Advanced",
+    name: "學生丙",
+    grade: "高級",
     overallProgress: 94,
     subjects: [
-      { name: "Reading Comprehension", progress: 96, status: 'excellent' as const },
-      { name: "Vocabulary", progress: 94, status: 'excellent' as const },
-      { name: "Grammar", progress: 92, status: 'excellent' as const },
-      { name: "Speaking", progress: 93, status: 'excellent' as const }
+      { name: "閱讀理解", progress: 96, status: 'excellent' as const },
+      { name: "字彙", progress: 94, status: 'excellent' as const },
+      { name: "文法", progress: 92, status: 'excellent' as const },
+      { name: "口說", progress: 93, status: 'excellent' as const }
     ],
-    lastActivity: "30 minutes ago"
+    lastActivity: "30 分鐘前"
   }
 ];
 
@@ -169,7 +169,7 @@ export const TeacherDashboard = () => {
                 <span className="text-sm text-blue-600 font-semibold">{englishLearningStats.readingComprehension.averageScore}%</span>
               </div>
               <Progress value={englishLearningStats.readingComprehension.averageScore} className="h-2" />
-              <p className="text-xs text-green-600">{englishLearningStats.readingComprehension.improvement} improvement this month</p>
+              <p className="text-xs text-green-600">本月提升 {englishLearningStats.readingComprehension.improvement}</p>
             </div>
             
             <div className="grid grid-cols-2 gap-4 pt-2">

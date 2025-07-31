@@ -43,7 +43,7 @@ export const PronunciationFeedback = ({ audioBlob, originalText, onClose }: Pron
           <div className="flex items-center justify-between">
             <CardTitle className="text-lg flex items-center">
               <CheckCircle className="h-5 w-5 text-green-600 mr-2" />
-              Pronunciation Analysis
+              發音分析
             </CardTitle>
             <Button variant="ghost" size="sm" onClick={onClose}>
               <X className="h-4 w-4" />
@@ -54,7 +54,7 @@ export const PronunciationFeedback = ({ audioBlob, originalText, onClose }: Pron
         <CardContent className="space-y-4">
           <div>
             <div className="flex items-center justify-between mb-2">
-              <span className="text-sm font-medium">Accuracy Score</span>
+              <span className="text-sm font-medium">準確度</span>
               <Badge variant="secondary" className={badge.color}>
                 {badge.text}
               </Badge>
@@ -66,14 +66,14 @@ export const PronunciationFeedback = ({ audioBlob, originalText, onClose }: Pron
           </div>
           
           <div className="text-sm text-gray-600 bg-gray-50 p-3 rounded">
-            <strong>You said:</strong> "{originalText}"
+            <strong>你的朗讀：</strong>"{originalText}"
           </div>
           
           {phonemeIssues.length > 0 && (
             <div>
               <h4 className="text-sm font-medium mb-2 flex items-center">
                 <AlertCircle className="h-4 w-4 text-yellow-600 mr-1" />
-                Areas for Improvement
+                需要改進的部分
               </h4>
               <div className="space-y-2">
                 {phonemeIssues.map((issue, index) => (
@@ -92,7 +92,7 @@ export const PronunciationFeedback = ({ audioBlob, originalText, onClose }: Pron
               className="w-full"
               variant="outline"
             >
-              Continue Reading
+              繼續閱讀
             </Button>
           </div>
         </CardContent>

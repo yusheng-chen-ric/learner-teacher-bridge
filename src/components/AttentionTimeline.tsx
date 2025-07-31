@@ -44,7 +44,7 @@ export const AttentionTimeline = () => {
       <CardHeader className="pb-3">
         <CardTitle className="text-lg flex items-center">
           <Eye className="h-5 w-5 text-blue-600 mr-2" />
-          Attention Timeline
+          專注時間軸
         </CardTitle>
       </CardHeader>
       
@@ -53,15 +53,15 @@ export const AttentionTimeline = () => {
           <div className="flex items-center space-x-4 text-sm">
             <div className="flex items-center space-x-1">
               <div className="w-3 h-3 bg-green-500 rounded"></div>
-              <span>High Focus (80-100%)</span>
+              <span>高專注 (80-100%)</span>
             </div>
             <div className="flex items-center space-x-1">
               <div className="w-3 h-3 bg-yellow-500 rounded"></div>
-              <span>Medium Focus (60-79%)</span>
+              <span>中等專注 (60-79%)</span>
             </div>
             <div className="flex items-center space-x-1">
               <div className="w-3 h-3 bg-red-500 rounded"></div>
-              <span>Low Focus (0-59%)</span>
+              <span>低專注 (0-59%)</span>
             </div>
           </div>
           
@@ -79,7 +79,7 @@ export const AttentionTimeline = () => {
                   />
                   <div className="opacity-0 group-hover:opacity-100 absolute -top-12 left-1/2 transform -translate-x-1/2 bg-black text-white text-xs px-2 py-1 rounded transition-opacity duration-200">
                     <div>{point.timestamp}s</div>
-                    <div>{point.focusLevel}% focus</div>
+                    <div>{point.focusLevel}% 專注</div>
                   </div>
                 </div>
               ))}
@@ -87,13 +87,13 @@ export const AttentionTimeline = () => {
           </div>
           
           <div className="flex justify-between text-xs text-gray-500">
-            <span>0s</span>
-            <span>35s</span>
+            <span>0秒</span>
+            <span>35秒</span>
           </div>
           
           <div className="text-center">
             <Badge variant="secondary" className="text-sm">
-              Average Focus: {Math.round(attentionData.reduce((acc, point) => acc + point.focusLevel, 0) / attentionData.length)}%
+              平均專注：{Math.round(attentionData.reduce((acc, point) => acc + point.focusLevel, 0) / attentionData.length)}%
             </Badge>
           </div>
         </div>

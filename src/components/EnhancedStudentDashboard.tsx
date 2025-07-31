@@ -26,22 +26,22 @@ export const EnhancedStudentDashboard = () => {
     const mockAssignments: Assignment[] = [
       {
         id: '1',
-        title: 'Emma\'s English Learning Journey',
-        teacher: 'Ms. Johnson',
+        title: 'Emma 的英文學習之旅',
+        teacher: 'Johnson 老師',
         dueDate: '2024-01-20',
         status: 'pending'
       },
       {
-        id: '2', 
-        title: 'Daily Reading Practice',
-        teacher: 'Mr. Smith',
+        id: '2',
+        title: '每日閱讀練習',
+        teacher: 'Smith 老師',
         dueDate: '2024-01-18',
         status: 'pending'
       },
       {
         id: '3',
-        title: 'Vocabulary Building Exercise',
-        teacher: 'Ms. Johnson',
+        title: '字彙增強練習',
+        teacher: 'Johnson 老師',
         dueDate: '2024-01-15',
         status: 'completed'
       }

@@ -53,8 +53,8 @@ export const EnhancedStatsCards = ({ stats }: EnhancedStatsCardsProps) => {
               <p className="text-2xl font-bold text-gray-800">
                 {formatTime(stats.readingTime)}
               </p>
-              <p className="text-sm text-blue-600 font-medium">Reading Time</p>
-              <p className="text-xs text-gray-500">Total session duration</p>
+              <p className="text-sm text-blue-600 font-medium">閱讀時間</p>
+              <p className="text-xs text-gray-500">本次時長</p>
             </div>
           </div>
         </CardContent>
@@ -71,8 +71,8 @@ export const EnhancedStatsCards = ({ stats }: EnhancedStatsCardsProps) => {
               <p className={`text-2xl font-bold ${getScoreColor(stats.focusScore)}`}>
                 {stats.focusScore}%
               </p>
-              <p className="text-sm text-purple-600 font-medium">Focus Score</p>
-              <p className="text-xs text-gray-500">Attention quality</p>
+              <p className="text-sm text-purple-600 font-medium">專注分數</p>
+              <p className="text-xs text-gray-500">專注品質</p>
             </div>
           </div>
         </CardContent>
@@ -89,8 +89,8 @@ export const EnhancedStatsCards = ({ stats }: EnhancedStatsCardsProps) => {
               <p className="text-2xl font-bold text-gray-800">
                 {stats.readingSpeed}
               </p>
-              <p className="text-sm text-emerald-600 font-medium">Words/Min</p>
-              <p className="text-xs text-gray-500">Reading speed</p>
+              <p className="text-sm text-emerald-600 font-medium">字/分鐘</p>
+              <p className="text-xs text-gray-500">閱讀速度</p>
             </div>
           </div>
         </CardContent>
@@ -107,8 +107,8 @@ export const EnhancedStatsCards = ({ stats }: EnhancedStatsCardsProps) => {
               <Badge className={`${getComprehensionColor(stats.comprehensionLevel)} border`}>
                 {stats.comprehensionLevel.toUpperCase()}
               </Badge>
-              <p className="text-sm text-orange-600 font-medium mt-1">Comprehension</p>
-              <p className="text-xs text-gray-500">Understanding level</p>
+              <p className="text-sm text-orange-600 font-medium mt-1">理解程度</p>
+              <p className="text-xs text-gray-500">理解層級</p>
             </div>
           </div>
         </CardContent>
@@ -125,8 +125,8 @@ export const EnhancedStatsCards = ({ stats }: EnhancedStatsCardsProps) => {
               <p className="text-2xl font-bold text-gray-800">
                 {stats.interactionCount}
               </p>
-              <p className="text-sm text-pink-600 font-medium">AI Assists</p>
-              <p className="text-xs text-gray-500">Smart interactions</p>
+              <p className="text-sm text-pink-600 font-medium">AI 協助</p>
+              <p className="text-xs text-gray-500">智慧互動次數</p>
             </div>
           </div>
         </CardContent>
@@ -143,8 +143,8 @@ export const EnhancedStatsCards = ({ stats }: EnhancedStatsCardsProps) => {
               <p className="text-2xl font-bold text-gray-800">
                 {stats.avgFixationDuration}ms
               </p>
-              <p className="text-sm text-cyan-600 font-medium">Avg. Fixation</p>
-              <p className="text-xs text-gray-500">Eye focus duration</p>
+              <p className="text-sm text-cyan-600 font-medium">平均凝視</p>
+              <p className="text-xs text-gray-500">眼部專注時間</p>
             </div>
           </div>
         </CardContent>

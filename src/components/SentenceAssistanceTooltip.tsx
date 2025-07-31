@@ -9,8 +9,8 @@ interface SentenceAssistanceProps {
 }
 
 export const SentenceAssistanceTooltip = ({ sentence, position, onClose }: SentenceAssistanceProps) => {
-  const grammarNotes = "This sentence uses present perfect tense to describe an action that started in the past and continues to the present.";
-  const translation = "这个句子使用现在完成时来描述从过去开始并持续到现在的动作。";
+  const grammarNotes = "此句使用現在完成式，描述從過去開始並持續到現在的動作。";
+  const translation = "這個句子的中文翻譯示例如下。";
   const examples = [
     "She has been studying English for three years.",
     "They have lived in Beijing since 2020."
@@ -30,21 +30,21 @@ export const SentenceAssistanceTooltip = ({ sentence, position, onClose }: Sente
           <div className="space-y-4">
             <div>
               <Badge variant="secondary" className="bg-green-100 text-green-800 mb-2">
-                Grammar Analysis
+                文法分析
               </Badge>
               <p className="text-sm text-gray-800">{grammarNotes}</p>
             </div>
             
             <div>
               <Badge variant="secondary" className="bg-blue-100 text-blue-800 mb-2">
-                Translation
+                翻譯
               </Badge>
               <p className="text-sm text-gray-800">{translation}</p>
             </div>
             
             <div>
               <Badge variant="secondary" className="bg-purple-100 text-purple-800 mb-2">
-                Examples
+                例句
               </Badge>
               <div className="space-y-1">
                 {examples.map((example, index) => (

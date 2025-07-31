@@ -23,11 +23,11 @@ export const ParentCompanionView = () => {
   };
 
   const weeklyProgress = [
-    { day: "Mon", score: 82 },
-    { day: "Tue", score: 78 },
-    { day: "Wed", score: 85 },
-    { day: "Thu", score: 90 },
-    { day: "Fri", score: 87 },
+    { day: "一", score: 82 },
+    { day: "二", score: 78 },
+    { day: "三", score: 85 },
+    { day: "四", score: 90 },
+    { day: "五", score: 87 },
   ];
 
   const getFocusScoreColor = (score: number) => {
@@ -37,9 +37,9 @@ export const ParentCompanionView = () => {
   };
 
   const getFocusScoreBadge = (score: number) => {
-    if (score >= 85) return { text: "Excellent", color: "bg-green-100 text-green-800" };
-    if (score >= 70) return { text: "Good", color: "bg-yellow-100 text-yellow-800" };
-    return { text: "Needs Support", color: "bg-red-100 text-red-800" };
+    if (score >= 85) return { text: "極佳", color: "bg-green-100 text-green-800" };
+    if (score >= 70) return { text: "良好", color: "bg-yellow-100 text-yellow-800" };
+    return { text: "需要協助", color: "bg-red-100 text-red-800" };
   };
 
   const badge = getFocusScoreBadge(recentSession.focusScore);
@@ -47,8 +47,8 @@ export const ParentCompanionView = () => {
   return (
     <div className="space-y-6 p-6 max-w-4xl mx-auto">
       <div className="text-center mb-6">
-        <h1 className="text-3xl font-bold text-blue-600 mb-2">Parent Dashboard</h1>
-        <p className="text-muted-foreground">Emma's English Learning Progress</p>
+        <h1 className="text-3xl font-bold text-blue-600 mb-2">家長儀表板</h1>
+        <p className="text-muted-foreground">Emma 的英文學習進度</p>
       </div>
 
       {/* Quick Stats */}
@@ -57,12 +57,12 @@ export const ParentCompanionView = () => {
           <CardHeader className="pb-2">
             <CardTitle className="text-sm font-medium flex items-center">
               <Clock className="h-4 w-4 mr-2 text-blue-600" />
-              Today's Study Time
+              今日學習時間
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{recentSession.studyTime} min</div>
-            <p className="text-xs text-muted-foreground">+5 min from yesterday</p>
+            <div className="text-2xl font-bold">{recentSession.studyTime} 分</div>
+            <p className="text-xs text-muted-foreground">較昨天增加 5 分鐘</p>
           </CardContent>
         </Card>
 
@@ -70,7 +70,7 @@ export const ParentCompanionView = () => {
           <CardHeader className="pb-2">
             <CardTitle className="text-sm font-medium flex items-center">
               <Star className="h-4 w-4 mr-2 text-yellow-600" />
-              Focus Score
+              專注分數
             </CardTitle>
           </CardHeader>
           <CardContent>
@@ -87,12 +87,12 @@ export const ParentCompanionView = () => {
           <CardHeader className="pb-2">
             <CardTitle className="text-sm font-medium flex items-center">
               <BookOpen className="h-4 w-4 mr-2 text-green-600" />
-              Exercises Completed
+              完成練習
             </CardTitle>
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{recentSession.completedExercises}</div>
-            <p className="text-xs text-muted-foreground">Reading & pronunciation</p>
+            <p className="text-xs text-muted-foreground">閱讀與發音</p>
           </CardContent>
         </Card>
       </div>
@@ -102,7 +102,7 @@ export const ParentCompanionView = () => {
         <CardHeader>
           <CardTitle className="flex items-center">
             <TrendingUp className="h-5 w-5 mr-2 text-blue-600" />
-            Weekly Focus Trend
+            每週專注趨勢
           </CardTitle>
         </CardHeader>
         <CardContent>
@@ -121,9 +121,9 @@ export const ParentCompanionView = () => {
       {/* Review Items */}
       <Card>
         <CardHeader>
-          <CardTitle>Top 5 Review Items</CardTitle>
+          <CardTitle>需複習項目前五名</CardTitle>
           <p className="text-sm text-muted-foreground">
-            Words and concepts Emma spent the most time on today
+            Emma 今日最花時間的單字與概念
           </p>
         </CardHeader>
         <CardContent>
@@ -145,22 +145,22 @@ export const ParentCompanionView = () => {
         <CardHeader>
           <CardTitle className="flex items-center">
             <Bell className="h-5 w-5 mr-2 text-orange-600" />
-            Recent Notifications
+            最新通知
           </CardTitle>
         </CardHeader>
         <CardContent>
           <div className="space-y-3">
             <div className="p-3 bg-green-50 border border-green-200 rounded">
               <p className="text-sm text-green-800">
-                🎉 Emma achieved her highest focus score this week!
+                🎉 Emma 本週獲得最高專注分數！
               </p>
-              <p className="text-xs text-green-600 mt-1">2 hours ago</p>
+              <p className="text-xs text-green-600 mt-1">2 小時前</p>
             </div>
             <div className="p-3 bg-blue-50 border border-blue-200 rounded">
               <p className="text-sm text-blue-800">
-                📚 New review list available with 5 items to practice
+                📚 已更新 5 個練習項目的複習清單
               </p>
-              <p className="text-xs text-blue-600 mt-1">1 day ago</p>
+              <p className="text-xs text-blue-600 mt-1">1 天前</p>
             </div>
           </div>
         </CardContent>
@@ -168,12 +168,8 @@ export const ParentCompanionView = () => {
 
       {/* Action Buttons */}
       <div className="flex justify-center space-x-4">
-        <Button variant="outline">
-          View Detailed Report
-        </Button>
-        <Button className="bg-blue-600 hover:bg-blue-700">
-          Schedule Parent-Teacher Meeting
-        </Button>
+        <Button variant="outline">查看詳細報告</Button>
+        <Button className="bg-blue-600 hover:bg-blue-700">安排親師會議</Button>
       </div>
     </div>
   );
