@@ -93,8 +93,8 @@ export const TeacherDashboard = () => {
           <User className="h-6 w-6 text-blue-600" />
         </div>
         <div>
-          <h2 className="text-2xl font-bold text-blue-600">Teacher Analytics Dashboard</h2>
-          <p className="text-muted-foreground">Comprehensive English learning analytics and student progress overview</p>
+          <h2 className="text-2xl font-bold text-blue-600">教師分析儀表板</h2>
+          <p className="text-muted-foreground">完整的英語學習分析與學生進度概覽</p>
         </div>
       </div>
 
@@ -104,12 +104,12 @@ export const TeacherDashboard = () => {
           <CardHeader className="pb-2">
             <CardTitle className="text-sm font-medium flex items-center">
               <Users className="h-4 w-4 mr-2 text-blue-600" />
-              Active English Learners
+              活躍學習者
             </CardTitle>
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">24</div>
-            <p className="text-xs text-muted-foreground">Daily active students</p>
+            <p className="text-xs text-muted-foreground">每日活躍學生</p>
           </CardContent>
         </Card>
         
@@ -117,12 +117,12 @@ export const TeacherDashboard = () => {
           <CardHeader className="pb-2">
             <CardTitle className="text-sm font-medium flex items-center">
               <TrendingUp className="h-4 w-4 mr-2 text-green-600" />
-              Overall Progress
+              整體進度
             </CardTitle>
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">84%</div>
-            <p className="text-xs text-green-600">+7% this month</p>
+            <p className="text-xs text-green-600">本月提升 7%</p>
           </CardContent>
         </Card>
         
@@ -130,12 +130,12 @@ export const TeacherDashboard = () => {
           <CardHeader className="pb-2">
             <CardTitle className="text-sm font-medium flex items-center">
               <Clock className="h-4 w-4 mr-2 text-purple-600" />
-              Study Time Today
+              今日學習時間
             </CardTitle>
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">8.2h</div>
-            <p className="text-xs text-muted-foreground">Avg 20.5 min/student</p>
+            <p className="text-xs text-muted-foreground">平均 20.5 分/學生</p>
           </CardContent>
         </Card>
 
@@ -143,12 +143,12 @@ export const TeacherDashboard = () => {
           <CardHeader className="pb-2">
             <CardTitle className="text-sm font-medium flex items-center">
               <Target className="h-4 w-4 mr-2 text-orange-600" />
-              Need Support
+              需要協助
             </CardTitle>
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">3</div>
-            <p className="text-xs text-orange-600">Below 70% progress</p>
+            <p className="text-xs text-orange-600">進度低於 70%</p>
           </CardContent>
         </Card>
       </div>
@@ -159,13 +159,13 @@ export const TeacherDashboard = () => {
           <CardHeader>
             <CardTitle className="flex items-center">
               <BookOpen className="h-5 w-5 mr-2 text-blue-600" />
-              Reading & Vocabulary Statistics
+              閱讀與字彙統計
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="space-y-2">
               <div className="flex justify-between items-center">
-                <span className="text-sm font-medium">Reading Comprehension Average</span>
+                <span className="text-sm font-medium">閱讀理解平均值</span>
                 <span className="text-sm text-blue-600 font-semibold">{englishLearningStats.readingComprehension.averageScore}%</span>
               </div>
               <Progress value={englishLearningStats.readingComprehension.averageScore} className="h-2" />
@@ -175,11 +175,11 @@ export const TeacherDashboard = () => {
             <div className="grid grid-cols-2 gap-4 pt-2">
               <div className="text-center p-3 bg-blue-50 rounded">
                 <div className="text-xl font-bold text-blue-600">{englishLearningStats.vocabulary.wordsLearned}</div>
-                <p className="text-xs text-muted-foreground">Total words learned</p>
+                <p className="text-xs text-muted-foreground">累計學習單字數</p>
               </div>
               <div className="text-center p-3 bg-green-50 rounded">
                 <div className="text-xl font-bold text-green-600">{englishLearningStats.vocabulary.retentionRate}%</div>
-                <p className="text-xs text-muted-foreground">Retention rate</p>
+                <p className="text-xs text-muted-foreground">保留率</p>
               </div>
             </div>
           </CardContent>
@@ -189,27 +189,27 @@ export const TeacherDashboard = () => {
           <CardHeader>
             <CardTitle className="flex items-center">
               <Volume2 className="h-5 w-5 mr-2 text-purple-600" />
-              Speaking & Listening Analytics
+              口說與聽力分析
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="space-y-2">
               <div className="flex justify-between items-center">
-                <span className="text-sm font-medium">Pronunciation Accuracy</span>
+                <span className="text-sm font-medium">發音準確率</span>
                 <span className="text-sm text-purple-600 font-semibold">{englishLearningStats.speaking.pronunciationScore}%</span>
               </div>
               <Progress value={englishLearningStats.speaking.pronunciationScore} className="h-2" />
-              <p className="text-xs text-green-600">{englishLearningStats.speaking.fluencyImprovement} fluency improvement</p>
+              <p className="text-xs text-green-600">流利度提升 {englishLearningStats.speaking.fluencyImprovement}</p>
             </div>
             
             <div className="grid grid-cols-2 gap-4 pt-2">
               <div className="text-center p-3 bg-purple-50 rounded">
                 <div className="text-xl font-bold text-purple-600">{englishLearningStats.listening.comprehensionRate}%</div>
-                <p className="text-xs text-muted-foreground">Listening comprehension</p>
+                <p className="text-xs text-muted-foreground">聽力理解</p>
               </div>
               <div className="text-center p-3 bg-orange-50 rounded">
                 <div className="text-xl font-bold text-orange-600">{englishLearningStats.speaking.speakingHours}h</div>
-                <p className="text-xs text-muted-foreground">Speaking practice time</p>
+                <p className="text-xs text-muted-foreground">口說練習時間</p>
               </div>
             </div>
           </CardContent>
@@ -222,19 +222,19 @@ export const TeacherDashboard = () => {
           <CardHeader className="pb-3">
             <CardTitle className="text-lg flex items-center">
               <FileText className="h-5 w-5 mr-2 text-indigo-600" />
-              Grammar Analysis
+              文法分析
             </CardTitle>
           </CardHeader>
           <CardContent>
             <div className="space-y-3">
               <div className="flex justify-between items-center">
-                <span className="text-sm font-medium">Accuracy Rate</span>
+                <span className="text-sm font-medium">正確率</span>
                 <span className="text-lg font-bold text-indigo-600">{englishLearningStats.grammar.averageAccuracy}%</span>
               </div>
               <Progress value={englishLearningStats.grammar.averageAccuracy} className="h-2" />
               
               <div className="mt-4">
-                <p className="text-sm font-medium mb-2">Common Challenge Areas:</p>
+                <p className="text-sm font-medium mb-2">常見難題：</p>
                 <div className="space-y-1">
                   {englishLearningStats.grammar.commonMistakes.map((mistake, index) => (
                     <div key={index} className="text-xs bg-red-50 text-red-700 px-2 py-1 rounded">
@@ -251,23 +251,23 @@ export const TeacherDashboard = () => {
           <CardHeader className="pb-3">
             <CardTitle className="text-lg flex items-center">
               <Award className="h-5 w-5 mr-2 text-yellow-600" />
-              Student Engagement
+              學生參與度
             </CardTitle>
           </CardHeader>
           <CardContent>
             <div className="space-y-4">
               <div className="text-center">
                 <div className="text-2xl font-bold text-yellow-600">{englishLearningStats.engagement.motivationScore}%</div>
-                <p className="text-xs text-muted-foreground">Motivation Score</p>
+                <p className="text-xs text-muted-foreground">動機分數</p>
               </div>
               
               <div className="space-y-2">
                 <div className="flex justify-between text-sm">
-                  <span>Session Duration</span>
+                  <span>單次時長</span>
                   <span className="font-semibold">{englishLearningStats.engagement.averageSessionTime} min</span>
                 </div>
                 <div className="flex justify-between text-sm">
-                  <span>Weekly Goals Met</span>
+                  <span>達成周目標</span>
                   <span className="font-semibold text-green-600">{englishLearningStats.engagement.weeklyGoalCompletion}%</span>
                 </div>
               </div>
@@ -279,25 +279,25 @@ export const TeacherDashboard = () => {
           <CardHeader className="pb-3">
             <CardTitle className="text-lg flex items-center">
               <BarChart3 className="h-5 w-5 mr-2 text-teal-600" />
-              Weekly Summary
+              每週摘要
             </CardTitle>
           </CardHeader>
           <CardContent>
             <div className="space-y-3">
               <div className="flex justify-between text-sm">
-                <span>New vocabulary</span>
+                <span>新增字彙</span>
                 <span className="font-semibold text-teal-600">+{englishLearningStats.vocabulary.newWordsThisWeek}</span>
               </div>
               <div className="flex justify-between text-sm">
-                <span>Grammar exercises</span>
+                <span>文法練習</span>
                 <span className="font-semibold">{englishLearningStats.grammar.exercisesCompleted}</span>
               </div>
               <div className="flex justify-between text-sm">
-                <span>Audio hours</span>
+                <span>音檔時數</span>
                 <span className="font-semibold">{englishLearningStats.listening.audioHoursCompleted}h</span>
               </div>
               <div className="flex justify-between text-sm">
-                <span>Assessments completed</span>
+                <span>完成的評量</span>
                 <span className="font-semibold">{englishLearningStats.readingComprehension.totalAssessments}</span>
               </div>
             </div>
@@ -307,17 +307,17 @@ export const TeacherDashboard = () => {
 
       {/* Action Buttons */}
       <div className="flex justify-between items-center mb-6">
-        <h3 className="text-lg font-semibold">Anonymous Student English Progress</h3>
+        <h3 className="text-lg font-semibold">匿名學生英語進度</h3>
         <div className="space-x-2">
           <Button variant="outline" size="sm">
             <BarChart3 className="h-4 w-4 mr-2" />
-            Detailed Analytics
+            詳細分析
           </Button>
           <Button variant="outline" size="sm">
             <Book className="h-4 w-4 mr-2" />
-            Curriculum Insights
+            課程洞察
           </Button>
-          <Button variant="outline" size="sm">Export Learning Data</Button>
+          <Button variant="outline" size="sm">匯出學習資料</Button>
         </div>
       </div>
 

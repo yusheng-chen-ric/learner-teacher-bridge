@@ -56,39 +56,39 @@ export const LoginPage = () => {
             </div>
           </div>
           <CardTitle className="text-2xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
-            English Learning Platform
+            英文學習平台
           </CardTitle>
-          <p className="text-muted-foreground">Please login to continue</p>
+          <p className="text-muted-foreground">請登入以繼續</p>
         </CardHeader>
         
         <CardContent>
           <form onSubmit={handleLogin} className="space-y-4">
             <div className="space-y-2">
-              <Label htmlFor="username">Username</Label>
+              <Label htmlFor="username">使用者名稱</Label>
               <Input
                 id="username"
                 type="text"
                 value={username}
                 onChange={(e) => setUsername(e.target.value)}
-                placeholder="Enter your username"
+                placeholder="輸入使用者名稱"
                 required
               />
             </div>
             
             <div className="space-y-2">
-              <Label htmlFor="password">Password</Label>
+              <Label htmlFor="password">密碼</Label>
               <Input
                 id="password"
                 type="password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                placeholder="Enter your password"
+                placeholder="輸入密碼"
                 required
               />
             </div>
             
             <div className="space-y-3">
-              <Label>Select your role:</Label>
+              <Label>選擇角色：</Label>
               <RadioGroup value={role} onValueChange={setRole}>
                 <div className="flex items-center space-x-2">
                   <RadioGroupItem value="student" id="student" />
@@ -119,7 +119,7 @@ export const LoginPage = () => {
               className="w-full" 
               disabled={isLoading}
             >
-              {isLoading ? "Logging in..." : "Login"}
+              {isLoading ? "登入中..." : "登入"}
             </Button>
           </form>
         </CardContent>

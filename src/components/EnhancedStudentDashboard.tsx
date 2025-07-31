@@ -83,9 +83,9 @@ export const EnhancedStudentDashboard = () => {
         </div>
         <div>
           <h2 className="text-2xl font-bold text-green-600">
-            Welcome back, {user?.username}!
+            歡迎回來，{user?.username}！
           </h2>
-          <p className="text-muted-foreground">Ready to improve your English today?</p>
+          <p className="text-muted-foreground">準備好開始學習英文了嗎？</p>
         </div>
       </div>
 
@@ -94,16 +94,16 @@ export const EnhancedStudentDashboard = () => {
         <CardHeader>
           <CardTitle className="flex items-center">
             <BookOpen className="h-5 w-5 mr-2 text-blue-600" />
-            Teacher Assignments (老師的作業)
+            老師的作業
           </CardTitle>
           <p className="text-sm text-muted-foreground">
-            Complete these readings assigned by your teachers
+            完成老師指派的閱讀任務
           </p>
         </CardHeader>
         <CardContent>
           {assignments.length === 0 ? (
             <p className="text-center text-muted-foreground py-8">
-              No assignments available at the moment
+              目前沒有作業
             </p>
           ) : (
             <div className="space-y-4">
@@ -121,7 +121,7 @@ export const EnhancedStudentDashboard = () => {
                       </span>
                       <span className="flex items-center">
                         <Clock className="h-4 w-4 mr-1" />
-                        Due: {assignment.dueDate}
+                        到期日：{assignment.dueDate}
                       </span>
                     </div>
                     <div className="mt-2">
@@ -129,7 +129,7 @@ export const EnhancedStudentDashboard = () => {
                         variant="secondary" 
                         className={getStatusColor(assignment.status)}
                       >
-                        {assignment.status === 'completed' ? 'Completed' : `${getDaysUntilDue(assignment.dueDate)} days left`}
+                        {assignment.status === 'completed' ? '已完成' : `剩餘 ${getDaysUntilDue(assignment.dueDate)} 天`}
                       </Badge>
                     </div>
                   </div>
@@ -140,11 +140,11 @@ export const EnhancedStudentDashboard = () => {
                         className="bg-green-600 hover:bg-green-700"
                       >
                         <Play className="h-4 w-4 mr-2" />
-                        Start Reading
+                        開始閱讀
                       </Button>
                     ) : (
                       <Button variant="outline" disabled>
-                        Completed
+                        已完成
                       </Button>
                     )}
                   </div>
@@ -160,19 +160,19 @@ export const EnhancedStudentDashboard = () => {
         <CardHeader>
           <CardTitle className="flex items-center">
             <FileText className="h-5 w-5 mr-2 text-purple-600" />
-            Self-paced Reading (自主閱讀)
+            自主閱讀
           </CardTitle>
           <p className="text-sm text-muted-foreground">
-            Upload your own articles and practice reading with eye-tracking assistance
+            上傳自己的文章並搭配眼動追蹤練習閱讀
           </p>
         </CardHeader>
         <CardContent>
           <div className="text-center py-8">
             <div className="mb-4">
               <Upload className="h-12 w-12 text-purple-600 mx-auto mb-2" />
-              <h3 className="text-lg font-semibold mb-2">Upload Your Article</h3>
+              <h3 className="text-lg font-semibold mb-2">上傳文章</h3>
               <p className="text-muted-foreground mb-4">
-                Choose any English text you'd like to practice reading
+                選擇任何想練習的英文文章
               </p>
             </div>
             <Button 
@@ -181,7 +181,7 @@ export const EnhancedStudentDashboard = () => {
               disabled={isLoading}
             >
               <Upload className="h-4 w-4 mr-2" />
-              {isLoading ? 'Uploading...' : 'Upload My Article'}
+              {isLoading ? '上傳中...' : '上傳我的文章'}
             </Button>
           </div>
         </CardContent>
@@ -192,12 +192,12 @@ export const EnhancedStudentDashboard = () => {
         <CardHeader>
           <CardTitle className="flex items-center">
             <Clock className="h-5 w-5 mr-2 text-gray-600" />
-            Recent Reading Sessions
+            最近的閱讀紀錄
           </CardTitle>
         </CardHeader>
         <CardContent>
           <p className="text-center text-muted-foreground py-4">
-            Your reading history will appear here after completing sessions
+            完成閱讀後，你的紀錄將顯示在此
           </p>
         </CardContent>
       </Card>
