@@ -4,7 +4,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Eye, EyeOff, Save, ArrowLeft, Volume2 } from 'lucide-react';
+import { Eye, EyeOff, Save, ArrowLeft } from 'lucide-react';
 import { TextDisplay } from '@/components/reader/TextDisplay';
 import { WordPopup } from '@/components/reader/WordPopup';
 import { GrammarCard } from '@/components/reader/GrammarCard';
@@ -31,12 +31,8 @@ export const ReaderPage = () => {
   });
 
   // Enhanced interaction states
-  const [showNodPrompt, setShowNodPrompt] = useState<{
-    visible: boolean;
-    wordId: string;
-    word: string;
-    position: { top: number; left: number };
-  } | null>(null);
+  const [newWords, setNewWords] = useState<string[]>([]);
+  const [demoMode, setDemoMode] = useState(false);
 
   // Refs for performance optimization
   const elementPositionsRef = useRef<Map<string, DOMRect>>(new Map());
@@ -45,7 +41,7 @@ export const ReaderPage = () => {
   const animationFrameRef = useRef<number>();
 
   // Initialize gaze event handlers
-  const { processEvent, resetSession } = useGazeEvents({
+  const { processEvent, resetSession, setWordPopupVisible } = useGazeEvents({
     onFixation: ({ wordId, element, word }) => {
       const rect = element.getBoundingClientRect();
       setWordPopup({
@@ -55,7 +51,6 @@ export const ReaderPage = () => {
         position: { top: rect.bottom, left: rect.left }
       });
       setGrammarCard(null);
-      setShowNodPrompt(null);
     },
     onRegression: ({ sentenceId, element, sentence }) => {
       const rect = element.getBoundingClientRect();
@@ -66,15 +61,10 @@ export const ReaderPage = () => {
         position: { top: rect.bottom, left: rect.left }
       });
       setWordPopup(null);
-      setShowNodPrompt(null);
     },
-    onDistraction: () => {
-      // Highlight a random sentence to regain attention
-      const sentences = document.querySelectorAll('[id^="sentence-"]');
-      if (sentences.length > 0) {
-        const randomSentence = sentences[Math.floor(Math.random() * sentences.length)];
-        setDistractionElementId(randomSentence.id);
-        
+    onDistraction: ({ sentenceId }) => {
+      if (sentenceId) {
+        setDistractionElementId(sentenceId);
         setTimeout(() => {
           setDistractionElementId(null);
         }, 3000);
@@ -82,25 +72,14 @@ export const ReaderPage = () => {
     },
     onNodOnce: ({ wordId, element, word }) => {
       const rect = element.getBoundingClientRect();
-      setShowNodPrompt({
+      setWordPopup({
         visible: true,
         wordId,
         word,
         position: { top: rect.bottom, left: rect.left }
       });
-      setWordPopup(null);
       setGrammarCard(null);
-      
-      // Auto-show word popup after nod detection
-      setTimeout(() => {
-        setWordPopup({
-          visible: true,
-          wordId,
-          word,
-          position: { top: rect.bottom, left: rect.left }
-        });
-        setShowNodPrompt(null);
-      }, 1000);
+      setNewWords(prev => (prev.includes(word) ? prev : [...prev, word]));
     },
     onNodTwice: ({ wordId, element, word }) => {
       // Immediately play pronunciation
@@ -110,12 +89,18 @@ export const ReaderPage = () => {
         utterance.rate = 0.8;
         speechSynthesis.speak(utterance);
       }
-      
+
       setSessionData(prev => ({ ...prev, nodEvents: prev.nodEvents + 1 }));
-      setShowNodPrompt(null);
+      // do not close the popup here
+    },
+    onShake: () => {
       setWordPopup(null);
     }
   });
+
+  useEffect(() => {
+    setWordPopupVisible(!!wordPopup);
+  }, [wordPopup, setWordPopupVisible]);
 
   // Simulate gaze tracking data with enhanced patterns
   useEffect(() => {
@@ -161,8 +146,14 @@ export const ReaderPage = () => {
           ? document.elementFromPoint(packet.gaze_pos_x, packet.gaze_pos_y)
           : null;
         
-        // Pass gaze Y coordinate for nod detection
-        processEvent(hoveredElement, packet.timestamp, packet.gaze_valid === 1, packet.gaze_pos_y);
+        // Pass gaze coordinates for gesture detection
+        processEvent(
+          hoveredElement,
+          packet.timestamp,
+          packet.gaze_valid === 1,
+          packet.gaze_pos_x,
+          packet.gaze_pos_y
+        );
         
         setSessionData(prev => ({
           ...prev,
@@ -193,13 +184,50 @@ export const ReaderPage = () => {
     setIsGazeActive(false);
   };
 
+  const triggerDistractionDemo = () => {
+    const sentence = document.querySelector('[id^="sentence-"]');
+    if (sentence) {
+      const id = sentence.id;
+      setDistractionElementId(id);
+      setTimeout(() => setDistractionElementId(null), 3000);
+    }
+  };
+
+  const triggerNodDemo = () => {
+    setWordPopup({
+      visible: true,
+      wordId: 'demo',
+      word: 'example',
+      position: { top: window.innerHeight / 2, left: window.innerWidth / 2 - 120 }
+    });
+    setNewWords(prev => (prev.includes('example') ? prev : [...prev, 'example']));
+  };
+
+  const triggerDoubleNodDemo = () => {
+    const word = wordPopup?.word || 'example';
+    if ('speechSynthesis' in window) {
+      const u = new SpeechSynthesisUtterance(word);
+      u.lang = 'en-US';
+      u.rate = 0.8;
+      speechSynthesis.speak(u);
+    }
+  };
+
+  const triggerShakeDemo = () => setWordPopup(null);
+
   const handleFinishReading = async () => {
     setIsGazeActive(false);
-    
+
+    const stored = localStorage.getItem('reviewWords');
+    const existing: string[] = stored ? JSON.parse(stored) : [];
+    const updated = Array.from(new Set([...existing, ...newWords]));
+    localStorage.setItem('reviewWords', JSON.stringify(updated));
+
     console.log('Uploading session data:', {
       sessionId,
       gazeData: fullSessionData.current,
-      sessionStats: sessionData
+      sessionStats: sessionData,
+      newWords
     });
     
     navigate(`/report/${sessionId}`);
@@ -318,25 +346,30 @@ export const ReaderPage = () => {
             </div>
           </CardContent>
         </Card>
+
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-lg flex justify-between">
+              Demo Mode
+              <Button size="sm" variant="outline" onClick={() => setDemoMode(!demoMode)}>
+                {demoMode ? 'Hide' : 'Show'}
+              </Button>
+            </CardTitle>
+          </CardHeader>
+          {demoMode && (
+            <CardContent>
+              <div className="flex flex-wrap gap-2">
+                <Button onClick={triggerDistractionDemo}>Trigger Distraction</Button>
+                <Button onClick={triggerNodDemo}>Nod Once</Button>
+                <Button onClick={triggerDoubleNodDemo}>Nod Twice</Button>
+                <Button variant="outline" onClick={triggerShakeDemo}>Shake</Button>
+              </div>
+            </CardContent>
+          )}
+        </Card>
       </div>
 
-      {/* Enhanced Popups */}
-      {showNodPrompt && (
-        <div className="fixed inset-0 z-50 pointer-events-none">
-          <div 
-            className="absolute bg-yellow-100 border-2 border-yellow-400 rounded-lg p-2 shadow-lg"
-            style={{
-              left: Math.min(showNodPrompt.position.left, window.innerWidth - 200),
-              top: Math.min(showNodPrompt.position.top + 10, window.innerHeight - 100),
-            }}
-          >
-            <div className="flex items-center space-x-2 text-sm">
-              <div className="animate-pulse">👁️</div>
-              <span className="text-yellow-800 font-medium">Looking up "{showNodPrompt.word}"...</span>
-            </div>
-          </div>
-        </div>
-      )}
+
 
       {wordPopup && (
         <WordPopup

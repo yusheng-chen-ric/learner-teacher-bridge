@@ -1,5 +1,6 @@
 
 import { useState } from "react";
+import { useAuth } from "@/contexts/AuthContext";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -7,11 +8,8 @@ import { Label } from "@/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { User, BookOpen } from "lucide-react";
 
-interface LoginPageProps {
-  onLogin: (userInfo: { username: string; role: string; token: string }) => void;
-}
-
-export const LoginPage = ({ onLogin }: LoginPageProps) => {
+export const LoginPage = () => {
+  const { login } = useAuth();
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [role, setRole] = useState("student");
@@ -21,24 +19,22 @@ export const LoginPage = ({ onLogin }: LoginPageProps) => {
     e.preventDefault();
     setIsLoading(true);
 
-    // Simulate API call - in real implementation, this would be an actual API request
     try {
-      // Mock login response
+      if (username !== 'teacher' || password !== 'teacher') {
+        alert("For demo, use 'teacher' for both username and password.");
+        return;
+      }
+
       const mockResponse = {
         token: `mock-token-${Date.now()}`,
         userInfo: {
           username,
           role,
-          id: `user-${Date.now()}`,
+          id: `user-${Date.now()}`
         }
       };
 
-      // Store in localStorage
-      localStorage.setItem('authToken', mockResponse.token);
-      localStorage.setItem('userInfo', JSON.stringify(mockResponse.userInfo));
-
-      // Call parent component's login handler
-      onLogin({
+      login({
         username: mockResponse.userInfo.username,
         role: mockResponse.userInfo.role,
         token: mockResponse.token

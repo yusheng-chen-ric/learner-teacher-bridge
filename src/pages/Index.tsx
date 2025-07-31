@@ -2,21 +2,25 @@
 import { useState } from "react";
 import { useAuth } from "@/contexts/AuthContext";
 import { LoginPage } from "@/components/LoginPage";
+import VocabularyReviewPage from "@/pages/VocabularyReviewPage";
 import { TeacherDashboard } from "@/components/TeacherDashboard";
 import { AgentDashboard } from "@/components/AgentDashboard";
 import { ChatInterface } from "@/components/ChatInterface";
 import { ParentCompanionView } from "@/components/ParentCompanionView";
 import { EnhancedStudentDashboard } from "@/components/EnhancedStudentDashboard";
 import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
 import { User, Bot, MessageCircle, Heart, BookOpen, Settings, LogOut } from "lucide-react";
+import { useReviewWords } from "@/hooks/useReviewWords";
 
 const Index = () => {
   const { user, isAuthenticated, logout } = useAuth();
-  const [activeView, setActiveView] = useState<'dashboard' | 'agent' | 'chat'>('dashboard');
+  const { words } = useReviewWords();
+  const [activeView, setActiveView] = useState<'dashboard' | 'agent' | 'chat' | 'review'>('dashboard');
 
   // If not authenticated, show login page
   if (!isAuthenticated || !user) {
-    return <LoginPage onLogin={() => {}} />;
+    return <LoginPage />;
   }
 
   const handleLogout = () => {
@@ -44,6 +48,7 @@ const Index = () => {
   const renderMainContent = () => {
     if (activeView === 'agent') return <AgentDashboard />;
     if (activeView === 'chat') return <ChatInterface />;
+    if (activeView === 'review') return <VocabularyReviewPage />;
 
     // Dashboard view based on role
     switch (user.role) {
@@ -109,6 +114,21 @@ const Index = () => {
                   <MessageCircle className="h-4 w-4" />
                   <span>Chat</span>
                 </Button>
+                {user.role === 'student' && (
+                  <Button
+                    variant={activeView === 'review' ? 'default' : 'ghost'}
+                    onClick={() => setActiveView('review')}
+                    className="flex items-center space-x-2"
+                  >
+                    <BookOpen className="h-4 w-4" />
+                    <span>Review</span>
+                    {words.length > 0 && (
+                      <Badge className="ml-1" variant="secondary">
+                        {words.length}
+                      </Badge>
+                    )}
+                  </Button>
+                )}
               </div>
 
               <Button variant="ghost" size="icon" onClick={handleLogout}>
@@ -149,6 +169,20 @@ const Index = () => {
               >
                 Chat
               </Button>
+              {user.role === 'student' && (
+                <Button
+                  variant={activeView === 'review' ? 'default' : 'ghost'}
+                  onClick={() => setActiveView('review')}
+                  size="sm"
+                >
+                  Review
+                  {words.length > 0 && (
+                    <Badge className="ml-1" variant="secondary">
+                      {words.length}
+                    </Badge>
+                  )}
+                </Button>
+              )}
             </div>
           </div>
         </div>
