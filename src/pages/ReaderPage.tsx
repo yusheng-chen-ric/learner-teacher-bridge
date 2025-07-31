@@ -16,8 +16,8 @@ export const ReaderPage = () => {
   const navigate = useNavigate();
   
   // Sample text content - in real app, this would come from API
-  // Immersive reading material translated into Chinese
-  const textContent = `艾瑪學習英語已經兩年了。她覺得閱讀理解相對容易，但口說仍然讓她緊張。某些音的發音，尤其是像 "think" 和 "through" 中的 "th" 音，仍然讓她困擾。老師認為只要持續練習並建立自信，艾瑪將能在口說英語上更加流利。閱讀書籍和文章有助於艾瑪擴充詞彙並理解不同的句子結構。`;
+  // Simple English story for children
+  const textContent = `Emma loves to read books. She visits the library every week. When she finds a fun story, she shares it with her friends. Reading makes Emma smile.`;
 
   // Core state management
   const [isGazeActive, setIsGazeActive] = useState(false);
