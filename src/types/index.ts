@@ -55,3 +55,20 @@ export interface ReadingSession {
   endTime?: number;
   isActive: boolean;
 }
+
+// Reading material extracted from PDFs
+export interface Paragraph {
+  id: string;
+  text: string;
+  images?: string[];
+}
+
+export interface VocabularyItem {
+  word: string;
+  explanation: string;
+}
+
+export interface ReadingMaterial {
+  paragraphs: Paragraph[];
+  vocabulary: VocabularyItem[];
+}

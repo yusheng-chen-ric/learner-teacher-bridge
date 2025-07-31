@@ -13,4 +13,24 @@ interface HeatmapPoint {
 }
 ```
 
-在報告 API 的回應中提供 `heatmapData` 陣列，即可讓前端產生熱區圖。
+Supplying this array as `heatmapData` in the report API response allows the
+client to generate the heatmap.
+
+## Reading material JSON schema
+
+Uploaded PDFs are converted to structured JSON before displaying in the app. The
+schema is defined in `src/types/index.ts` and summarised below:
+
+```ts
+interface ReadingMaterial {
+  paragraphs: Array<{
+    id: string;
+    text: string;
+    images?: string[]; // optional images extracted or provided by teachers
+  }>;
+  vocabulary: Array<{ word: string; explanation: string }>;
+}
+```
+
+An example is available in the UI at `/schema` for reference.
+
