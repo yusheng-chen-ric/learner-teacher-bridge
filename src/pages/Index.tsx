@@ -129,6 +129,12 @@ const Index = () => {
                     )}
                   </Button>
                 )}
+                <a href="/schema" className="ml-2">
+                  <Button variant="ghost" className="flex items-center space-x-2">
+                    <Settings className="h-4 w-4" />
+                    <span>Schema</span>
+                  </Button>
+                </a>
               </div>
 
               <Button variant="ghost" size="icon" onClick={handleLogout}>
@@ -183,6 +189,11 @@ const Index = () => {
                   )}
                 </Button>
               )}
+              <a href="/schema" className="ml-1">
+                <Button variant="ghost" size="sm">
+                  Schema
+                </Button>
+              </a>
             </div>
           </div>
         </div>
