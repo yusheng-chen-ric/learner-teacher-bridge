@@ -38,7 +38,7 @@ export const StudentProgressCard = ({ student }: StudentProgressCardProps) => {
           </div>
           <div>
             <CardTitle className="text-lg">{student.name}</CardTitle>
-            <p className="text-sm text-muted-foreground">Grade {student.grade}</p>
+            <p className="text-sm text-muted-foreground">程度 {student.grade}</p>
           </div>
         </div>
       </CardHeader>
@@ -46,14 +46,14 @@ export const StudentProgressCard = ({ student }: StudentProgressCardProps) => {
         <div className="space-y-4">
           <div>
             <div className="flex justify-between items-center mb-2">
-              <span className="text-sm font-medium">Overall Progress</span>
+              <span className="text-sm font-medium">整體進度</span>
               <span className="text-sm text-muted-foreground">{student.overallProgress}%</span>
             </div>
             <Progress value={student.overallProgress} className="h-2" />
           </div>
           
           <div>
-            <h4 className="text-sm font-medium mb-2">Subject Progress</h4>
+            <h4 className="text-sm font-medium mb-2">科目進度</h4>
             <div className="space-y-2">
               {student.subjects.map((subject, index) => (
                 <div key={index} className="flex items-center justify-between">
@@ -71,7 +71,7 @@ export const StudentProgressCard = ({ student }: StudentProgressCardProps) => {
           
           <div className="pt-2 border-t">
             <p className="text-xs text-muted-foreground">
-              Last activity: {student.lastActivity}
+              最近活動：{student.lastActivity}
             </p>
           </div>
         </div>

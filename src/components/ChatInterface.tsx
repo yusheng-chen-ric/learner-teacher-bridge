@@ -20,19 +20,19 @@ export const ChatInterface = () => {
     {
       id: "1",
       sender: "agent",
-      content: "Hello! I'm your AI English teaching assistant. How can I help you improve your students' English learning today?",
+      content: "您好！我是您的 AI 英語教學助理。今天我可以如何協助提升學生的英語學習？",
       timestamp: new Date(Date.now() - 300000)
     },
     {
       id: "2", 
       sender: "teacher",
-      content: "I'm concerned about Emma's pronunciation and speaking confidence in English. She seems hesitant to participate in oral activities.",
+      content: "我擔心 Emma 的英文發音與口說自信，她似乎對口語活動有所猶豫。",
       timestamp: new Date(Date.now() - 240000)
     },
     {
       id: "3",
       sender: "agent", 
-      content: "Based on my analysis, Emma shows strong reading comprehension but struggles with speaking confidence. I recommend implementing pair work activities, pronunciation drills with audio feedback, and creating a supportive environment for oral practice. Her engagement increases significantly with interactive speaking games and peer collaboration.",
+      content: "根據分析，Emma 的閱讀理解良好，但口說信心不足。我建議進行配對練習、搭配錄音的發音訓練，並營造支持性的口說環境。使用互動說話遊戲與同儕合作能大幅提升她的參與度。",
       timestamp: new Date(Date.now() - 180000)
     }
   ]);
@@ -41,11 +41,11 @@ export const ChatInterface = () => {
   const [showInteractiveReading, setShowInteractiveReading] = useState(false);
 
   const englishLearningResponses = [
-    "That's a great question about English learning. Let me analyze the student's language acquisition patterns and suggest targeted vocabulary building exercises.",
-    "I recommend incorporating more interactive listening activities and pronunciation practice to improve their English fluency.",
-    "Based on language learning data, this student would benefit from focused grammar exercises and speaking practice sessions.",
-    "I suggest implementing a reading comprehension program with gradually increasing difficulty levels to enhance their English skills.",
-    "Let me provide you with specific strategies for improving their English writing skills and sentence structure understanding."
+    "這是關於英文學習的好問題。讓我分析學生的語言習得模式並提供目標字彙練習建議。",
+    "建議加入更多互動式聽力活動及發音練習，以提升英文流利度。",
+    "根據學習資料，學生適合進行加強文法與口說練習。",
+    "可以實施循序漸進的閱讀理解課程來增進英文能力。",
+    "以下是提升寫作技巧與句構理解的具體策略。"
   ];
 
   const handleSendMessage = () => {
@@ -81,12 +81,12 @@ export const ChatInterface = () => {
     return (
       <div className="space-y-4">
         <div className="flex items-center justify-between">
-          <h2 className="text-xl font-semibold">Interactive Reading Session</h2>
+          <h2 className="text-xl font-semibold">互動式閱讀</h2>
           <Button
             variant="outline"
             onClick={() => setShowInteractiveReading(false)}
           >
-            Back to Chat
+            返回聊天
           </Button>
         </div>
         <InteractiveReadingText />
@@ -104,8 +104,8 @@ export const ChatInterface = () => {
                 <MessageCircle className="h-5 w-5 text-blue-600" />
               </div>
               <div>
-                <CardTitle className="text-lg">Teacher-AI Chat</CardTitle>
-                <p className="text-sm text-muted-foreground">Collaborate with your AI teaching assistant</p>
+                <CardTitle className="text-lg">教師與 AI 聊天</CardTitle>
+                <p className="text-sm text-muted-foreground">與 AI 教學助理協作</p>
               </div>
             </div>
             <Button
@@ -115,7 +115,7 @@ export const ChatInterface = () => {
               className="flex items-center space-x-2"
             >
               <BookOpen className="h-4 w-4" />
-              <span>Interactive Reading</span>
+              <span>互動式閱讀</span>
             </Button>
           </div>
         </CardHeader>
@@ -134,7 +134,7 @@ export const ChatInterface = () => {
                         <>
                           <Bot className="h-4 w-4 text-purple-600" />
                           <Badge variant="secondary" className="bg-purple-100 text-purple-800 text-xs">
-                            AI Agent
+                            AI 助理
                           </Badge>
                         </>
                       )}
@@ -142,7 +142,7 @@ export const ChatInterface = () => {
                         <>
                           <User className="h-4 w-4 text-blue-600" />
                           <Badge variant="secondary" className="bg-blue-100 text-blue-800 text-xs">
-                            Teacher
+                            老師
                           </Badge>
                         </>
                       )}
@@ -170,7 +170,7 @@ export const ChatInterface = () => {
               <Input
                 value={newMessage}
                 onChange={(e) => setNewMessage(e.target.value)}
-                placeholder="Type your message..."
+                placeholder="輸入訊息..."
                 onKeyPress={(e) => e.key === 'Enter' && handleSendMessage()}
                 className="flex-1"
               />

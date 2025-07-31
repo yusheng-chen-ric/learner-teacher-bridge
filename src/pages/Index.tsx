@@ -59,7 +59,7 @@ const Index = () => {
       case 'parent':
         return <ParentCompanionView />;
       default:
-        return <div>Unknown role</div>;
+        return <div>未知角色</div>;
     }
   };
 
@@ -73,7 +73,7 @@ const Index = () => {
             <div className="flex items-center space-x-2">
               <BookOpen className="h-8 w-8 text-blue-600" />
               <h1 className="text-xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
-                English Learning Platform
+                英文學習平台
               </h1>
             </div>
 
@@ -94,7 +94,7 @@ const Index = () => {
                   className="flex items-center space-x-2"
                 >
                   {getRoleIcon(user.role)}
-                  <span>Dashboard</span>
+                  <span>儀表板</span>
                 </Button>
                 
                 <Button
@@ -103,7 +103,7 @@ const Index = () => {
                   className="flex items-center space-x-2"
                 >
                   <Bot className="h-4 w-4" />
-                  <span>AI Agent</span>
+                  <span>AI 助理</span>
                 </Button>
                 
                 <Button
@@ -112,7 +112,7 @@ const Index = () => {
                   className="flex items-center space-x-2"
                 >
                   <MessageCircle className="h-4 w-4" />
-                  <span>Chat</span>
+                  <span>聊天</span>
                 </Button>
                 {user.role === 'student' && (
                   <Button
@@ -121,7 +121,7 @@ const Index = () => {
                     className="flex items-center space-x-2"
                   >
                     <BookOpen className="h-4 w-4" />
-                    <span>Review</span>
+                    <span>複習</span>
                     {words.length > 0 && (
                       <Badge className="ml-1" variant="secondary">
                         {words.length}
@@ -153,21 +153,21 @@ const Index = () => {
                 onClick={() => setActiveView('dashboard')}
                 size="sm"
               >
-                Dashboard
+                儀表板
               </Button>
               <Button
                 variant={activeView === 'agent' ? 'default' : 'ghost'}
                 onClick={() => setActiveView('agent')}
                 size="sm"
               >
-                AI Agent
+                AI 助理
               </Button>
               <Button
                 variant={activeView === 'chat' ? 'default' : 'ghost'}
                 onClick={() => setActiveView('chat')}
                 size="sm"
               >
-                Chat
+                聊天
               </Button>
               {user.role === 'student' && (
                 <Button
@@ -175,7 +175,7 @@ const Index = () => {
                   onClick={() => setActiveView('review')}
                   size="sm"
                 >
-                  Review
+                  複習
                   {words.length > 0 && (
                     <Badge className="ml-1" variant="secondary">
                       {words.length}

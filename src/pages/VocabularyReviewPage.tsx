@@ -13,8 +13,8 @@ export const VocabularyReviewPage = () => {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="text-center space-y-4">
-          <p>No words to review.</p>
-          <Button onClick={() => navigate('/')}>Back to Dashboard</Button>
+          <p>沒有需要複習的單字。</p>
+          <Button onClick={() => navigate('/')}>返回儀表板</Button>
         </div>
       </div>
     );
@@ -39,15 +39,15 @@ export const VocabularyReviewPage = () => {
     <div className="min-h-screen flex items-center justify-center p-4 bg-gray-50">
       <Card className="w-full max-w-sm">
         <CardHeader>
-          <CardTitle>Anki Review</CardTitle>
+          <CardTitle>單字複習</CardTitle>
         </CardHeader>
         <CardContent className="space-y-4 text-center">
           <div className="text-3xl font-bold">{word}</div>
           <div className="flex justify-around">
-            <Button onClick={handleKnown} className="bg-green-600 hover:bg-green-700">Know</Button>
-            <Button variant="outline" onClick={handleAgain}>Again</Button>
+            <Button onClick={handleKnown} className="bg-green-600 hover:bg-green-700">記得</Button>
+            <Button variant="outline" onClick={handleAgain}>再一次</Button>
           </div>
-          <Button variant="ghost" onClick={() => navigate('/')}>Done</Button>
+          <Button variant="ghost" onClick={() => navigate('/')}>完成</Button>
         </CardContent>
       </Card>
     </div>

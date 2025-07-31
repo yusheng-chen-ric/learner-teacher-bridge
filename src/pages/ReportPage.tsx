@@ -75,7 +75,7 @@ export const ReportPage = () => {
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
-          <p className="text-gray-600">Generating your reading report...</p>
+          <p className="text-gray-600">正在產生閱讀報告...</p>
         </div>
       </div>
     );
@@ -85,8 +85,8 @@ export const ReportPage = () => {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="text-center">
-          <p className="text-gray-600">Unable to load report data.</p>
-          <Button onClick={() => navigate(-1)} className="mt-4">Go Back</Button>
+          <p className="text-gray-600">無法載入報告資料。</p>
+          <Button onClick={() => navigate(-1)} className="mt-4">返回</Button>
         </div>
       </div>
     );
@@ -105,13 +105,13 @@ export const ReportPage = () => {
               className="flex items-center space-x-2"
             >
               <ArrowLeft className="h-4 w-4" />
-              <span>Back</span>
+              <span>返回</span>
             </Button>
-            <h1 className="text-2xl font-bold text-gray-800">Reading Analysis Report</h1>
-            <Button size="sm" className="ml-2" onClick={() => navigate('/')}>Finish</Button>
+            <h1 className="text-2xl font-bold text-gray-800">閱讀分析報告</h1>
+            <Button size="sm" className="ml-2" onClick={() => navigate('/')}>完成</Button>
           </div>
           
-          <Badge variant="secondary">Session ID: {sessionId}</Badge>
+          <Badge variant="secondary">會話 ID：{sessionId}</Badge>
         </div>
 
         {/* Summary Cards */}
@@ -124,7 +124,7 @@ export const ReportPage = () => {
                   <p className="text-2xl font-bold text-gray-800">
                     {formatTime(reportData.summary.readingTime)}
                   </p>
-                  <p className="text-sm text-gray-600">Reading Time</p>
+                  <p className="text-sm text-gray-600">閱讀時間</p>
                 </div>
               </div>
             </CardContent>
@@ -138,7 +138,7 @@ export const ReportPage = () => {
                   <p className="text-2xl font-bold text-gray-800">
                     {reportData.summary.avgFixationDuration}ms
                   </p>
-                  <p className="text-sm text-gray-600">Avg. Fixation</p>
+                  <p className="text-sm text-gray-600">平均凝視</p>
                 </div>
               </div>
             </CardContent>
@@ -152,7 +152,7 @@ export const ReportPage = () => {
                   <p className="text-2xl font-bold text-gray-800">
                     {reportData.summary.focusScore}%
                   </p>
-                  <p className="text-sm text-gray-600">Focus Score</p>
+                  <p className="text-sm text-gray-600">專注分數</p>
                 </div>
               </div>
             </CardContent>
@@ -166,42 +166,42 @@ export const ReportPage = () => {
                   <Badge className={getComprehensionColor(reportData.summary.comprehensionLevel)}>
                     {reportData.summary.comprehensionLevel.toUpperCase()}
                   </Badge>
-                  <p className="text-sm text-gray-600 mt-1">Comprehension</p>
+                  <p className="text-sm text-gray-600 mt-1">理解度</p>
                 </div>
               </div>
             </CardContent>
           </Card>
         </div>
 
-        {/* Detailed Analysis */}
+        {/* 詳細分析 */}
         <Card>
           <CardHeader>
-            <CardTitle>Detailed Analysis</CardTitle>
+            <CardTitle>詳細分析</CardTitle>
           </CardHeader>
           <CardContent>
             <Tabs defaultValue="overview" className="w-full">
               <TabsList className="grid w-full grid-cols-4">
-                <TabsTrigger value="overview">Overview</TabsTrigger>
-                <TabsTrigger value="difficulties">Difficulties</TabsTrigger>
-                <TabsTrigger value="recommendations">Recommendations</TabsTrigger>
-                <TabsTrigger value="heatmap">Heatmap</TabsTrigger>
+                <TabsTrigger value="overview">總覽</TabsTrigger>
+                <TabsTrigger value="difficulties">困難</TabsTrigger>
+                <TabsTrigger value="recommendations">建議</TabsTrigger>
+                <TabsTrigger value="heatmap">熱區圖</TabsTrigger>
               </TabsList>
               
               <TabsContent value="overview" className="space-y-4">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <div>
-                    <h3 className="font-semibold mb-3">Reading Statistics</h3>
+                    <h3 className="font-semibold mb-3">閱讀統計</h3>
                     <div className="space-y-2">
                       <div className="flex justify-between">
-                        <span>Words Read:</span>
+                        <span>閱讀字數：</span>
                         <span className="font-medium">{reportData.summary.wordsRead}</span>
                       </div>
                       <div className="flex justify-between">
-                        <span>Regression Rate:</span>
+                        <span>回視率：</span>
                         <span className="font-medium">{reportData.summary.regressionRate}%</span>
                       </div>
                       <div className="flex justify-between">
-                        <span>Reading Speed:</span>
+                        <span>閱讀速度：</span>
                         <span className="font-medium">
                           {Math.round((reportData.summary.wordsRead / reportData.summary.readingTime) * 60000)} WPM
                         </span>
@@ -210,18 +210,18 @@ export const ReportPage = () => {
                   </div>
                   
                   <div>
-                    <h3 className="font-semibold mb-3">Focus Analysis</h3>
+                    <h3 className="font-semibold mb-3">專注分析</h3>
                     <div className="space-y-2">
                       <div className="flex justify-between">
-                        <span>Overall Focus:</span>
-                        <Badge className="bg-green-100 text-green-800">Excellent</Badge>
+                        <span>整體專注：</span>
+                        <Badge className="bg-green-100 text-green-800">極佳</Badge>
                       </div>
                       <div className="flex justify-between">
-                        <span>Distraction Events:</span>
+                        <span>分心次數：</span>
                         <span className="font-medium">3</span>
                       </div>
                       <div className="flex justify-between">
-                        <span>Longest Focus Streak:</span>
+                        <span>最長專注時間：</span>
                         <span className="font-medium">45 seconds</span>
                       </div>
                     </div>
@@ -231,7 +231,7 @@ export const ReportPage = () => {
               
               <TabsContent value="difficulties" className="space-y-4">
                 <div>
-                  <h3 className="font-semibold mb-3">Words That Required Extra Attention</h3>
+                  <h3 className="font-semibold mb-3">需要額外注意的單字</h3>
                   <div className="space-y-3">
                     {reportData.difficultWords.map((word, index) => (
                       <div
@@ -242,18 +242,18 @@ export const ReportPage = () => {
                           <span className="font-medium">{word.word}</span>
                           {word.lookupCount > 0 && (
                             <Badge variant="secondary" className="ml-2">
-                              Looked up {word.lookupCount}x
+                              查詢 {word.lookupCount} 次
                             </Badge>
                           )}
                         </div>
                         <div className="flex items-center space-x-2 text-sm text-gray-600">
-                          <span>{word.fixationTime}ms fixation</span>
+                          <span>{word.fixationTime}毫秒凝視</span>
                           <Button
                             size="sm"
                             variant="outline"
                             onClick={() => addWord(word.word)}
                           >
-                            Add
+                            加入
                           </Button>
                         </div>
                       </div>
@@ -262,9 +262,9 @@ export const ReportPage = () => {
                 </div>
                 
                 <div>
-                  <h3 className="font-semibold mb-3">Sentences That Caused Regression</h3>
+                  <h3 className="font-semibold mb-3">導致回視的句子</h3>
                   <p className="text-sm text-gray-600 mb-2">
-                    These sentences required re-reading, indicating potential comprehension difficulties:
+                    這些句子需要重新閱讀，可能代表理解上的困難：
                   </p>
                   <div className="space-y-2">
                     {reportData.highlightSentences.map((sentenceId, index) => (
@@ -279,29 +279,29 @@ export const ReportPage = () => {
               <TabsContent value="recommendations" className="space-y-4">
                 <div className="space-y-4">
                   <div className="p-4 bg-blue-50 rounded-lg">
-                    <h3 className="font-semibold text-blue-800 mb-2">Vocabulary Development</h3>
+                    <h3 className="font-semibold text-blue-800 mb-2">字彙發展</h3>
                     <ul className="text-sm text-blue-700 space-y-1">
-                      <li>• Focus on pronunciation patterns, especially 'th' sounds</li>
-                      <li>• Practice words ending in '-tion' and '-ness'</li>
-                      <li>• Use flashcards for difficult vocabulary</li>
+                      <li>• 注重發音模式，特別是 th 音</li>
+                      <li>• 練習以 -tion 與 -ness 結尾的單字</li>
+                      <li>• 使用字卡複習困難單字</li>
                     </ul>
                   </div>
                   
                   <div className="p-4 bg-green-50 rounded-lg">
-                    <h3 className="font-semibold text-green-800 mb-2">Reading Strategies</h3>
+                    <h3 className="font-semibold text-green-800 mb-2">閱讀策略</h3>
                     <ul className="text-sm text-green-700 space-y-1">
-                      <li>• Continue with current reading pace - it's optimal</li>
-                      <li>• Try to reduce regression by previewing sentence structure</li>
-                      <li>• Practice reading similar texts to build fluency</li>
+                      <li>• 保持目前的閱讀速度，已相當理想</li>
+                      <li>• 預覽句子結構以降低回視</li>
+                      <li>• 多閱讀類似文章以增進流暢度</li>
                     </ul>
                   </div>
                   
                   <div className="p-4 bg-purple-50 rounded-lg">
-                    <h3 className="font-semibold text-purple-800 mb-2">Next Steps</h3>
+                    <h3 className="font-semibold text-purple-800 mb-2">下一步</h3>
                     <ul className="text-sm text-purple-700 space-y-1">
-                      <li>• Try reading texts with similar complexity level</li>
-                      <li>• Focus on grammar patterns in complex sentences</li>
-                      <li>• Consider speaking practice to improve overall fluency</li>
+                      <li>• 嘗試閱讀難度相近的文章</li>
+                      <li>• 留意複雜句型中的文法結構</li>
+                      <li>• 加強口說練習以提升整體流利度</li>
                     </ul>
                   </div>
                 </div>

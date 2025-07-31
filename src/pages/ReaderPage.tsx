@@ -265,20 +265,20 @@ export const ReaderPage = () => {
               className="flex items-center space-x-2"
             >
               <ArrowLeft className="h-4 w-4" />
-              <span>Back</span>
+              <span>返回</span>
             </Button>
-            <h1 className="text-2xl font-bold text-gray-800">Immersive Reading</h1>
+            <h1 className="text-2xl font-bold text-gray-800">沉浸式閱讀</h1>
           </div>
           
           <div className="flex items-center space-x-2">
             <Badge variant="secondary">
-              Time: {formatTime(sessionData.readingTime)}
+              時間：{formatTime(sessionData.readingTime)}
             </Badge>
             <Badge variant="secondary">
-              Gaze: {sessionData.gazeEvents}
+              注視：{sessionData.gazeEvents}
             </Badge>
             <Badge variant="secondary">
-              Interactions: {sessionData.nodEvents}
+              互動：{sessionData.nodEvents}
             </Badge>
           </div>
         </div>
@@ -286,7 +286,7 @@ export const ReaderPage = () => {
         {/* Enhanced Controls */}
         <Card>
           <CardHeader>
-            <CardTitle className="text-lg">Smart Reading Controls</CardTitle>
+            <CardTitle className="text-lg">智慧閱讀控制</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="flex items-center justify-between">
@@ -297,7 +297,7 @@ export const ReaderPage = () => {
                     className="bg-green-600 hover:bg-green-700 flex items-center space-x-2"
                   >
                     <Eye className="h-4 w-4" />
-                    <span>Start Smart Reading</span>
+                    <span>開始智慧閱讀</span>
                   </Button>
                 ) : (
                   <Button
@@ -306,13 +306,13 @@ export const ReaderPage = () => {
                     className="flex items-center space-x-2"
                   >
                     <EyeOff className="h-4 w-4" />
-                    <span>Pause Tracking</span>
+                    <span>暫停追蹤</span>
                   </Button>
                 )}
                 
                 {isGazeActive && (
                   <Badge className="bg-green-100 text-green-800">
-                    👁️ AI Assistant Active
+                    👁️ AI 助理啟動
                   </Badge>
                 )}
               </div>
@@ -322,7 +322,7 @@ export const ReaderPage = () => {
                 className="bg-blue-600 hover:bg-blue-700 flex items-center space-x-2"
               >
                 <Save className="h-4 w-4" />
-                <span>Finish & View Report</span>
+                <span>完成並查看報告</span>
               </Button>
             </div>
           </CardContent>
@@ -343,17 +343,17 @@ export const ReaderPage = () => {
         <Card>
           <CardContent className="p-4">
             <div className="text-sm text-gray-600 space-y-2">
-              <p><strong>Smart Reading Features:</strong></p>
+              <p><strong>智慧閱讀功能：</strong></p>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
-                  <p>• <strong>Word Help:</strong> Look at difficult words for definitions</p>
-                  <p>• <strong>Quick Lookup:</strong> Slight nod once for instant word info</p>
-                  <p>• <strong>Pronunciation:</strong> Nod twice to hear word pronunciation</p>
+                  <p>• <strong>單字協助：</strong>注視困難單字即可看到定義</p>
+                  <p>• <strong>快速查詢：</strong>輕點頭一次立即取得單字資訊</p>
+                  <p>• <strong>發音：</strong>點頭兩次聆聽單字發音</p>
                 </div>
                 <div>
-                  <p>• <strong>Grammar Help:</strong> Re-reading sentences shows grammar tips</p>
-                  <p>• <strong>Focus Assistant:</strong> Stay focused to avoid gentle reminders</p>
-                  <p>• <strong>Progress Tracking:</strong> All interactions are automatically recorded</p>
+                  <p>• <strong>文法協助：</strong>重新閱讀句子會顯示文法提示</p>
+                  <p>• <strong>專注助手：</strong>保持專注以避免提醒</p>
+                  <p>• <strong>進度追蹤：</strong>所有互動都會自動記錄</p>
                 </div>
               </div>
             </div>
@@ -363,19 +363,19 @@ export const ReaderPage = () => {
         <Card>
           <CardHeader>
             <CardTitle className="text-lg flex justify-between">
-              Demo Mode
+              示範模式
               <Button size="sm" variant="outline" onClick={() => setDemoMode(!demoMode)}>
-                {demoMode ? 'Hide' : 'Show'}
+                {demoMode ? '隱藏' : '顯示'}
               </Button>
             </CardTitle>
           </CardHeader>
           {demoMode && (
             <CardContent>
               <div className="flex flex-wrap gap-2">
-                <Button onClick={triggerDistractionDemo}>Trigger Distraction</Button>
-                <Button onClick={triggerNodDemo}>Nod Once</Button>
-                <Button onClick={triggerDoubleNodDemo}>Nod Twice</Button>
-                <Button variant="outline" onClick={triggerShakeDemo}>Shake</Button>
+                <Button onClick={triggerDistractionDemo}>觸發分心</Button>
+                <Button onClick={triggerNodDemo}>點頭一次</Button>
+                <Button onClick={triggerDoubleNodDemo}>點頭兩次</Button>
+                <Button variant="outline" onClick={triggerShakeDemo}>搖頭</Button>
               </div>
             </CardContent>
           )}
