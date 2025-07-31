@@ -16,7 +16,8 @@ export const ReaderPage = () => {
   const navigate = useNavigate();
   
   // Sample text content - in real app, this would come from API
-  const textContent = `Emma has been learning English for two years. She finds reading comprehension relatively easy, but speaking still makes her nervous. The pronunciation of certain sounds, particularly the "th" sound in words like "think" and "through," continues to challenge her. Her teacher believes that with consistent practice and confidence-building exercises, Emma will become much more fluent in spoken English. Reading books and articles helps Emma expand her vocabulary and understand different sentence structures.`;
+  // Immersive reading material translated into Chinese
+  const textContent = `艾瑪學習英語已經兩年了。她覺得閱讀理解相對容易，但口說仍然讓她緊張。某些音的發音，尤其是像 "think" 和 "through" 中的 "th" 音，仍然讓她困擾。老師認為只要持續練習並建立自信，艾瑪將能在口說英語上更加流利。閱讀書籍和文章有助於艾瑪擴充詞彙並理解不同的句子結構。`;
 
   // Core state management
   const [isGazeActive, setIsGazeActive] = useState(false);
@@ -236,12 +237,26 @@ export const ReaderPage = () => {
     const updated = Array.from(new Set([...existing, ...newWords]));
     localStorage.setItem('reviewWords', JSON.stringify(updated));
 
-    console.log('Uploading session data:', {
-      sessionId,
+    const positions: Record<string, { x: number; y: number; width: number; height: number }> = {};
+    elementPositionsRef.current.forEach((rect, id) => {
+      positions[id] = {
+        x: rect.x + window.scrollX,
+        y: rect.y + window.scrollY,
+        width: rect.width,
+        height: rect.height
+      };
+    });
+
+    const sessionPayload = {
       gazeData: fullSessionData.current,
       sessionStats: sessionData,
+      positions,
       newWords
-    });
+    };
+
+    localStorage.setItem(`session-${sessionId}`, JSON.stringify(sessionPayload));
+
+    console.log('Uploading session data:', { sessionId, ...sessionPayload });
     
     navigate(`/report/${sessionId}`);
   };
