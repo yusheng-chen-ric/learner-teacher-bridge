@@ -8,8 +8,16 @@ import { Eye, EyeOff, Save, ArrowLeft } from 'lucide-react';
 import { TextDisplay } from '@/components/reader/TextDisplay';
 import { WordPopup } from '@/components/reader/WordPopup';
 import { GrammarCard } from '@/components/reader/GrammarCard';
+import { FollowAlongWidget } from '@/components/FollowAlongWidget';
+import { PronunciationFeedback } from '@/components/PronunciationFeedback';
 import { useGazeEvents } from '@/hooks/useGazeEvents';
 import type { GazePacket, WordPopupData, GrammarCardData } from '@/types';
+import {
+  toGazePackets,
+  type RealtimeData
+} from '@/lib/realtimeDataTransform';
+
+type WsStatus = 'connecting' | 'connected' | 'disconnected';
 
 export const ReaderPage = () => {
   const { sessionId } = useParams<{ sessionId: string }>();
@@ -34,7 +42,17 @@ export const ReaderPage = () => {
   // Enhanced interaction states
   const [newWords, setNewWords] = useState<string[]>([]);
   const [demoMode, setDemoMode] = useState(false);
+  const [followAlongTarget, setFollowAlongTarget] = useState<{ text: string; position: { x: number; y: number } } | null>(null);
+  const [feedbackData, setFeedbackData] = useState<{ audioBlob: Blob; text: string } | null>(null);
+  const [wsStatus, setWsStatus] = useState<WsStatus>('connecting');
+  const [showGrammarHint, setShowGrammarHint] = useState(false);
 
+  const handleRecordingComplete = (audioBlob: Blob) => {
+    if (followAlongTarget) {
+      setFeedbackData({ audioBlob, text: followAlongTarget.text });
+      setFollowAlongTarget(null);
+    }
+  };
 
 
 
@@ -43,6 +61,7 @@ export const ReaderPage = () => {
   const gazeDataQueue = useRef<GazePacket[]>([]);
   const fullSessionData = useRef<GazePacket[]>([]);
   const animationFrameRef = useRef<number>();
+  const prevGazeRef = useRef<{ x: number; y: number } | null>(null);
 
   // Initialize gaze event handlers
   const { processEvent, resetSession, setWordPopupVisible } = useGazeEvents({
@@ -116,6 +135,18 @@ export const ReaderPage = () => {
     setWordPopupVisible(!!wordPopup);
   }, [wordPopup, setWordPopupVisible]);
 
+  // WebSocket connection status
+  useEffect(() => {
+    const ws = new WebSocket('ws://localhost:8765');
+    setWsStatus('connecting');
+    ws.onopen = () => setWsStatus('connected');
+    ws.onclose = () => setWsStatus('disconnected');
+    ws.onerror = () => setWsStatus('disconnected');
+    return () => {
+      ws.close();
+    };
+  }, []);
+
   // Simulate gaze tracking data with enhanced patterns
   useEffect(() => {
     if (!isGazeActive) return;
@@ -147,6 +178,25 @@ export const ReaderPage = () => {
     return () => clearInterval(interval);
   }, [isGazeActive]);
 
+  // Fetch realtime gaze data from backend (or local mock)
+  useEffect(() => {
+    if (!isGazeActive) return;
+
+    const fetchRealtime = async () => {
+      try {
+        const res = await fetch(`${import.meta.env.BASE_URL}api/realtime`);
+        if (!res.ok) return;
+        const data: RealtimeData[] = await res.json();
+        gazeDataQueue.current.push(...toGazePackets(data));
+      } catch (err) {
+        console.error('Failed to fetch realtime data', err);
+      }
+    };
+
+    const interval = setInterval(fetchRealtime, 200);
+    return () => clearInterval(interval);
+  }, [isGazeActive]);
+
   // Main processing loop with enhanced data handling
   useEffect(() => {
     if (!isGazeActive) return;
@@ -156,9 +206,20 @@ export const ReaderPage = () => {
         const packet = gazeDataQueue.current.shift()!;
         fullSessionData.current.push(packet);
         
-        const hoveredElement = packet.gaze_valid === 1 
+        const hoveredElement = packet.gaze_valid === 1
           ? document.elementFromPoint(packet.gaze_pos_x, packet.gaze_pos_y)
           : null;
+
+        if (prevGazeRef.current) {
+          const dx = packet.gaze_pos_x - prevGazeRef.current.x;
+          const dy = packet.gaze_pos_y - prevGazeRef.current.y;
+          const dist = Math.hypot(dx, dy);
+          if (dist > 150) {
+            setShowGrammarHint(true);
+            setTimeout(() => setShowGrammarHint(false), 3000);
+          }
+        }
+        prevGazeRef.current = { x: packet.gaze_pos_x, y: packet.gaze_pos_y };
         
         // Pass gaze coordinates for gesture detection
         processEvent(
@@ -295,6 +356,22 @@ export const ReaderPage = () => {
             <Badge variant="secondary">
               互動：{sessionData.nodEvents}
             </Badge>
+            <Badge
+              variant="secondary"
+              className={
+                wsStatus === 'connected'
+                  ? 'bg-green-100 text-green-800'
+                  : wsStatus === 'connecting'
+                    ? 'bg-yellow-100 text-yellow-800'
+                    : 'bg-red-100 text-red-800'
+              }
+            >
+              {wsStatus === 'connected'
+                ? '已連線'
+                : wsStatus === 'connecting'
+                ? '連線中'
+                : '未連線'}
+            </Badge>
           </div>
         </div>
 
@@ -404,6 +481,9 @@ export const ReaderPage = () => {
           word={wordPopup.word}
           position={wordPopup.position}
           onClose={() => setWordPopup(null)}
+          onFollowAlong={(text, pos) =>
+            setFollowAlongTarget({ text, position: { x: pos.left, y: pos.top } })
+          }
         />
       )}
 
@@ -412,7 +492,40 @@ export const ReaderPage = () => {
           sentence={grammarCard.sentence}
           position={grammarCard.position}
           onClose={() => setGrammarCard(null)}
+          onFollowAlong={(text, pos) =>
+            setFollowAlongTarget({ text, position: { x: pos.left, y: pos.top } })
+          }
         />
+      )}
+
+      {followAlongTarget && (
+        <FollowAlongWidget
+          text={followAlongTarget.text}
+          position={followAlongTarget.position}
+          onClose={() => setFollowAlongTarget(null)}
+          onRecordingComplete={handleRecordingComplete}
+        />
+      )}
+
+      {feedbackData && (
+        <PronunciationFeedback
+          audioBlob={feedbackData.audioBlob}
+          originalText={feedbackData.text}
+          onClose={() => setFeedbackData(null)}
+        />
+      )}
+
+      {showGrammarHint && (
+        <div className="fixed bottom-4 right-4 bg-white border p-3 rounded shadow-lg text-sm" style={{maxWidth: '300px'}}>
+          <p>
+            The system provides{' '}
+            <span style={{ textDecoration: 'underline dotted' }}>real-time feedback</span>{' '}
+            to students.
+          </p>
+          <sub style={{ fontSize: '0.8em', color: '#888' }}>
+            real-time feedback：<strong>複合名詞</strong>，作為動詞 provides 的受詞。real-time 是形容詞，強調「即時」這個特性，用來修飾 feedback（回饋）。
+          </sub>
+        </div>
       )}
     </div>
   );

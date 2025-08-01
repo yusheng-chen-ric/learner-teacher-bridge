@@ -2,12 +2,13 @@
 import { useState, useEffect } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Volume2, X } from 'lucide-react';
+import { Volume2, Mic, X } from 'lucide-react';
 
 interface WordPopupProps {
   word: string;
   position: { top: number; left: number };
   onClose: () => void;
+  onFollowAlong?: (text: string, position: { top: number; left: number }) => void;
 }
 
 interface WordDefinition {
@@ -18,7 +19,7 @@ interface WordDefinition {
   examples: string[];
 }
 
-export const WordPopup = ({ word, position, onClose }: WordPopupProps) => {
+export const WordPopup = ({ word, position, onClose, onFollowAlong }: WordPopupProps) => {
   const [definition, setDefinition] = useState<WordDefinition | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isFlipped, setIsFlipped] = useState(false);
@@ -86,6 +87,16 @@ export const WordPopup = ({ word, position, onClose }: WordPopupProps) => {
                   >
                     <Volume2 className="h-4 w-4" />
                   </Button>
+                  {onFollowAlong && (
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => onFollowAlong(definition.word, position)}
+                      className="text-green-600 hover:text-green-800 p-1 h-auto"
+                    >
+                      <Mic className="h-4 w-4" />
+                    </Button>
+                  )}
                 </div>
                 <Button
                   variant="ghost"

@@ -58,9 +58,12 @@ export const EnhancedStudentDashboard = () => {
 
   const handleUploadFile = () => {
     console.log('Opening file upload for self-paced reading');
-    // For now, simulate file upload and start reading
+    setIsLoading(true);
     const sessionId = `session-${Date.now()}-selfpaced`;
-    navigate(`/reader/${sessionId}`);
+    setTimeout(() => {
+      navigate(`/reader/${sessionId}`);
+      setIsLoading(false);
+    }, 1000);
   };
 
   const getDaysUntilDue = (dueDate: string) => {
@@ -68,7 +71,7 @@ export const EnhancedStudentDashboard = () => {
     const now = new Date();
     const diffTime = due.getTime() - now.getTime();
     const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-    return diffDays;
+    return Math.max(diffDays, 0);
   };
 
   const getStatusColor = (status: string) => {
@@ -129,7 +132,11 @@ export const EnhancedStudentDashboard = () => {
                         variant="secondary" 
                         className={getStatusColor(assignment.status)}
                       >
-                        {assignment.status === 'completed' ? '已完成' : `剩餘 ${getDaysUntilDue(assignment.dueDate)} 天`}
+                        {assignment.status === 'completed'
+                          ? '已完成'
+                          : getDaysUntilDue(assignment.dueDate) === 0
+                          ? '已過期'
+                          : `剩餘 ${getDaysUntilDue(assignment.dueDate)} 天`}
                       </Badge>
                     </div>
                   </div>

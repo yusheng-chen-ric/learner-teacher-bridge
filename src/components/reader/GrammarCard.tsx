@@ -2,15 +2,16 @@
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { X, BookOpen } from 'lucide-react';
+import { X, BookOpen, Mic } from 'lucide-react';
 
 interface GrammarCardProps {
   sentence: string;
   position: { top: number; left: number };
   onClose: () => void;
+  onFollowAlong?: (text: string, position: { top: number; left: number }) => void;
 }
 
-export const GrammarCard = ({ sentence, position, onClose }: GrammarCardProps) => {
+export const GrammarCard = ({ sentence, position, onClose, onFollowAlong }: GrammarCardProps) => {
   // Mock grammar analysis - in real implementation, this would come from AI/NLP service
   const grammarAnalysis = {
     tense: 'Present Perfect',
@@ -40,6 +41,16 @@ export const GrammarCard = ({ sentence, position, onClose }: GrammarCardProps) =
               <div className="flex items-center space-x-2">
                 <BookOpen className="h-4 w-4 text-green-600" />
                 <span className="font-medium text-green-700">Grammar Help</span>
+                {onFollowAlong && (
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => onFollowAlong(sentence, position)}
+                    className="text-green-600 hover:text-green-800 p-1 h-auto"
+                  >
+                    <Mic className="h-4 w-4" />
+                  </Button>
+                )}
               </div>
               <Button
                 variant="ghost"
