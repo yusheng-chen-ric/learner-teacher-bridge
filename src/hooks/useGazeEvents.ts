@@ -1,5 +1,8 @@
 import { useRef, useCallback } from 'react';
+import { ttsService } from '@/services/TTSService';
+
 import { useSettings } from '@/contexts/SettingsContext';
+
 
 interface GazeEventHandlers {
   onFixation: (payload: { wordId: string; element: HTMLElement; word: string }) => void;
@@ -126,6 +129,19 @@ export const useGazeEvents = (handlers: GazeEventHandlers) => {
             
             // Detect single nod pattern (one significant vertical movement)
             if (nodDetectionRef.current.verticalMovements.length === 2) {
+              const movement = Math.abs(
+                nodDetectionRef.current.verticalMovements[1] -
+                  nodDetectionRef.current.verticalMovements[0]
+              );
+              if (movement > 20) {
+                handlers.onNodOnce({ wordId, element: hoveredElement as HTMLElement, word: wordText });
+                const settings = ttsService.getSettings();
+                if (settings.enabled) {
+                  ttsService
+                    .speak(wordText, { rate: settings.rate * 0.8 })
+                    .catch((e) => console.error('TTS Error on nod:', e));
+                }
+
               const movement = Math.abs(nodDetectionRef.current.verticalMovements[1] - nodDetectionRef.current.verticalMovements[0]);
               if (movement > settings.nodMovementThreshold) { // Threshold for significant movement
                 handlers.onNodOnce({ 
@@ -143,12 +159,23 @@ export const useGazeEvents = (handlers: GazeEventHandlers) => {
               const firstNod = Math.abs(movements[1] - movements[0]);
               const secondNod = Math.abs(movements[3] - movements[2]);
               
+
+              if (firstNod > 20 && secondNod > 20) {
+                handlers.onNodTwice({ wordId, element: hoveredElement as HTMLElement, word: wordText });
+                const settings = ttsService.getSettings();
+                if (settings.enabled) {
+                  ttsService
+                    .speak(wordText, { rate: settings.rate * 0.8 })
+                    .catch((e) => console.error('TTS Error on nod:', e));
+                }
+
               if (firstNod > settings.nodMovementThreshold && secondNod > settings.nodMovementThreshold) {
                 handlers.onNodTwice({ 
                   wordId, 
                   element: hoveredElement as HTMLElement,
                   word: wordText
                 });
+
                 nodDetectionRef.current.verticalMovements = [];
               }
             }
@@ -156,6 +183,14 @@ export const useGazeEvents = (handlers: GazeEventHandlers) => {
         }
         
         // Traditional fixation detection for word lookup
+
+        if (fixationDuration > 800) {
+          handlers.onFixation({ wordId, element: hoveredElement as HTMLElement, word: wordText });
+          const settings = ttsService.getSettings();
+          if (settings.enabled && settings.autoSpeak) {
+            ttsService.speak(wordText).catch((e) => console.error('TTS Error on fixation:', e));
+          }
+
         if (fixationDuration > settings.fixationThreshold) {
           handlers.onFixation({ 
             wordId, 
@@ -199,11 +234,13 @@ export const useGazeEvents = (handlers: GazeEventHandlers) => {
       if (currentIndex < maxReadSentenceIndexRef.current) {
         // Regression detected
         const sentenceText = sentenceElement.textContent || '';
-        handlers.onRegression({ 
-          sentenceId, 
-          element: sentenceElement,
-          sentence: sentenceText
-        });
+        handlers.onRegression({ sentenceId, element: sentenceElement, sentence: sentenceText });
+        const settings = ttsService.getSettings();
+        if (settings.enabled && settings.autoSpeak) {
+          ttsService
+            .speak(sentenceText, { rate: settings.rate * 0.9 })
+            .catch((e) => console.error('TTS Error on regression:', e));
+        }
       } else {
         maxReadSentenceIndexRef.current = Math.max(maxReadSentenceIndexRef.current, currentIndex);
       }

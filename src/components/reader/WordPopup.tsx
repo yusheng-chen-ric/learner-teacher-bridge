@@ -3,6 +3,7 @@ import { useState, useEffect } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Volume2, Mic, X } from 'lucide-react';
+import { ttsService } from '@/services/TTSService';
 
 interface WordPopupProps {
   word: string;
@@ -51,11 +52,13 @@ export const WordPopup = ({ word, position, onClose, onFollowAlong }: WordPopupP
   }, [word]);
 
   const playPronunciation = () => {
-    if ('speechSynthesis' in window && definition) {
-      const utterance = new SpeechSynthesisUtterance(definition.word);
-      utterance.lang = 'en-US';
-      utterance.rate = 0.8;
-      speechSynthesis.speak(utterance);
+    if (definition) {
+      const settings = ttsService.getSettings();
+      if (settings.enabled) {
+        ttsService
+          .speak(definition.word, { rate: settings.rate * 0.8 })
+          .catch((e) => console.error('TTS Error:', e));
+      }
     }
   };
 
