@@ -26,7 +26,7 @@ export const GrammarCard = ({ sentence, position, onClose, onFollowAlong }: Gram
   };
 
   return (
-    <div className="fixed inset-0 z-50" onClick={onClose}>
+    <div className="fixed inset-0 z-100 y-40 x-100" onClick={onClose}>
       <Card 
         className="absolute w-96 shadow-lg border-2 border-green-200 bg-white"
         style={{
