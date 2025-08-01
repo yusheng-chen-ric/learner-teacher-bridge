@@ -35,7 +35,19 @@ export const ReportPage = () => {
         }
       }
 
-      if (!gazeData) {
+      try {
+        const res = await fetch('/realtime-demo.json');
+        if (res.ok) {
+          const backendData = await res.json();
+          const { toGazePackets } = await import('@/lib/realtimeDataTransform');
+          const packets = toGazePackets(backendData);
+          gazeData = gazeData ? [...gazeData, ...packets] : packets;
+        }
+      } catch (err) {
+        console.error('Failed to fetch realtime data', err);
+      }
+
+      if (!gazeData || gazeData.length === 0) {
         const { defaultGazeData } = await import('@/data/defaultGazeData');
         gazeData = defaultGazeData;
       }

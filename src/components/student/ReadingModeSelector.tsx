@@ -12,11 +12,25 @@ interface ReadingModeSelectorProps {
 export const ReadingModeSelector = ({ onStartReading }: ReadingModeSelectorProps) => {
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
 
-  const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
+  const MAX_FILE_SIZE = 2 * 1024 * 1024; // 2MB
+  const MAX_TEXT_LENGTH = 10000;
+
+  const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
-    if (file && (file.type === 'text/plain' || file.name.endsWith('.txt'))) {
-      setSelectedFile(file);
+    if (!file) return;
+
+    if (file.size > MAX_FILE_SIZE) {
+      alert('檔案過大，請選擇 2MB 以下的檔案');
+      return;
     }
+
+    const text = await file.text();
+    if (text.length > MAX_TEXT_LENGTH) {
+      alert('文章太長，請選擇較短的文章');
+      return;
+    }
+
+    setSelectedFile(file);
   };
 
   const startSelfPacedReading = () => {

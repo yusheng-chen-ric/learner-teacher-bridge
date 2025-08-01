@@ -1,5 +1,3 @@
-
-
 ## 熱區圖資料需求
 
 報告頁面包含一個視線熱區圖標籤，用來顯示眼動追蹤結果。
@@ -7,8 +5,8 @@
 
 ```ts
 interface HeatmapPoint {
-  x: number;    // X coordinate of the gaze point in pixels relative to the text
-  y: number;    // Y coordinate in pixels
+  x: number; // X coordinate of the gaze point in pixels relative to the text
+  y: number; // Y coordinate in pixels
   value: number; // Intensity or dwell time value from 0–1
 }
 ```
@@ -34,7 +32,6 @@ interface ReadingMaterial {
 
 An example is available in the UI at `/schema` for reference.
 
-
 ## Grammar annotation endpoint
 
 To provide grammar tips when a learner focuses on a sentence, the app can fetch a simple JSON payload. The file `public/grammar-demo.json` acts as a demo endpoint and returns data like:
@@ -57,13 +54,3 @@ To provide grammar tips when a learner focuses on a sentence, the app can fetch 
 ```
 
 Use `fetchGrammarDemo()` from `src/lib/grammarEndpoint.ts` to retrieve and parse this data on the client.
-
-## Environment setup
-
-Copy `.env.example` to `.env` and add your OpenAI API key:
-
-```bash
-cp .env.example .env
-# edit .env and set VITE_OPENAI_API_KEY
-```
-
