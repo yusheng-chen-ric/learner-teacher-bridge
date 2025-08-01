@@ -4,12 +4,22 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import ImageDisplay from '@/components/reader/ImageDisplay';
 
-// Load png images from the public/image folder
-const items = [
+// Pages for the short story. Images are served from the public folder
+const pages = [
   {
     id: 'img1',
     src: '/image/sample.png',
     text: 'Emma has been learning English for two years.'
+  },
+  {
+    id: 'img2',
+    src: '/placeholder.svg',
+    text: 'She practices with her friends every day.'
+  },
+  {
+    id: 'img3',
+    src: '/image/sample.png',
+    text: 'Reading short stories helps her improve quickly.'
   }
 ];
 
@@ -17,6 +27,8 @@ export const ImageReaderPage = () => {
   const { sessionId } = useParams<{ sessionId: string }>();
   const [focusId, setFocusId] = useState<string | null>(null);
   const [uploadedImage, setUploadedImage] = useState<string | null>(null);
+  const [pageIndex, setPageIndex] = useState(0);
+
 
   const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -39,7 +51,7 @@ export const ImageReaderPage = () => {
 
   const triggerDistraction = (id: string) => {
     setFocusId(id);
-    speak(items.find(i => i.id === id)?.text || '');
+    speak(pages.find(i => i.id === id)?.text || '');
     setTimeout(() => setFocusId(null), 3000);
   };
 
@@ -50,15 +62,27 @@ export const ImageReaderPage = () => {
           <CardTitle className="text-lg">Image Reading Session</CardTitle>
         </CardHeader>
         <CardContent className="space-y-6">
-          {items.map(item => (
-            <div key={item.id} className="space-y-2">
-              <ImageDisplay id={item.id} src={item.src} text={item.text} isHighlighted={focusId === item.id} />
-              <Button size="sm" onClick={() => speak(item.text)}>
-                Speak
-              </Button>
-            </div>
-          ))}
-          <Button variant="outline" onClick={() => triggerDistraction(items[0].id)}>
+          {(() => {
+            const page = pages[pageIndex];
+            return (
+              <div key={page.id} className="space-y-2 text-center">
+                <ImageDisplay id={page.id} src={page.src} text={page.text} isHighlighted={focusId === page.id} />
+                <p className="text-sm">{page.text}</p>
+                <Button size="sm" onClick={() => speak(page.text)}>
+                  Speak
+                </Button>
+              </div>
+            );
+          })()}
+          <div className="flex justify-between pt-2">
+            <Button variant="outline" onClick={() => setPageIndex(p => Math.max(0, p - 1))} disabled={pageIndex === 0}>
+              Previous
+            </Button>
+            <Button variant="outline" onClick={() => setPageIndex(p => Math.min(pages.length - 1, p + 1))} disabled={pageIndex === pages.length - 1}>
+              Next
+            </Button>
+          </div>
+          <Button variant="outline" onClick={() => triggerDistraction(pages[pageIndex].id)}>
             Simulate Distraction
           </Button>
           <div className="pt-4 space-y-2">
