@@ -57,3 +57,7 @@ To provide grammar tips when a learner focuses on a sentence, the app can fetch 
 ```
 
 Use `fetchGrammarDemo()` from `src/lib/grammarEndpoint.ts` to retrieve and parse this data on the client.
+
+## Heatmap generation
+
+When a report is viewed the app tries to load gaze points from `realtime-demo.json`. These points are transformed using `toGazePackets()` and combined with any locally stored data before generating heatmap values. If loading fails or no gaze data is available, the default sample in `src/data/defaultGazeData.ts` is used so the heatmap still renders.
