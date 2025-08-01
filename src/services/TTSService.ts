@@ -4,46 +4,8 @@ export interface TTSSettings {
   rate: number;
   pitch: number;
   volume: number;
-
-}
-
-export class TTSService {
-  private settings: TTSSettings;
-
-  constructor() {
-    const stored = localStorage.getItem('ttsSettings');
-    if (stored) {
-      try {
-        this.settings = { ...JSON.parse(stored) } as TTSSettings;
-      } catch {
-        this.settings = { enabled: true, autoSpeak: true, rate: 1, pitch: 1, volume: 1 };
-      }
-    } else {
-      this.settings = { enabled: true, autoSpeak: true, rate: 1, pitch: 1, volume: 1 };
-    }
-  }
-
-  public getSettings(): TTSSettings {
-    return this.settings;
-  }
-
-  public updateSettings(updates: Partial<TTSSettings>): void {
-    this.settings = { ...this.settings, ...updates };
-    localStorage.setItem('ttsSettings', JSON.stringify(this.settings));
-  }
-
-  public speak(text: string, opts?: Partial<TTSSettings>): Promise<void> {
-    return new Promise((resolve) => {
-      if (!('speechSynthesis' in window)) return resolve();
-      if (!this.settings.enabled) return resolve();
-      const u = new SpeechSynthesisUtterance(text);
-      const final = { ...this.settings, ...opts };
-      u.rate = final.rate;
-      u.pitch = final.pitch;
-      u.volume = final.volume;
-      speechSynthesis.cancel();
-      speechSynthesis.speak(u);
-      u.onend = () => resolve();
+  voice: string;
+  language: string;
 }
 
 export class TTSService {
@@ -70,7 +32,7 @@ export class TTSService {
           pitch: 1,
           volume: 0.8,
           voice: '',
-          language: 'en-US'
+          language: 'en-US',
         };
   }
 
@@ -123,18 +85,10 @@ export class TTSService {
         reject(new Error(`TTS Error: ${e.error}`));
       };
       this.synthesis.speak(utterance);
-
     });
   }
 
   public stop(): void {
-
-    if ('speechSynthesis' in window) {
-      speechSynthesis.cancel();
-    }
-  }
-}
-
     if (this.isPlaying) {
       this.synthesis.cancel();
       this.isPlaying = false;
@@ -173,4 +127,3 @@ export class TTSService {
 }
 
 export const ttsService = new TTSService();
-
