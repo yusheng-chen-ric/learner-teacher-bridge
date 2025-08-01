@@ -58,9 +58,12 @@ export const EnhancedStudentDashboard = () => {
 
   const handleUploadFile = () => {
     console.log('Opening file upload for self-paced reading');
-    // For now, simulate file upload and start reading
+    setIsLoading(true);
     const sessionId = `session-${Date.now()}-selfpaced`;
-    navigate(`/reader/${sessionId}`);
+    setTimeout(() => {
+      navigate(`/reader/${sessionId}`);
+      setIsLoading(false);
+    }, 1000);
   };
 
   const getDaysUntilDue = (dueDate: string) => {
