@@ -23,6 +23,7 @@ import {
   type RealtimeData
 } from '@/lib/realtimeDataTransform';
 import { TextContentTTSService } from '@/services/TextContentTTSService';
+import { fetchGrammarDemo, type GrammarDemoData } from '@/lib/grammarEndpoint';
 
 type WsStatus = 'connecting' | 'connected' | 'disconnected';
 
@@ -48,11 +49,20 @@ export const ReaderPage = () => {
       .catch((err) => console.error('Failed to load text', err));
   }, []);
 
+  // Load grammar annotations
+  useEffect(() => {
+    fetchGrammarDemo()
+      .then((data) => setGrammarData(data))
+      .catch((err) => console.error('Failed to load grammar demo', err));
+  }, []);
+
   // Core state management
   const [isGazeActive, setIsGazeActive] = useState(false);
   const [wordPopup, setWordPopup] = useState<WordPopupData | null>(null);
   const [grammarCard, setGrammarCard] = useState<GrammarCardData | null>(null);
   const [distractionElementId, setDistractionElementId] = useState<string | null>(null);
+  const [annotations, setAnnotations] = useState<Record<string, string>>({});
+  const [grammarData, setGrammarData] = useState<GrammarDemoData | null>(null);
   const [sessionData, setSessionData] = useState({
     startTime: Date.now(),
     readingTime: 0,
@@ -152,6 +162,11 @@ export const ReaderPage = () => {
         position: { top: rect.bottom, left: rect.left }
       });
       setWordPopup(null);
+      const annotation = grammarData?.sentences.find(s => s.id === sentenceId);
+      if (annotation) {
+        const text = annotation.underlines.map(u => `${u.phrase}: ${u.explanation}`).join(' \n ');
+        setAnnotations(prev => ({ ...prev, [sentenceId]: text }));
+      }
     },
     onDistraction: () => {
       // Set a default distraction behavior when no specific sentence is identified
@@ -489,6 +504,10 @@ export const ReaderPage = () => {
         case '5':
           triggerGrammarDemo();
           break;
+        case 'Escape':
+          setWordPopup(null);
+          setGrammarCard(null);
+          break;
         default:
           break;
       }
@@ -642,6 +661,7 @@ export const ReaderPage = () => {
                 textContent={textContent}
                 elementPositionsRef={elementPositionsRef}
                 distractionElementId={distractionElementId}
+                annotations={annotations}
               />
             </div>
           </CardContent>
