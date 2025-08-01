@@ -12,6 +12,7 @@ import { GrammarCard } from '@/components/reader/GrammarCard';
 import { FollowAlongWidget } from '@/components/FollowAlongWidget';
 import { PronunciationFeedback } from '@/components/PronunciationFeedback';
 import { TTSSettingsPanel } from '@/components/TTSSettingsPanel';
+import SmartReadingControl from '@/components/SmartReadingControl';
 
 import { ttsService } from '@/services/TTSService';
 
@@ -581,77 +582,20 @@ export const ReaderPage = () => {
 
 
         {/* Enhanced Controls */}
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-lg">智慧閱讀控制</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="flex items-center justify-between">
-              <div className="flex items-center space-x-4">
-                {!isGazeActive ? (
-                  <Button
-                    onClick={handleStartGazeTracking}
-                    className="bg-green-600 hover:bg-green-700 flex items-center space-x-2"
-                  >
-                    <Eye className="h-4 w-4" />
-                    <span>開始智慧閱讀</span>
-                  </Button>
-                ) : (
-                  <Button
-                    onClick={handleStopGazeTracking}
-                    variant="outline"
-                    className="flex items-center space-x-2"
-                  >
-                    <EyeOff className="h-4 w-4" />
-                    <span>暫停追蹤</span>
-                  </Button>
-                )}
-                
-              {isGazeActive && (
-                <Badge className="bg-green-100 text-green-800">
-                  👁️ AI 助理啟動
-                </Badge>
-              )}
-              <Button
-                variant={ttsEnabled ? 'default' : 'outline'}
-                size="sm"
-                onClick={() => {
-                  const newVal = !ttsEnabled;
-                  textTTSService.current.updateSettings({ enabled: newVal });
-                  setTTSEnabled(newVal);
-                }}
-                className="flex items-center space-x-1"
-              >
-                {ttsEnabled ? <Volume2 className="h-4 w-4" /> : <Square className="h-4 w-4" />}
-                <span>{ttsEnabled ? 'TTS開啟' : 'TTS關閉'}</span>
-              </Button>
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => setShowTTSSettings(true)}
-              >
-                <Settings className="h-4 w-4" />
-              </Button>
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => textTTSService.current.stop()}
-                disabled={!ttsEnabled}
-              >
-                <Square className="h-4 w-4" />
-              </Button>
-            </div>
-              
-              <Button
-                onClick={handleFinishReading}
-                className="bg-blue-600 hover:bg-blue-700 flex items-center space-x-2"
-              >
-                <Save className="h-4 w-4" />
-                <span>完成並查看報告</span>
-              </Button>
-            </div>
-          </CardContent>
-        </Card>
+        <SmartReadingControl
+          isGazeActive={isGazeActive}
+          ttsEnabled={ttsEnabled}
+          onToggleTTS={() => {
+            const newVal = !ttsEnabled;
+            textTTSService.current.updateSettings({ enabled: newVal });
+            setTTSEnabled(newVal);
+          }}
+          onStartGaze={handleStartGazeTracking}
+          onStopGaze={handleStopGazeTracking}
+          onShowTTSSettings={() => setShowTTSSettings(true)}
+          onStopTTS={() => textTTSService.current.stop()}
+          onFinishReading={handleFinishReading}
+        />
 
         {/* Reading Text */}
         <Card>

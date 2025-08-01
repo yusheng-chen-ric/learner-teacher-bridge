@@ -1,8 +1,12 @@
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import ImageDisplay from '@/components/reader/ImageDisplay';
+import SmartReadingControl from '@/components/SmartReadingControl';
+import { TTSSettingsPanel } from '@/components/TTSSettingsPanel';
+import { ttsService } from '@/services/TTSService';
+import { TextContentTTSService } from '@/services/TextContentTTSService';
 
 // Pages for the short story. Images are served from the public folder
 const pages = [
@@ -28,6 +32,18 @@ export const ImageReaderPage = () => {
   const [focusId, setFocusId] = useState<string | null>(null);
   const [uploadedImage, setUploadedImage] = useState<string | null>(null);
   const [pageIndex, setPageIndex] = useState(0);
+  const [isGazeActive, setIsGazeActive] = useState(false);
+  const [ttsEnabled, setTTSEnabled] = useState(ttsService.getSettings().enabled);
+  const [showTTSSettings, setShowTTSSettings] = useState(false);
+  const textTTSService = useRef<TextContentTTSService>(new TextContentTTSService());
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      const settings = textTTSService.current.getSettings();
+      setTTSEnabled(settings.enabled);
+    }, 1000);
+    return () => clearInterval(interval);
+  }, []);
 
 
   const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -41,12 +57,9 @@ export const ImageReaderPage = () => {
   };
 
   const speak = (text: string) => {
-    if ('speechSynthesis' in window) {
-      const u = new SpeechSynthesisUtterance(text);
-      u.lang = 'en-US';
-      u.rate = 0.9;
-      speechSynthesis.speak(u);
-    }
+    textTTSService.current
+      .speakText(text)
+      .catch((e) => console.error('TTS Error:', e));
   };
 
   const triggerDistraction = (id: string) => {
@@ -55,18 +68,25 @@ export const ImageReaderPage = () => {
     setTimeout(() => setFocusId(null), 3000);
   };
 
+  const toggleTTS = () => {
+    const newVal = !ttsEnabled;
+    textTTSService.current.updateSettings({ enabled: newVal });
+    setTTSEnabled(newVal);
+  };
+
   return (
     <div className="min-h-screen p-4 bg-gray-50">
-      <Card className="max-w-xl mx-auto">
-        <CardHeader>
-          <CardTitle className="text-lg">Image Reading Session</CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-6">
-          {(() => {
-            const page = pages[pageIndex];
-            return (
-              <div key={page.id} className="space-y-2 text-center">
-                <ImageDisplay id={page.id} src={page.src} text={page.text} isHighlighted={focusId === page.id} />
+      <div className="max-w-xl mx-auto space-y-6">
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-lg">Image Reading Session</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-6">
+            {(() => {
+              const page = pages[pageIndex];
+              return (
+                <div key={page.id} className="space-y-2 text-center">
+                  <ImageDisplay id={page.id} src={page.src} text={page.text} isHighlighted={focusId === page.id} />
                 <p className="text-sm">{page.text}</p>
                 <Button size="sm" onClick={() => speak(page.text)}>
                   Speak
@@ -103,7 +123,21 @@ export const ImageReaderPage = () => {
             )}
           </div>
         </CardContent>
-      </Card>
+        </Card>
+        <SmartReadingControl
+          isGazeActive={isGazeActive}
+          ttsEnabled={ttsEnabled}
+          onToggleTTS={toggleTTS}
+          onStartGaze={() => setIsGazeActive(true)}
+          onStopGaze={() => setIsGazeActive(false)}
+          onShowTTSSettings={() => setShowTTSSettings(true)}
+          onStopTTS={() => textTTSService.current.stop()}
+          showReportButton={false}
+        />
+      </div>
+      {showTTSSettings && (
+        <TTSSettingsPanel service={textTTSService.current} onClose={() => setShowTTSSettings(false)} />
+      )}
     </div>
   );
 };
