@@ -1,0 +1,20 @@
+[
+  {
+    "type": "realtime_data",
+    "timestamp": "2025-08-01T14:14:03.501Z",
+    "gaze": { "x": 120.5, "y": 220.3, "valid": 1 },
+    "distance": 28.5,
+    "behaviors": { "nod_count": 0, "nod_states": [] },
+    "eyetrack_states": {},
+    "text_detection": []
+  },
+  {
+    "type": "realtime_data",
+    "timestamp": "2025-08-01T14:14:03.551Z",
+    "gaze": { "x": 125.1, "y": 225.2, "valid": 1 },
+    "distance": 28.5,
+    "behaviors": { "nod_count": 0, "nod_states": [] },
+    "eyetrack_states": {},
+    "text_detection": []
+  }
+]
