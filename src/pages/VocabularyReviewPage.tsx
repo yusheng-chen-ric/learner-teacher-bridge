@@ -66,6 +66,8 @@ export const VocabularyReviewPage = () => {
             <Button variant="outline" onClick={handleAgain} className="flex-1">
               再一次
             </Button>
+          </div>
+        </CardContent>
 
         <CardContent className="space-y-4 text-center">
           <div className="text-3xl font-bold flex justify-center space-x-1">

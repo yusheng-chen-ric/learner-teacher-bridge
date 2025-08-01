@@ -7,7 +7,7 @@ import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { ArrowLeft, Clock, Eye, Target, BookOpen } from 'lucide-react';
 import { Heatmap } from '@/components/report/Heatmap';
-import type { ReportData } from '@/types';
+import type { ReportData, ReadingLevel } from '@/types';
 import { useReviewWords } from '@/hooks/useReviewWords';
 
 export const ReportPage = () => {
@@ -55,6 +55,16 @@ export const ReportPage = () => {
       const { generateHeatmapData } = await import('@/lib/heatmap');
       const heatmapData = generateHeatmapData(gazeData, 600, 400);
 
+      let readingLevel: ReadingLevel | undefined;
+      try {
+        const res = await fetch('/reading-level-demo.json');
+        if (res.ok) {
+          readingLevel = await res.json();
+        }
+      } catch (err) {
+        console.error('Failed to fetch reading level data', err);
+      }
+
       const mockReport: ReportData = {
         summary: {
           readingTime: 185000,
@@ -70,7 +80,8 @@ export const ReportPage = () => {
           { word: 'pronunciation', fixationTime: 1200, lookupCount: 1 },
           { word: 'comprehension', fixationTime: 800, lookupCount: 1 },
           { word: 'particularly', fixationTime: 600, lookupCount: 0 }
-        ]
+        ],
+        readingLevel
       };
 
       setReportData(mockReport);
@@ -320,7 +331,7 @@ export const ReportPage = () => {
                       <li>• 多閱讀類似文章以增進流暢度</li>
                     </ul>
                   </div>
-                  
+
                   <div className="p-4 bg-purple-50 rounded-lg">
                     <h3 className="font-semibold text-purple-800 mb-2">下一步</h3>
                     <ul className="text-sm text-purple-700 space-y-1">
@@ -329,6 +340,30 @@ export const ReportPage = () => {
                       <li>• 加強口說練習以提升整體流利度</li>
                     </ul>
                   </div>
+
+                  {reportData.readingLevel && (
+                    <div className="p-4 bg-yellow-50 rounded-lg">
+                      <h3 className="font-semibold text-yellow-800 mb-2">推薦讀物</h3>
+                      <p className="text-sm text-yellow-700 mb-2">
+                        推測 Lexile：{reportData.readingLevel.student_summary.inferred_lexile_band}
+                      </p>
+                      <ul className="space-y-2">
+                        {reportData.readingLevel.recommended_books.map((book, i) => (
+                          <li key={i} className="border rounded-md p-2">
+                            <div className="font-medium">
+                              {book.title} ({book.lexile}L)
+                            </div>
+                            <div className="text-sm text-gray-600">
+                              {book.type} - {book.theme}
+                            </div>
+                            <div className="text-xs text-gray-500">
+                              {book.reason}
+                            </div>
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  )}
                 </div>
               </TabsContent>
 
