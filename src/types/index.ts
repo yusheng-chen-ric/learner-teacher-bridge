@@ -31,6 +31,26 @@ export interface ReportData {
     fixationTime: number;
     lookupCount: number;
   }>;
+  readingLevel?: ReadingLevel;
+}
+
+export interface RecommendedBook {
+  title: string;
+  lexile: number;
+  type: string;
+  theme: string;
+  reason: string;
+}
+
+export interface ReadingLevel {
+  student_summary: {
+    wpm: number;
+    regression_rate: number;
+    attention_score: number;
+    comprehension_level: string;
+    inferred_lexile_band: string;
+  };
+  recommended_books: RecommendedBook[];
 }
 
 export interface WordPopupData {

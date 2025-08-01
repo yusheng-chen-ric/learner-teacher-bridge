@@ -1,0 +1,25 @@
+{
+  "student_summary": {
+    "wpm": 28,
+    "regression_rate": 12,
+    "attention_score": 85,
+    "comprehension_level": "high",
+    "inferred_lexile_band": "0L–200L"
+  },
+  "recommended_books": [
+    {
+      "title": "Color Monster",
+      "lexile": 200,
+      "type": "picture book",
+      "theme": "emotions",
+      "reason": "Reading speed and regression suggest 0L–200L band; illustrations support engagement and comprehension."
+    },
+    {
+      "title": "National Geographic Kids You Read, I Read",
+      "lexile": 350,
+      "type": "nonfiction",
+      "theme": "science",
+      "reason": "Gently introduces higher vocabulary with visual aids; fits high attention score."
+    }
+  ]
+}

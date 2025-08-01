@@ -69,6 +69,7 @@ export const VocabularyReviewPage = () => {
             </Button>
           </div>
         </CardContent>
+
         <CardContent className="space-y-4 text-center">
 
           <div className="text-3xl font-bold flex justify-center space-x-1">
