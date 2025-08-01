@@ -16,6 +16,17 @@ const items = [
 export const ImageReaderPage = () => {
   const { sessionId } = useParams<{ sessionId: string }>();
   const [focusId, setFocusId] = useState<string | null>(null);
+  const [uploadedImage, setUploadedImage] = useState<string | null>(null);
+
+  const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = ev => {
+      setUploadedImage(ev.target?.result as string);
+    };
+    reader.readAsDataURL(file);
+  };
 
   const speak = (text: string) => {
     if ('speechSynthesis' in window) {
@@ -50,6 +61,23 @@ export const ImageReaderPage = () => {
           <Button variant="outline" onClick={() => triggerDistraction(items[0].id)}>
             Simulate Distraction
           </Button>
+          <div className="pt-4 space-y-2">
+            <input
+              type="file"
+              accept="image/*"
+              onChange={handleImageUpload}
+              id="reader-image-upload"
+              className="hidden"
+            />
+            <label htmlFor="reader-image-upload">
+              <Button variant="outline" size="sm" asChild>
+                <div>上傳圖片</div>
+              </Button>
+            </label>
+            {uploadedImage && (
+              <ImageDisplay id="uploaded" src={uploadedImage} text="Uploaded image" />
+            )}
+          </div>
         </CardContent>
       </Card>
     </div>
