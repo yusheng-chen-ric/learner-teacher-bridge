@@ -24,6 +24,7 @@ import {
 } from '@/lib/realtimeDataTransform';
 import { TextContentTTSService } from '@/services/TextContentTTSService';
 import { fetchGrammarDemo, type GrammarDemoData } from '@/lib/grammarEndpoint';
+import type { VocabularyItem } from '@/types';
 
 type WsStatus = 'connecting' | 'connected' | 'disconnected';
 
@@ -54,6 +55,17 @@ export const ReaderPage = () => {
     fetchGrammarDemo()
       .then((data) => setGrammarData(data))
       .catch((err) => console.error('Failed to load grammar demo', err));
+  }, []);
+
+  // Load vocabulary list for flashcards
+  useEffect(() => {
+    fetch('/vocab.json')
+      .then((res) => res.json())
+      .then((data: VocabularyItem[]) => {
+        setVocabList(data);
+        vocabSetRef.current = new Set(data.map((v) => v.word.toLowerCase()));
+      })
+      .catch((err) => console.error('Failed to load vocabulary list', err));
   }, []);
 
   // Core state management
@@ -90,6 +102,10 @@ export const ReaderPage = () => {
   const [usingRealData, setUsingRealData] = useState(false);
   const [lastRealDataTime, setLastRealDataTime] = useState(0);
   const [currentNodCount, setCurrentNodCount] = useState(0);
+
+  const [vocabList, setVocabList] = useState<VocabularyItem[]>([]);
+  const [vocabIndex, setVocabIndex] = useState(0);
+  const vocabSetRef = useRef<Set<string>>(new Set());
 
   const textTTSService = useRef<TextContentTTSService>(new TextContentTTSService());
   const textDisplayRef = useRef<HTMLDivElement>(null);
@@ -367,10 +383,27 @@ export const ReaderPage = () => {
       while (gazeDataQueue.current.length > 0 && processed < maxPerFrame) {
         const packet = gazeDataQueue.current.shift()!;
         fullSessionData.current.push(packet);
-        
+
         const hoveredElement = packet.gaze_valid === 1
           ? document.elementFromPoint(packet.gaze_pos_x, packet.gaze_pos_y)
           : null;
+
+        if (
+          hoveredElement &&
+          (hoveredElement as HTMLElement).dataset.word &&
+          vocabSetRef.current.has(
+            ((hoveredElement as HTMLElement).dataset.word || '').toLowerCase()
+          ) &&
+          hoveredElement.id !== wordPopup?.wordId
+        ) {
+          const rect = (hoveredElement as HTMLElement).getBoundingClientRect();
+          setWordPopup({
+            visible: true,
+            wordId: hoveredElement.id,
+            word: (hoveredElement as HTMLElement).dataset.word || '',
+            position: { top: rect.bottom, left: rect.left },
+          });
+        }
 
         // Skip expensive calculations if we're processing too many packets
         if (processed === 0) {
@@ -440,7 +473,7 @@ export const ReaderPage = () => {
         cancelAnimationFrame(animationFrameRef.current);
       }
     };
-  }, [isGazeActive, processEvent, currentNodCount]);
+  }, [isGazeActive, processEvent, currentNodCount, wordPopup]);
 
   const handleStartGazeTracking = () => {
     setIsGazeActive(true);
@@ -486,6 +519,22 @@ export const ReaderPage = () => {
     setTimeout(() => setShowGrammarHint(false), 3000);
   }, []);
 
+  const showVocabCard = useCallback((index: number) => {
+    if (vocabList.length === 0) return;
+    const vocab = vocabList[index % vocabList.length];
+    const element = document.querySelector(`[data-word="${vocab.word}"]`) as HTMLElement | null;
+    const rect = element?.getBoundingClientRect();
+    const position = rect
+      ? { top: rect.bottom, left: rect.left }
+      : { top: window.innerHeight / 2, left: window.innerWidth / 2 - 120 };
+    setWordPopup({
+      visible: true,
+      wordId: element?.id || `vocab-${index}`,
+      word: vocab.word,
+      position,
+    });
+  }, [vocabList]);
+
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       switch (e.key) {
@@ -493,7 +542,11 @@ export const ReaderPage = () => {
           triggerDistractionDemo();
           break;
         case '2':
-          triggerNodDemo();
+          setVocabIndex((prev) => {
+            const next = (prev + 1) % (vocabList.length || 1);
+            showVocabCard(next);
+            return next;
+          });
           break;
         case '3':
           triggerDoubleNodDemo();
@@ -516,10 +569,11 @@ export const ReaderPage = () => {
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [
     triggerDistractionDemo,
-    triggerNodDemo,
     triggerDoubleNodDemo,
     triggerShakeDemo,
-    triggerGrammarDemo
+    triggerGrammarDemo,
+    showVocabCard,
+    vocabList
   ]);
 
   const handleFinishReading = async () => {
