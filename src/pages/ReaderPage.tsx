@@ -4,12 +4,14 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Eye, EyeOff, Save, ArrowLeft } from 'lucide-react';
+import { Eye, EyeOff, Save, ArrowLeft, Settings, Volume2, VolumeX } from 'lucide-react';
 import { TextDisplay } from '@/components/reader/TextDisplay';
 import { WordPopup } from '@/components/reader/WordPopup';
 import { GrammarCard } from '@/components/reader/GrammarCard';
 import { FollowAlongWidget } from '@/components/FollowAlongWidget';
 import { PronunciationFeedback } from '@/components/PronunciationFeedback';
+import { TTSSettingsPanel } from '@/components/TTSSettingsPanel';
+import { ttsService } from '@/services/TTSService';
 import { useGazeEvents } from '@/hooks/useGazeEvents';
 import type { GazePacket, WordPopupData, GrammarCardData } from '@/types';
 import {
@@ -52,6 +54,14 @@ export const ReaderPage = () => {
   const [feedbackData, setFeedbackData] = useState<{ audioBlob: Blob; text: string } | null>(null);
   const [wsStatus, setWsStatus] = useState<WsStatus>('connecting');
   const [showGrammarHint, setShowGrammarHint] = useState(false);
+  const [showTTSSettings, setShowTTSSettings] = useState(false);
+  const [ttsEnabled, setTTSEnabled] = useState(ttsService.getSettings().enabled);
+
+  const toggleTTS = () => {
+    const newEnabled = !ttsEnabled;
+    ttsService.updateSettings({ enabled: newEnabled });
+    setTTSEnabled(newEnabled);
+  };
 
   const handleRecordingComplete = (audioBlob: Blob) => {
     if (followAlongTarget) {
@@ -59,6 +69,14 @@ export const ReaderPage = () => {
       setFollowAlongTarget(null);
     }
   };
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      const settings = ttsService.getSettings();
+      setTTSEnabled(settings.enabled);
+    }, 1000);
+    return () => clearInterval(interval);
+  }, []);
 
 
 
@@ -286,11 +304,9 @@ export const ReaderPage = () => {
 
   const triggerDoubleNodDemo = () => {
     const word = wordPopup?.word || 'example';
-    if ('speechSynthesis' in window) {
-      const u = new SpeechSynthesisUtterance(word);
-      u.lang = 'en-US';
-      u.rate = 0.8;
-      speechSynthesis.speak(u);
+    const settings = ttsService.getSettings();
+    if (settings.enabled) {
+      ttsService.speak(word, { rate: settings.rate * 0.8 }).catch((e) => console.error('TTS Demo Error:', e));
     }
   };
 
@@ -380,6 +396,30 @@ export const ReaderPage = () => {
             </Badge>
           </div>
         </div>
+
+        <div className="mb-4 flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <Button
+              onClick={toggleTTS}
+              variant={ttsEnabled ? 'default' : 'outline'}
+              size="sm"
+            >
+              {ttsEnabled ? <Volume2 className="h-4 w-4" /> : <VolumeX className="h-4 w-4" />}
+              {ttsEnabled ? 'TTS ON' : 'TTS OFF'}
+            </Button>
+
+            <Button onClick={() => setShowTTSSettings(!showTTSSettings)} variant="outline" size="sm">
+              <Settings className="h-4 w-4" />
+              TTS Settings
+            </Button>
+          </div>
+        </div>
+
+        {showTTSSettings && (
+          <div className="mb-4">
+            <TTSSettingsPanel />
+          </div>
+        )}
 
         {/* Enhanced Controls */}
         <Card>
