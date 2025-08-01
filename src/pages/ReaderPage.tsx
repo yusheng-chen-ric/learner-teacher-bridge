@@ -94,6 +94,14 @@ export const ReaderPage = () => {
   const textTTSService = useRef<TextContentTTSService>(new TextContentTTSService());
   const textDisplayRef = useRef<HTMLDivElement>(null);
 
+  const speakAll = useCallback(() => {
+    if (textContent) {
+      textTTSService.current
+        .speakText(textContent)
+        .catch((e) => console.error('TTS Error:', e));
+    }
+  }, [textContent]);
+
   const handleRecordingComplete = (audioBlob: Blob) => {
     if (followAlongTarget) {
       setFeedbackData({ audioBlob, text: followAlongTarget.text });
@@ -649,6 +657,7 @@ export const ReaderPage = () => {
           onStartGaze={handleStartGazeTracking}
           onStopGaze={handleStopGazeTracking}
           onShowTTSSettings={() => setShowTTSSettings(true)}
+          onPlayTTS={speakAll}
           onStopTTS={() => textTTSService.current.stop()}
           onFinishReading={handleFinishReading}
         />
