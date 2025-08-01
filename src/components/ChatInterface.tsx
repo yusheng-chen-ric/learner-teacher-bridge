@@ -59,6 +59,19 @@ export const ChatInterface = () => {
         content: m.content
       }));
 
+      try {
+        const gazeRes = await fetch('/realtime-demo.json');
+        if (gazeRes.ok) {
+          const gazeText = await gazeRes.text();
+          chatHistory.push({
+            role: 'system',
+            content: `The following JSON is the gaze presentation of the student:\n${gazeText}`
+          });
+        }
+      } catch (err) {
+        console.error('Failed to fetch gaze JSON', err);
+      }
+
       const res = await fetch('https://api.openai.com/v1/chat/completions', {
         method: 'POST',
         headers: {
