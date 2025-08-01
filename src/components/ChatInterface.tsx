@@ -6,7 +6,6 @@ import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { MessageCircle, Send, User, Bot, BookOpen } from "lucide-react";
-import { InteractiveReadingText } from "./InteractiveReadingText";
 
 interface Message {
   id: string;
@@ -38,7 +37,7 @@ export const ChatInterface = () => {
   ]);
   
   const [newMessage, setNewMessage] = useState("");
-  const [showInteractiveReading, setShowInteractiveReading] = useState(false);
+  
 
   const handleSendMessage = async () => {
     if (!newMessage.trim()) return;
@@ -103,23 +102,7 @@ export const ChatInterface = () => {
     return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
   };
 
-  if (showInteractiveReading) {
-    return (
-      <div className="space-y-4">
-        <div className="flex items-center justify-between">
-          <h2 className="text-xl font-semibold">互動式閱讀</h2>
-          <Button
-            variant="outline"
-            onClick={() => setShowInteractiveReading(false)}
-          >
-            返回聊天
-          </Button>
-        </div>
-        <InteractiveReadingText />
-      </div>
-    );
-  }
-
+  
   return (
     <div className="space-y-4 h-full">
       <Card className="h-[600px] flex flex-col">
@@ -134,15 +117,7 @@ export const ChatInterface = () => {
                 <p className="text-sm text-muted-foreground">與 AI 教學助理協作</p>
               </div>
             </div>
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => setShowInteractiveReading(true)}
-              className="flex items-center space-x-2"
-            >
-              <BookOpen className="h-4 w-4" />
-              <span>互動式閱讀</span>
-            </Button>
+            
           </div>
         </CardHeader>
         

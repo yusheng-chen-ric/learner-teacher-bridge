@@ -12,18 +12,18 @@ import { TextContentTTSService } from '@/services/TextContentTTSService';
 const pages = [
   {
     id: 'img1',
-    src: '/image/sample.png',
-    text: 'Emma has been learning English for two years.'
+    src: '/image/image1.png',
+    text: 'In the light of the moon a little egg lay on a leaf.',
   },
   {
     id: 'img2',
-    src: '/placeholder.svg',
-    text: 'She practices with her friends every day.'
+    src: '/image/image2.png',
+    text: 'One Sunday morning the warm sun came up and -pop! -out of the egg came a tiny and very hungry caterpillar.'
   },
   {
     id: 'img3',
-    src: '/image/sample.png',
-    text: 'Reading short stories helps her improve quickly.'
+    src: '/image/image3.png',
+    text: 'On Wednesday he ate through three plums, but he was still hungry.'
   }
 ];
 
