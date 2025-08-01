@@ -56,36 +56,19 @@ export const VocabularyReviewPage = () => {
 
         <CardContent className="space-y-6 text-center">
           <div className="text-4xl font-bold py-10">{word}</div>
-          <div className="flex justify-around space-x-4">
-            <Button
-              onClick={handleKnown}
-              className="flex-1 bg-green-600 hover:bg-green-700"
-            >
-              記得
-            </Button>
-            <Button variant="outline" onClick={handleAgain} className="flex-1">
-              再一次
-            </Button>
-
-        <CardContent className="space-y-4 text-center">
           <div className="text-3xl font-bold flex justify-center space-x-1">
             {syllables.map((syl, i) => (
               <span key={i}>
                 {syl}
-                {i < syllables.length - 1 && (
-                  <span className="text-blue-600">•</span>
-                )}
+                {i < syllables.length - 1 && <span className="text-blue-600">•</span>}
               </span>
             ))}
           </div>
           <div className="flex justify-around">
             <Button onClick={handleKnown} className="bg-green-600 hover:bg-green-700">記得</Button>
             <Button variant="outline" onClick={handleAgain}>再一次</Button>
-
           </div>
-          <Button variant="ghost" onClick={() => navigate("/")}>
-            完成
-          </Button>
+          <Button variant="ghost" onClick={() => navigate('/')}>完成</Button>
         </CardContent>
       </Card>
     </div>
