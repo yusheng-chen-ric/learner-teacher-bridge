@@ -17,6 +17,8 @@ import {
   type RealtimeData
 } from '@/lib/realtimeDataTransform';
 
+type WsStatus = 'connecting' | 'connected' | 'disconnected';
+
 export const ReaderPage = () => {
   const { sessionId } = useParams<{ sessionId: string }>();
   const navigate = useNavigate();
@@ -42,6 +44,8 @@ export const ReaderPage = () => {
   const [demoMode, setDemoMode] = useState(false);
   const [followAlongTarget, setFollowAlongTarget] = useState<{ text: string; position: { x: number; y: number } } | null>(null);
   const [feedbackData, setFeedbackData] = useState<{ audioBlob: Blob; text: string } | null>(null);
+  const [wsStatus, setWsStatus] = useState<WsStatus>('connecting');
+  const [showGrammarHint, setShowGrammarHint] = useState(false);
 
   const handleRecordingComplete = (audioBlob: Blob) => {
     if (followAlongTarget) {
@@ -57,6 +61,7 @@ export const ReaderPage = () => {
   const gazeDataQueue = useRef<GazePacket[]>([]);
   const fullSessionData = useRef<GazePacket[]>([]);
   const animationFrameRef = useRef<number>();
+  const prevGazeRef = useRef<{ x: number; y: number } | null>(null);
 
   // Initialize gaze event handlers
   const { processEvent, resetSession, setWordPopupVisible } = useGazeEvents({
@@ -130,6 +135,18 @@ export const ReaderPage = () => {
     setWordPopupVisible(!!wordPopup);
   }, [wordPopup, setWordPopupVisible]);
 
+  // WebSocket connection status
+  useEffect(() => {
+    const ws = new WebSocket('ws://localhost:8765');
+    setWsStatus('connecting');
+    ws.onopen = () => setWsStatus('connected');
+    ws.onclose = () => setWsStatus('disconnected');
+    ws.onerror = () => setWsStatus('disconnected');
+    return () => {
+      ws.close();
+    };
+  }, []);
+
   // Simulate gaze tracking data with enhanced patterns
   useEffect(() => {
     if (!isGazeActive) return;
@@ -189,9 +206,20 @@ export const ReaderPage = () => {
         const packet = gazeDataQueue.current.shift()!;
         fullSessionData.current.push(packet);
         
-        const hoveredElement = packet.gaze_valid === 1 
+        const hoveredElement = packet.gaze_valid === 1
           ? document.elementFromPoint(packet.gaze_pos_x, packet.gaze_pos_y)
           : null;
+
+        if (prevGazeRef.current) {
+          const dx = packet.gaze_pos_x - prevGazeRef.current.x;
+          const dy = packet.gaze_pos_y - prevGazeRef.current.y;
+          const dist = Math.hypot(dx, dy);
+          if (dist > 150) {
+            setShowGrammarHint(true);
+            setTimeout(() => setShowGrammarHint(false), 3000);
+          }
+        }
+        prevGazeRef.current = { x: packet.gaze_pos_x, y: packet.gaze_pos_y };
         
         // Pass gaze coordinates for gesture detection
         processEvent(
@@ -327,6 +355,22 @@ export const ReaderPage = () => {
             </Badge>
             <Badge variant="secondary">
               互動：{sessionData.nodEvents}
+            </Badge>
+            <Badge
+              variant="secondary"
+              className={
+                wsStatus === 'connected'
+                  ? 'bg-green-100 text-green-800'
+                  : wsStatus === 'connecting'
+                    ? 'bg-yellow-100 text-yellow-800'
+                    : 'bg-red-100 text-red-800'
+              }
+            >
+              {wsStatus === 'connected'
+                ? '已連線'
+                : wsStatus === 'connecting'
+                ? '連線中'
+                : '未連線'}
             </Badge>
           </div>
         </div>
@@ -469,6 +513,19 @@ export const ReaderPage = () => {
           originalText={feedbackData.text}
           onClose={() => setFeedbackData(null)}
         />
+      )}
+
+      {showGrammarHint && (
+        <div className="fixed bottom-4 right-4 bg-white border p-3 rounded shadow-lg text-sm" style={{maxWidth: '300px'}}>
+          <p>
+            The system provides{' '}
+            <span style={{ textDecoration: 'underline dotted' }}>real-time feedback</span>{' '}
+            to students.
+          </p>
+          <sub style={{ fontSize: '0.8em', color: '#888' }}>
+            real-time feedback：<strong>複合名詞</strong>，作為動詞 provides 的受詞。real-time 是形容詞，強調「即時」這個特性，用來修飾 feedback（回饋）。
+          </sub>
+        </div>
       )}
     </div>
   );
