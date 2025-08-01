@@ -5,7 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { ArrowLeft, Clock, Eye, Target, BookOpen } from 'lucide-react';
+import { ArrowLeft, Clock, Eye, Target, BookOpen, Star } from 'lucide-react';
 import { Heatmap } from '@/components/report/Heatmap';
 import type { ReportData, ReadingLevel } from '@/types';
 import { useReviewWords } from '@/hooks/useReviewWords';
@@ -106,6 +106,10 @@ export const ReportPage = () => {
     }
   };
 
+  const getStarCount = (ms: number) => {
+    return Math.min(10, Math.max(1, Math.ceil(ms / 60000)));
+  };
+
   if (isLoading) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
@@ -133,7 +137,7 @@ export const ReportPage = () => {
       <div className="max-w-6xl mx-auto space-y-6">
         {/* Header */}
         <div className="flex items-center justify-between">
-          <div className="flex items-center space-x-4">
+        <div className="flex items-center space-x-4">
             <Button
               variant="outline"
               size="sm"
@@ -148,6 +152,16 @@ export const ReportPage = () => {
           </div>
           
           <Badge variant="secondary">會話 ID：{sessionId}</Badge>
+        </div>
+
+        <div className="flex items-center space-x-1 mt-2 text-yellow-500">
+          {Array.from({ length: getStarCount(reportData.summary.readingTime) }).map((_, i) => (
+            <Star key={i} className="h-5 w-5 fill-yellow-400" />
+          ))}
+          {Array.from({ length: 10 - getStarCount(reportData.summary.readingTime) }).map((_, i) => (
+            <Star key={`empty-${i}`} className="h-5 w-5 text-gray-300" />
+          ))}
+          <span className="ml-2 text-sm text-gray-700">恭喜完成閱讀！</span>
         </div>
 
         {/* Summary Cards */}
