@@ -1,4 +1,5 @@
 import { useRef, useCallback } from 'react';
+import { useSettings } from '@/contexts/SettingsContext';
 
 interface GazeEventHandlers {
   onFixation: (payload: { wordId: string; element: HTMLElement; word: string }) => void;
@@ -10,6 +11,7 @@ interface GazeEventHandlers {
 }
 
 export const useGazeEvents = (handlers: GazeEventHandlers) => {
+  const { settings } = useSettings();
   const fixationRef = useRef<{ wordId: string | null; startTime: number }>({ 
     wordId: null, 
     startTime: 0 
@@ -20,10 +22,12 @@ export const useGazeEvents = (handlers: GazeEventHandlers) => {
     wordId: string | null;
     verticalMovements: number[];
     lastMovementTime: number;
+    lastBackendNodCount: number;
   }>({
     wordId: null,
     verticalMovements: [],
-    lastMovementTime: 0
+    lastMovementTime: 0,
+    lastBackendNodCount: 0
   });
   const shakeDetectionRef = useRef<{ xMovements: number[]; lastTime: number }>({ xMovements: [], lastTime: 0 });
   const lastSentenceIdRef = useRef<string | null>(null);
@@ -38,23 +42,71 @@ export const useGazeEvents = (handlers: GazeEventHandlers) => {
       timestamp: number,
       gazeValid: boolean,
       gazeX?: number,
-      gazeY?: number
+      gazeY?: number,
+      backendNodCount?: number
     ) => {
+    // Input validation
+    if (typeof timestamp !== 'number' || isNaN(timestamp)) {
+      console.warn('Invalid timestamp in processEvent:', timestamp);
+      return;
+    }
+    
+    if (gazeX !== undefined && (isNaN(gazeX) || gazeX < 0)) {
+      console.warn('Invalid gazeX coordinate:', gazeX);
+      gazeX = undefined;
+    }
+    
+    if (gazeY !== undefined && (isNaN(gazeY) || gazeY < 0)) {
+      console.warn('Invalid gazeY coordinate:', gazeY);
+      gazeY = undefined;
+    }
+
     // Update last valid gaze time for distraction detection
     if (gazeValid && hoveredElement) {
       lastValidGazeTime.current = timestamp;
     }
 
     // 1. Long Fixation Detection (Word Lookup)
-    if (hoveredElement?.id.startsWith('word-')) {
-      const wordId = hoveredElement.id;
-      const wordText = hoveredElement.textContent || '';
+    try {
+      if (hoveredElement?.id.startsWith('word-')) {
+        const wordId = hoveredElement.id;
+        const wordText = hoveredElement.textContent || '';
+
+      // Check for backend nod detection first (more reliable)
+      if (backendNodCount !== undefined && backendNodCount > nodDetectionRef.current.lastBackendNodCount) {
+        nodDetectionRef.current.lastBackendNodCount = backendNodCount;
+        
+        // Determine if single or double nod based on increment
+        const nodIncrement = backendNodCount - (nodDetectionRef.current.lastBackendNodCount - 1);
+        
+        if (nodIncrement === 1) {
+          handlers.onNodOnce({ 
+            wordId, 
+            element: hoveredElement as HTMLElement,
+            word: wordText
+          });
+        } else if (nodIncrement >= 2) {
+          handlers.onNodTwice({ 
+            wordId, 
+            element: hoveredElement as HTMLElement,
+            word: wordText
+          });
+        }
+        
+        // Skip gaze-based nod detection since we have real data
+        return;
+      }
 
       if (wordId !== fixationRef.current.wordId) {
         // New word fixation started
         fixationRef.current = { wordId, startTime: timestamp };
         // Reset nod detection for new word
-        nodDetectionRef.current = { wordId, verticalMovements: [], lastMovementTime: timestamp };
+        nodDetectionRef.current = { 
+          ...nodDetectionRef.current,
+          wordId, 
+          verticalMovements: [], 
+          lastMovementTime: timestamp 
+        };
       } else if (wordId === fixationRef.current.wordId) {
         // Continuing fixation on same word
         const fixationDuration = timestamp - fixationRef.current.startTime;
@@ -75,7 +127,7 @@ export const useGazeEvents = (handlers: GazeEventHandlers) => {
             // Detect single nod pattern (one significant vertical movement)
             if (nodDetectionRef.current.verticalMovements.length === 2) {
               const movement = Math.abs(nodDetectionRef.current.verticalMovements[1] - nodDetectionRef.current.verticalMovements[0]);
-              if (movement > 20) { // Threshold for significant movement
+              if (movement > settings.nodMovementThreshold) { // Threshold for significant movement
                 handlers.onNodOnce({ 
                   wordId, 
                   element: hoveredElement as HTMLElement,
@@ -91,7 +143,7 @@ export const useGazeEvents = (handlers: GazeEventHandlers) => {
               const firstNod = Math.abs(movements[1] - movements[0]);
               const secondNod = Math.abs(movements[3] - movements[2]);
               
-              if (firstNod > 20 && secondNod > 20) {
+              if (firstNod > settings.nodMovementThreshold && secondNod > settings.nodMovementThreshold) {
                 handlers.onNodTwice({ 
                   wordId, 
                   element: hoveredElement as HTMLElement,
@@ -104,7 +156,7 @@ export const useGazeEvents = (handlers: GazeEventHandlers) => {
         }
         
         // Traditional fixation detection for word lookup
-        if (fixationDuration > 800) {
+        if (fixationDuration > settings.fixationThreshold) {
           handlers.onFixation({ 
             wordId, 
             element: hoveredElement as HTMLElement,
@@ -114,10 +166,26 @@ export const useGazeEvents = (handlers: GazeEventHandlers) => {
           fixationRef.current = { wordId: null, startTime: 0 };
         }
       }
+    } catch (error) {
+      console.error('Error in word fixation detection:', error);
+      // Reset state on error to prevent stuck states
+      fixationRef.current = { wordId: null, startTime: 0 };
+      nodDetectionRef.current = { 
+        ...nodDetectionRef.current,
+        wordId: null, 
+        verticalMovements: [], 
+        lastMovementTime: 0 
+      };
+    }
     } else {
       // Not on a word, reset fixation and nod detection
       fixationRef.current = { wordId: null, startTime: 0 };
-      nodDetectionRef.current = { wordId: null, verticalMovements: [], lastMovementTime: 0 };
+      nodDetectionRef.current = { 
+        ...nodDetectionRef.current,
+        wordId: null, 
+        verticalMovements: [], 
+        lastMovementTime: 0 
+      };
     }
 
     // 2. Regression Detection (Grammar Help)
@@ -143,7 +211,7 @@ export const useGazeEvents = (handlers: GazeEventHandlers) => {
 
     // 3. Distraction Detection
     const timeSinceLastValidGaze = timestamp - lastValidGazeTime.current;
-    if (!gazeValid || !hoveredElement || timeSinceLastValidGaze > 3000) {
+    if (!gazeValid || !hoveredElement || timeSinceLastValidGaze > settings.distractionTimeout) {
       handlers.onDistraction({ sentenceId: lastSentenceIdRef.current });
     }
 
@@ -162,7 +230,7 @@ export const useGazeEvents = (handlers: GazeEventHandlers) => {
           const a = shakeDetectionRef.current.xMovements[len - 3];
           const b = shakeDetectionRef.current.xMovements[len - 2];
           const c = shakeDetectionRef.current.xMovements[len - 1];
-          if (Math.abs(b - a) > 20 && Math.abs(c - b) > 20 && Math.sign(b - a) !== Math.sign(c - b)) {
+          if (Math.abs(b - a) > settings.nodMovementThreshold && Math.abs(c - b) > settings.nodMovementThreshold && Math.sign(b - a) !== Math.sign(c - b)) {
             handlers.onShake();
             shakeDetectionRef.current.xMovements = [];
           }
@@ -177,7 +245,12 @@ export const useGazeEvents = (handlers: GazeEventHandlers) => {
     fixationRef.current = { wordId: null, startTime: 0 };
     maxReadSentenceIndexRef.current = 0;
     lastValidGazeTime.current = Date.now();
-    nodDetectionRef.current = { wordId: null, verticalMovements: [], lastMovementTime: 0 };
+    nodDetectionRef.current = { 
+      wordId: null, 
+      verticalMovements: [], 
+      lastMovementTime: 0, 
+      lastBackendNodCount: 0 
+    };
   }, []);
 
   return { processEvent, resetSession, setWordPopupVisible };
