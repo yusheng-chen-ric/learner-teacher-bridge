@@ -63,6 +63,11 @@ export const ReaderPage = () => {
     setTTSEnabled(newEnabled);
   };
 
+  const [usingRealData, setUsingRealData] = useState(false);
+  const [lastRealDataTime, setLastRealDataTime] = useState(0);
+  const [currentNodCount, setCurrentNodCount] = useState(0);
+
+
   const handleRecordingComplete = (audioBlob: Blob) => {
     if (followAlongTarget) {
       setFeedbackData({ audioBlob, text: followAlongTarget.text });
@@ -159,23 +164,110 @@ export const ReaderPage = () => {
     setWordPopupVisible(!!wordPopup);
   }, [wordPopup, setWordPopupVisible]);
 
-  // WebSocket connection status
-  useEffect(() => {
-    const ws = new WebSocket('ws://localhost:8765');
-    setWsStatus('connecting');
-    ws.onopen = () => setWsStatus('connected');
-    ws.onclose = () => setWsStatus('disconnected');
-    ws.onerror = () => setWsStatus('disconnected');
-    return () => {
-      ws.close();
-    };
-  }, []);
-
-  // Simulate gaze tracking data with enhanced patterns
+  // WebSocket connection and real-time data processing
   useEffect(() => {
     if (!isGazeActive) return;
 
+    const ws = new WebSocket('ws://localhost:8765');
+    setWsStatus('connecting');
+    
+    ws.onopen = () => {
+      console.log('WebSocket connected to gaze tracking backend');
+      setWsStatus('connected');
+    };
+    
+    ws.onmessage = (event) => {
+      try {
+        const data = JSON.parse(event.data);
+        
+        // Validate message structure
+        if (!data || typeof data !== 'object') {
+          console.warn('Invalid WebSocket message format:', data);
+          return;
+        }
+        
+        if (data.type === 'realtime_data') {
+          // Validate required fields
+          if (!data.gaze || typeof data.gaze.x !== 'number' || typeof data.gaze.y !== 'number') {
+            console.warn('Invalid gaze data format:', data.gaze);
+            return;
+          }
+          
+          // Validate timestamp
+          const timestamp = Date.parse(data.timestamp);
+          if (isNaN(timestamp)) {
+            console.warn('Invalid timestamp:', data.timestamp);
+            return;
+          }
+          
+          // Convert backend data to GazePacket format with validation
+          const gazePacket: GazePacket = {
+            timestamp,
+            gaze_valid: data.gaze.valid === 1 ? 1 : 0,
+            gaze_pos_x: Math.max(0, Math.min(window.innerWidth, data.gaze.x)),
+            gaze_pos_y: Math.max(0, Math.min(window.innerHeight, data.gaze.y)),
+            pupil_diameter: data.pupil_diameter > 0 ? data.pupil_diameter : undefined,
+            blink_detected: Boolean(data.blink_detected)
+          };
+          
+          // Add real backend data to processing queue
+          gazeDataQueue.current.push(gazePacket);
+          
+          // Mark that we're receiving real data
+          setUsingRealData(true);
+          setLastRealDataTime(Date.now());
+          
+          // Update session data with real backend behaviors
+          if (data.behaviors?.nod_count !== undefined) {
+            const newNodCount = Number(data.behaviors.nod_count);
+            if (!isNaN(newNodCount) && newNodCount >= 0) {
+              setCurrentNodCount(newNodCount);
+              if (newNodCount > sessionData.nodEvents) {
+                setSessionData(prev => ({ ...prev, nodEvents: newNodCount }));
+              }
+            }
+          }
+        }
+        
+        // Handle other message types for settings/calibration
+        if (data.type === 'eyetrack_states_data') {
+          console.log('Received eyetrack states:', data.data);
+        }
+        
+      } catch (error) {
+        console.error('Failed to parse WebSocket message:', error, 'Raw data:', event.data);
+        // Don't crash on invalid messages, just continue with simulation
+      }
+    };
+    
+    ws.onclose = () => {
+      console.log('WebSocket disconnected from backend');
+      setWsStatus('disconnected');
+    };
+    
+    ws.onerror = (error) => {
+      console.error('WebSocket error:', error);
+      setWsStatus('disconnected');
+    };
+    
+    return () => {
+      ws.close();
+    };
+  }, [isGazeActive, sessionData.nodEvents]);
+
+  // Fallback simulation when real data is not available
+  useEffect(() => {
+    if (!isGazeActive) return;
+    
+    // Check if we haven't received real data in the last 2 seconds
+    const needsFallback = () => {
+      return !usingRealData || (Date.now() - lastRealDataTime > 2000);
+    };
+
     const simulateGazeData = () => {
+      // Only simulate if we're not receiving real data
+      if (!needsFallback()) return;
+      
       const textElement = document.querySelector('[id^="sentence-"]');
       if (textElement) {
         const rect = textElement.getBoundingClientRect();
@@ -200,33 +292,60 @@ export const ReaderPage = () => {
 
     const interval = setInterval(simulateGazeData, 50);
     return () => clearInterval(interval);
-  }, [isGazeActive]);
+  }, [isGazeActive, usingRealData, lastRealDataTime]);
 
-  // Fetch realtime gaze data from backend (or local mock)
+  // Monitor real data availability and cleanup
   useEffect(() => {
     if (!isGazeActive) return;
-
-    const fetchRealtime = async () => {
-      try {
-        const res = await fetch(`${import.meta.env.BASE_URL}api/realtime`);
-        if (!res.ok) return;
-        const data: RealtimeData[] = await res.json();
-        gazeDataQueue.current.push(...toGazePackets(data));
-      } catch (err) {
-        console.error('Failed to fetch realtime data', err);
+    
+    const checkDataStatus = () => {
+      const timeSinceLastData = Date.now() - lastRealDataTime;
+      if (usingRealData && timeSinceLastData > 5000) {
+        console.warn('Real gaze data stopped, falling back to simulation');
+        setUsingRealData(false);
+      }
+      
+      // Clean up old gaze data to prevent memory leaks
+      if (gazeDataQueue.current.length > 1000) {
+        gazeDataQueue.current.splice(0, gazeDataQueue.current.length - 500);
+        console.log('Cleaned up old gaze data queue');
+      }
+      
+      // Clean up session data if it gets too large
+      if (fullSessionData.current.length > 10000) {
+        const keep = fullSessionData.current.slice(-5000);
+        fullSessionData.current.length = 0;
+        fullSessionData.current.push(...keep);
+        console.log('Cleaned up session data to prevent memory leak');
       }
     };
 
-    const interval = setInterval(fetchRealtime, 200);
+    const interval = setInterval(checkDataStatus, 1000);
     return () => clearInterval(interval);
-  }, [isGazeActive]);
+  }, [isGazeActive, usingRealData, lastRealDataTime]);
 
-  // Main processing loop with enhanced data handling
+  // Main processing loop with enhanced data handling and throttling
   useEffect(() => {
     if (!isGazeActive) return;
+    
+    let lastProcessTime = 0;
+    const PROCESS_THROTTLE = 16; // ~60fps max
 
     const processGazeData = () => {
-      if (gazeDataQueue.current.length > 0) {
+      const now = Date.now();
+      
+      // Throttle processing to prevent excessive CPU usage
+      if (now - lastProcessTime < PROCESS_THROTTLE) {
+        animationFrameRef.current = requestAnimationFrame(processGazeData);
+        return;
+      }
+      lastProcessTime = now;
+
+      // Process multiple packets per frame for efficiency, but limit to prevent blocking
+      let processed = 0;
+      const maxPerFrame = 5;
+      
+      while (gazeDataQueue.current.length > 0 && processed < maxPerFrame) {
         const packet = gazeDataQueue.current.shift()!;
         fullSessionData.current.push(packet);
         
@@ -234,30 +353,43 @@ export const ReaderPage = () => {
           ? document.elementFromPoint(packet.gaze_pos_x, packet.gaze_pos_y)
           : null;
 
-        if (prevGazeRef.current) {
-          const dx = packet.gaze_pos_x - prevGazeRef.current.x;
-          const dy = packet.gaze_pos_y - prevGazeRef.current.y;
-          const dist = Math.hypot(dx, dy);
-          if (dist > 150) {
-            setShowGrammarHint(true);
-            setTimeout(() => setShowGrammarHint(false), 3000);
+        // Skip expensive calculations if we're processing too many packets
+        if (processed === 0) {
+          if (prevGazeRef.current) {
+            const dx = packet.gaze_pos_x - prevGazeRef.current.x;
+            const dy = packet.gaze_pos_y - prevGazeRef.current.y;
+            const dist = Math.hypot(dx, dy);
+            if (dist > 150) {
+              setShowGrammarHint(true);
+              setTimeout(() => setShowGrammarHint(false), 3000);
+            }
           }
+          prevGazeRef.current = { x: packet.gaze_pos_x, y: packet.gaze_pos_y };
         }
-        prevGazeRef.current = { x: packet.gaze_pos_x, y: packet.gaze_pos_y };
         
-        // Pass gaze coordinates for gesture detection
-        processEvent(
-          hoveredElement,
-          packet.timestamp,
-          packet.gaze_valid === 1,
-          packet.gaze_pos_x,
-          packet.gaze_pos_y
-        );
+        // Pass gaze coordinates and backend nod count for gesture detection
+        try {
+          processEvent(
+            hoveredElement,
+            packet.timestamp,
+            packet.gaze_valid === 1,
+            packet.gaze_pos_x,
+            packet.gaze_pos_y,
+            currentNodCount
+          );
+        } catch (error) {
+          console.error('Error processing gaze event:', error);
+          // Continue processing other packets even if one fails
+        }
         
+        processed++;
+      }
+      
+      if (processed > 0) {
         setSessionData(prev => ({
           ...prev,
           readingTime: Date.now() - prev.startTime,
-          gazeEvents: prev.gazeEvents + 1
+          gazeEvents: prev.gazeEvents + processed
         }));
       }
       
@@ -271,7 +403,7 @@ export const ReaderPage = () => {
         cancelAnimationFrame(animationFrameRef.current);
       }
     };
-  }, [isGazeActive, processEvent]);
+  }, [isGazeActive, processEvent, currentNodCount]);
 
   const handleStartGazeTracking = () => {
     setIsGazeActive(true);
@@ -393,6 +525,16 @@ export const ReaderPage = () => {
                 : wsStatus === 'connecting'
                 ? '連線中'
                 : '未連線'}
+            </Badge>
+            <Badge
+              variant="secondary" 
+              className={
+                usingRealData
+                  ? 'bg-blue-100 text-blue-800'
+                  : 'bg-orange-100 text-orange-800'
+              }
+            >
+              {usingRealData ? '🎯 真實數據' : '🎭 模擬模式'}
             </Badge>
           </div>
         </div>
