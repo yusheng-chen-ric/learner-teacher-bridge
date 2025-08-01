@@ -14,6 +14,7 @@ export const useGazeEvents = (handlers: GazeEventHandlers) => {
   });
   const maxReadSentenceIndexRef = useRef<number>(0);
   const lastValidGazeTime = useRef<number>(Date.now());
+  const regressionRef = useRef<{ id: string; start: number } | null>(null);
 
   const processEvent = useCallback((hoveredElement: Element | null, timestamp: number, gazeValid: boolean) => {
     // Update last valid gaze time for distraction detection
@@ -48,23 +49,31 @@ export const useGazeEvents = (handlers: GazeEventHandlers) => {
       fixationRef.current = { wordId: null, startTime: 0 };
     }
 
-    // 2. Regression Detection (Grammar Help)
+    // 2. Regression Detection (Grammar Help) with stability check
     const sentenceElement = hoveredElement?.closest('[id^="sentence-"]') as HTMLElement;
     if (sentenceElement?.id.startsWith('sentence-')) {
       const sentenceId = sentenceElement.id;
       const currentIndex = parseInt(sentenceId.split('-')[1]);
-      
+
       if (currentIndex < maxReadSentenceIndexRef.current) {
-        // Regression detected
-        const sentenceText = sentenceElement.textContent || '';
-        handlers.onRegression({ 
-          sentenceId, 
-          element: sentenceElement,
-          sentence: sentenceText
-        });
+        // Only trigger if gaze stays on this sentence for >800ms
+        if (!regressionRef.current || regressionRef.current.id !== sentenceId) {
+          regressionRef.current = { id: sentenceId, start: timestamp };
+        } else if (timestamp - regressionRef.current.start > 800) {
+          const sentenceText = sentenceElement.textContent || '';
+          handlers.onRegression({
+            sentenceId,
+            element: sentenceElement,
+            sentence: sentenceText
+          });
+          regressionRef.current = null;
+        }
       } else {
         maxReadSentenceIndexRef.current = Math.max(maxReadSentenceIndexRef.current, currentIndex);
+        regressionRef.current = null;
       }
+    } else {
+      regressionRef.current = null;
     }
 
     // 3. Distraction Detection
@@ -78,6 +87,7 @@ export const useGazeEvents = (handlers: GazeEventHandlers) => {
     fixationRef.current = { wordId: null, startTime: 0 };
     maxReadSentenceIndexRef.current = 0;
     lastValidGazeTime.current = Date.now();
+    regressionRef.current = null;
   }, []);
 
   return { processEvent, resetSession };
