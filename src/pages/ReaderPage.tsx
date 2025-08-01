@@ -80,6 +80,7 @@ export const ReaderPage = () => {
   const [usingRealData, setUsingRealData] = useState(false);
   const [lastRealDataTime, setLastRealDataTime] = useState(0);
   const [currentNodCount, setCurrentNodCount] = useState(0);
+  const noDataWarnedRef = useRef(false);
 
   const textTTSService = useRef<TextContentTTSService>(new TextContentTTSService());
   const textDisplayRef = useRef<HTMLDivElement>(null);
@@ -301,11 +302,14 @@ export const ReaderPage = () => {
   // Monitor real data availability and cleanup
   useEffect(() => {
     if (!isGazeActive) return;
-    
+
     const checkDataStatus = () => {
       const timeSinceLastData = Date.now() - lastRealDataTime;
       if (usingRealData && timeSinceLastData > 5000) {
-        console.warn('Real gaze data stopped, falling back to simulation');
+        if (!noDataWarnedRef.current) {
+          console.warn('Real gaze data stopped, falling back to simulation');
+          noDataWarnedRef.current = true;
+        }
         setUsingRealData(false);
       }
       
@@ -437,13 +441,15 @@ export const ReaderPage = () => {
     setIsGazeActive(false);
   };
 
+  // Cycle through sentences when simulating a distraction demo
+  const distractionIndexRef = useRef(0);
   const triggerDistractionDemo = useCallback(() => {
-    const sentence = document.querySelector('[id^="sentence-"]');
-    if (sentence) {
-      const id = sentence.id;
-      setDistractionElementId(id);
-      setTimeout(() => setDistractionElementId(null), 3000);
-    }
+    const sentences = document.querySelectorAll('[id^="sentence-"]');
+    if (sentences.length === 0) return;
+    const id = `sentence-${distractionIndexRef.current}`;
+    setDistractionElementId(id);
+    distractionIndexRef.current = (distractionIndexRef.current + 1) % sentences.length;
+    setTimeout(() => setDistractionElementId(null), 3000);
   }, []);
 
   const triggerNodDemo = useCallback(() => {
