@@ -12,6 +12,10 @@ import { FollowAlongWidget } from '@/components/FollowAlongWidget';
 import { PronunciationFeedback } from '@/components/PronunciationFeedback';
 import { useGazeEvents } from '@/hooks/useGazeEvents';
 import type { GazePacket, WordPopupData, GrammarCardData } from '@/types';
+import {
+  toGazePackets,
+  type RealtimeData
+} from '@/lib/realtimeDataTransform';
 
 export const ReaderPage = () => {
   const { sessionId } = useParams<{ sessionId: string }>();
@@ -154,6 +158,25 @@ export const ReaderPage = () => {
     };
 
     const interval = setInterval(simulateGazeData, 50);
+    return () => clearInterval(interval);
+  }, [isGazeActive]);
+
+  // Fetch realtime gaze data from backend (or local mock)
+  useEffect(() => {
+    if (!isGazeActive) return;
+
+    const fetchRealtime = async () => {
+      try {
+        const res = await fetch('/api/realtime');
+        if (!res.ok) return;
+        const data: RealtimeData[] = await res.json();
+        gazeDataQueue.current.push(...toGazePackets(data));
+      } catch (err) {
+        console.error('Failed to fetch realtime data', err);
+      }
+    };
+
+    const interval = setInterval(fetchRealtime, 200);
     return () => clearInterval(interval);
   }, [isGazeActive]);
 
