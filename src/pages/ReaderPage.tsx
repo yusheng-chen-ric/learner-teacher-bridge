@@ -167,7 +167,7 @@ export const ReaderPage = () => {
 
     const fetchRealtime = async () => {
       try {
-        const res = await fetch('/api/realtime');
+        const res = await fetch(`${import.meta.env.BASE_URL}api/realtime`);
         if (!res.ok) return;
         const data: RealtimeData[] = await res.json();
         gazeDataQueue.current.push(...toGazePackets(data));
