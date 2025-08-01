@@ -29,6 +29,7 @@ export const ImageReaderPage = () => {
   const [uploadedImage, setUploadedImage] = useState<string | null>(null);
   const [pageIndex, setPageIndex] = useState(0);
 
+
   const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
