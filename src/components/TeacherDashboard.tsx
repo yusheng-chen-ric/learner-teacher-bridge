@@ -1,8 +1,9 @@
+import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { StudentProgressCard } from "./StudentProgressCard";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
-import { User, Book, TrendingUp, Clock, Target, Award, Users, BarChart3, BookOpen, Volume2, FileText, MessageSquare } from "lucide-react";
+import { User, Book, TrendingUp, Clock, Target, Award, Users, BarChart3, BookOpen, Volume2, FileText, MessageSquare, Upload } from "lucide-react";
 
 const mockStudents = [
   {
@@ -86,6 +87,29 @@ const englishLearningStats = {
 };
 
 export const TeacherDashboard = () => {
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
+
+  const MAX_FILE_SIZE = 2 * 1024 * 1024; // 2MB
+  const MAX_TEXT_LENGTH = 10000;
+
+  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    if (file.size > MAX_FILE_SIZE) {
+      alert('檔案過大，請選擇 2MB 以下的檔案');
+      return;
+    }
+
+    const text = await file.text();
+    if (text.length > MAX_TEXT_LENGTH) {
+      alert('文章太長，請選擇較短的文章');
+      return;
+    }
+
+    setSelectedFile(file);
+  };
+
   return (
     <div className="space-y-6">
       <div className="flex items-center space-x-3 mb-6">
@@ -327,6 +351,33 @@ export const TeacherDashboard = () => {
           <StudentProgressCard key={student.id} student={student} />
         ))}
       </div>
+
+      {/* Upload Reading Material */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center">
+            <Upload className="h-5 w-5 mr-2 text-blue-600" />
+            上傳閱讀文章
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <input
+            type="file"
+            accept=".txt,.pdf,.epub"
+            onChange={handleFileUpload}
+            id="teacher-file-upload"
+            className="hidden"
+          />
+          <label htmlFor="teacher-file-upload">
+            <Button className="bg-blue-600 hover:bg-blue-700" asChild>
+              <div>選擇檔案</div>
+            </Button>
+          </label>
+          {selectedFile && (
+            <div className="text-sm text-gray-700">已選擇：{selectedFile.name}</div>
+          )}
+        </CardContent>
+      </Card>
     </div>
   );
 };
