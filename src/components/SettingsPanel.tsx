@@ -1,5 +1,6 @@
 
 import { useState } from "react";
+import { useSettings } from "@/contexts/SettingsContext";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Slider } from "@/components/ui/slider";
@@ -9,12 +10,12 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Settings, Eye, Volume2, Languages, Target } from "lucide-react";
 
 export const SettingsPanel = ({ onClose }: { onClose: () => void }) => {
-  const [dwellTime, setDwellTime] = useState([500]);
-  const [regressionCount, setRegressionCount] = useState([3]);
-  const [language, setLanguage] = useState<'en' | 'zh'>('en');
-  const [soundEnabled, setSoundEnabled] = useState(true);
-  const [gazeTrackingEnabled, setGazeTrackingEnabled] = useState(true);
+  const { settings, updateSettings, resetSettings } = useSettings();
   const [calibrationComplete, setCalibrationComplete] = useState(false);
+  
+  // Local state for sliders (arrays for compatibility with Slider component)
+  const [dwellTime, setDwellTime] = useState([settings.fixationThreshold]);
+  const [regressionCount, setRegressionCount] = useState([settings.regressionCount]);
 
   const startCalibration = () => {
     console.log("Starting gaze calibration...");
@@ -24,12 +25,18 @@ export const SettingsPanel = ({ onClose }: { onClose: () => void }) => {
     }, 3000);
   };
 
-  const resetSettings = () => {
-    setDwellTime([500]);
+  const handleResetSettings = () => {
+    resetSettings();
+    setDwellTime([800]);
     setRegressionCount([3]);
-    setLanguage('en');
-    setSoundEnabled(true);
-    setGazeTrackingEnabled(true);
+  };
+
+  const handleSaveSettings = () => {
+    updateSettings({
+      fixationThreshold: dwellTime[0],
+      regressionCount: regressionCount[0]
+    });
+    onClose();
   };
 
   const CalibrationTargets = () => (
@@ -185,8 +192,8 @@ export const SettingsPanel = ({ onClose }: { onClose: () => void }) => {
                       <p className="text-xs text-muted-foreground">即時顯示視線位置</p>
                     </div>
                     <Switch
-                      checked={gazeTrackingEnabled}
-                      onCheckedChange={setGazeTrackingEnabled}
+                      checked={settings.gazeTrackingEnabled}
+                      onCheckedChange={(checked) => updateSettings({ gazeTrackingEnabled: checked })}
                     />
                   </div>
                   
@@ -199,8 +206,8 @@ export const SettingsPanel = ({ onClose }: { onClose: () => void }) => {
                       <p className="text-xs text-muted-foreground">互動時播放聲音反饋</p>
                     </div>
                     <Switch
-                      checked={soundEnabled}
-                      onCheckedChange={setSoundEnabled}
+                      checked={settings.soundEnabled}
+                      onCheckedChange={(checked) => updateSettings({ soundEnabled: checked })}
                     />
                   </div>
                 </CardContent>
@@ -220,15 +227,15 @@ export const SettingsPanel = ({ onClose }: { onClose: () => void }) => {
                     <label className="text-sm font-medium">介面語言</label>
                     <div className="mt-2 space-y-2">
                       <Button
-                        variant={language === 'en' ? 'default' : 'outline'}
-                        onClick={() => setLanguage('en')}
+                        variant={settings.language === 'en' ? 'default' : 'outline'}
+                        onClick={() => updateSettings({ language: 'en' })}
                         className="w-full justify-start"
                       >
                         English
                       </Button>
                       <Button
-                        variant={language === 'zh' ? 'default' : 'outline'}
-                        onClick={() => setLanguage('zh')}
+                        variant={settings.language === 'zh' ? 'default' : 'outline'}
+                        onClick={() => updateSettings({ language: 'zh' })}
                         className="w-full justify-start"
                       >
                         中文
@@ -241,10 +248,10 @@ export const SettingsPanel = ({ onClose }: { onClose: () => void }) => {
           </Tabs>
           
           <div className="flex justify-between pt-4 border-t">
-            <Button variant="outline" onClick={resetSettings}>
+            <Button variant="outline" onClick={handleResetSettings}>
               回復預設
             </Button>
-            <Button onClick={onClose} className="bg-blue-600 hover:bg-blue-700">
+            <Button onClick={handleSaveSettings} className="bg-blue-600 hover:bg-blue-700">
               儲存設定
             </Button>
           </div>
