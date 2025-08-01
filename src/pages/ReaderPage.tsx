@@ -63,6 +63,7 @@ export const ReaderPage = () => {
   // Enhanced interaction states
   const [newWords, setNewWords] = useState<string[]>([]);
   const [demoMode, setDemoMode] = useState(false);
+  const [demoContent, setDemoContent] = useState(false);
   const [followAlongTarget, setFollowAlongTarget] = useState<{ text: string; position: { x: number; y: number } } | null>(null);
   const [feedbackData, setFeedbackData] = useState<{ audioBlob: Blob; text: string } | null>(null);
   const [wsStatus, setWsStatus] = useState<WsStatus>('connecting');
@@ -98,6 +99,26 @@ export const ReaderPage = () => {
     return () => clearInterval(interval);
   }, []);
 
+  useEffect(() => {
+    if (demoContent) {
+      setWordPopup({
+        visible: true,
+        wordId: 'demo-word',
+        word: 'example',
+        position: { top: window.innerHeight / 2 - 40, left: window.innerWidth / 2 - 120 }
+      });
+      setGrammarCard({
+        visible: true,
+        sentenceId: 'demo-sentence',
+        sentence: 'This is a sample sentence used to demonstrate the interface.',
+        position: { top: window.innerHeight / 2 + 40, left: window.innerWidth / 2 - 160 }
+      });
+    } else {
+      setWordPopup(null);
+      setGrammarCard(null);
+    }
+  }, [demoContent]);
+
 
 
   // Refs for performance optimization
@@ -110,7 +131,7 @@ export const ReaderPage = () => {
   const prevNodCountRef = useRef(0);
 
   // Initialize gaze event handlers
-  const { processEvent, resetSession, setWordPopupVisible } = useGazeEvents({
+  const { processEvent, resetSession } = useGazeEvents({
     onFixation: ({ wordId, element, word }) => {
       const rect = element.getBoundingClientRect();
       setWordPopup({
@@ -177,9 +198,7 @@ export const ReaderPage = () => {
     }
   });
 
-  useEffect(() => {
-    setWordPopupVisible(!!wordPopup);
-  }, [wordPopup, setWordPopupVisible]);
+
 
   // WebSocket connection and real-time data processing
   useEffect(() => {
@@ -708,9 +727,14 @@ export const ReaderPage = () => {
           <CardHeader>
             <CardTitle className="text-lg flex justify-between">
               示範模式
-              <Button size="sm" variant="outline" onClick={() => setDemoMode(!demoMode)}>
-                {demoMode ? '隱藏' : '顯示'}
-              </Button>
+              <div className="space-x-2">
+                <Button size="sm" variant="outline" onClick={() => setDemoMode(!demoMode)}>
+                  {demoMode ? '隱藏' : '顯示'}
+                </Button>
+                <Button size="sm" variant="outline" onClick={() => setDemoContent(!demoContent)}>
+                  {demoContent ? '關閉範例' : '預設範例'}
+                </Button>
+              </div>
             </CardTitle>
           </CardHeader>
           {demoMode && (
