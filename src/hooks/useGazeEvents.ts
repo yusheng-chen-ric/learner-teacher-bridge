@@ -1,6 +1,8 @@
 import { useRef, useCallback } from 'react';
 import { ttsService } from '@/services/TTSService';
+
 import { useSettings } from '@/contexts/SettingsContext';
+
 
 interface GazeEventHandlers {
   onFixation: (payload: { wordId: string; element: HTMLElement; word: string }) => void;
@@ -127,7 +129,6 @@ export const useGazeEvents = (handlers: GazeEventHandlers) => {
             
             // Detect single nod pattern (one significant vertical movement)
             if (nodDetectionRef.current.verticalMovements.length === 2) {
-
               const movement = Math.abs(
                 nodDetectionRef.current.verticalMovements[1] -
                   nodDetectionRef.current.verticalMovements[0]
@@ -148,7 +149,6 @@ export const useGazeEvents = (handlers: GazeEventHandlers) => {
                   element: hoveredElement as HTMLElement,
                   word: wordText
                 });
-
                 nodDetectionRef.current.verticalMovements = [];
               }
             }
@@ -175,6 +175,7 @@ export const useGazeEvents = (handlers: GazeEventHandlers) => {
                   element: hoveredElement as HTMLElement,
                   word: wordText
                 });
+
                 nodDetectionRef.current.verticalMovements = [];
               }
             }
@@ -189,6 +190,7 @@ export const useGazeEvents = (handlers: GazeEventHandlers) => {
           if (settings.enabled && settings.autoSpeak) {
             ttsService.speak(wordText).catch((e) => console.error('TTS Error on fixation:', e));
           }
+
         if (fixationDuration > settings.fixationThreshold) {
           handlers.onFixation({ 
             wordId, 
@@ -196,7 +198,6 @@ export const useGazeEvents = (handlers: GazeEventHandlers) => {
             word: wordText
           });
           // Reset to prevent repeated triggers
-
           fixationRef.current = { wordId: null, startTime: 0 };
         }
       }
