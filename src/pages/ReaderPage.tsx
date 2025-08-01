@@ -79,8 +79,6 @@ export const ReaderPage = () => {
   const [usingRealData, setUsingRealData] = useState(false);
   const [lastRealDataTime, setLastRealDataTime] = useState(0);
   const [currentNodCount, setCurrentNodCount] = useState(0);
-  const [showTTSSettings, setShowTTSSettings] = useState(false);
-  const [ttsEnabled, setTTSEnabled] = useState(true);
 
   const textTTSService = useRef<TextContentTTSService>(new TextContentTTSService());
   const textDisplayRef = useRef<HTMLDivElement>(null);
@@ -598,30 +596,6 @@ export const ReaderPage = () => {
         </div>
 
 
-        <div className="mb-4 flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <Button
-              onClick={toggleTTS}
-              variant={ttsEnabled ? 'default' : 'outline'}
-              size="sm"
-            >
-              {ttsEnabled ? <Volume2 className="h-4 w-4" /> : <VolumeX className="h-4 w-4" />}
-              {ttsEnabled ? 'TTS ON' : 'TTS OFF'}
-            </Button>
-
-            <Button onClick={() => setShowTTSSettings(!showTTSSettings)} variant="outline" size="sm">
-              <Settings className="h-4 w-4" />
-              TTS Settings
-            </Button>
-          </div>
-        </div>
-
-
-        {showTTSSettings && (
-          <div className="mb-4">
-            <TTSSettingsPanel />
-          </div>
-        )}
 
         {/* Enhanced Controls */}
         <Card>
