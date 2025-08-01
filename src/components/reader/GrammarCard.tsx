@@ -27,11 +27,12 @@ export const GrammarCard = ({ sentence, position, onClose, onFollowAlong }: Gram
 
   return (
     <div className="fixed inset-0 z-50" onClick={onClose}>
-      <Card 
+      <Card
         className="absolute w-96 shadow-lg border-2 border-green-200 bg-white"
         style={{
-          left: Math.min(position.left, window.innerWidth - 384),
           top: Math.min(position.top + 10, window.innerHeight - 300),
+          right: 16,
+          left: 'auto',
         }}
         onClick={(e) => e.stopPropagation()}
       >
