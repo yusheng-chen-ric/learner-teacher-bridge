@@ -1,5 +1,5 @@
-import { useEffect, useRef, useState } from 'react';
-import { useParams } from 'react-router-dom';
+import { useEffect, useRef, useState, useCallback } from 'react';
+import { useParams, useNavigate } from 'react-router-dom';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import ImageDisplay from '@/components/reader/ImageDisplay';
@@ -29,6 +29,7 @@ const pages = [
 
 export const ImageReaderPage = () => {
   const { sessionId } = useParams<{ sessionId: string }>();
+  const navigate = useNavigate();
   const [focusId, setFocusId] = useState<string | null>(null);
   const [uploadedImage, setUploadedImage] = useState<string | null>(null);
   const [pageIndex, setPageIndex] = useState(0);
@@ -56,30 +57,57 @@ export const ImageReaderPage = () => {
     reader.readAsDataURL(file);
   };
 
-  const speak = (text: string) => {
+  const speak = useCallback((text: string) => {
     textTTSService.current
       .speakText(text)
       .catch((e) => console.error('TTS Error:', e));
-  };
+  }, []);
 
-  const triggerDistraction = (id: string) => {
+  const triggerDistraction = useCallback((id: string) => {
     setFocusId(id);
     speak(pages.find(i => i.id === id)?.text || '');
     setTimeout(() => setFocusId(null), 3000);
-  };
+  }, [speak]);
 
-  const toggleTTS = () => {
+  const toggleTTS = useCallback(() => {
     const newVal = !ttsEnabled;
     textTTSService.current.updateSettings({ enabled: newVal });
     setTTSEnabled(newVal);
-  };
+  }, [ttsEnabled]);
+
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      switch (e.key) {
+        case '1':
+          triggerDistraction(pages[pageIndex].id);
+          break;
+        case '2':
+          setPageIndex(p => Math.min(pages.length - 1, p + 1));
+          break;
+        case '3':
+          setPageIndex(p => Math.max(0, p - 1));
+          break;
+        case '4':
+          toggleTTS();
+          break;
+        case '5':
+          setShowTTSSettings(true);
+          break;
+        default:
+          break;
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [pageIndex, toggleTTS, triggerDistraction]);
 
   return (
     <div className="min-h-screen p-4 bg-gray-50">
       <div className="max-w-xl mx-auto space-y-6">
         <Card>
-          <CardHeader>
-            <CardTitle className="text-lg">Image Reading Session</CardTitle>
+          <CardHeader className="flex items-center justify-between">
+            <CardTitle className="text-lg">圖片閱讀</CardTitle>
+            <Button size="sm" variant="outline" onClick={() => navigate('/')}>返回</Button>
           </CardHeader>
           <CardContent className="space-y-6">
             {(() => {
@@ -89,21 +117,21 @@ export const ImageReaderPage = () => {
                   <ImageDisplay id={page.id} src={page.src} text={page.text} isHighlighted={focusId === page.id} />
                 <p className="text-sm">{page.text}</p>
                 <Button size="sm" onClick={() => speak(page.text)}>
-                  Speak
+                  朗讀
                 </Button>
               </div>
             );
           })()}
           <div className="flex justify-between pt-2">
             <Button variant="outline" onClick={() => setPageIndex(p => Math.max(0, p - 1))} disabled={pageIndex === 0}>
-              Previous
+              上一頁
             </Button>
             <Button variant="outline" onClick={() => setPageIndex(p => Math.min(pages.length - 1, p + 1))} disabled={pageIndex === pages.length - 1}>
-              Next
+              下一頁
             </Button>
           </div>
           <Button variant="outline" onClick={() => triggerDistraction(pages[pageIndex].id)}>
-            Simulate Distraction
+            模擬分心
           </Button>
           <div className="pt-4 space-y-2">
             <input
@@ -134,6 +162,18 @@ export const ImageReaderPage = () => {
           onStopTTS={() => textTTSService.current.stop()}
           showReportButton={false}
         />
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-lg">鍵盤快捷鍵</CardTitle>
+          </CardHeader>
+          <CardContent className="text-sm text-gray-600 space-y-1">
+            <p>1：觸發分心並朗讀</p>
+            <p>2：下一頁</p>
+            <p>3：上一頁</p>
+            <p>4：開關 TTS</p>
+            <p>5：TTS 設定</p>
+          </CardContent>
+        </Card>
       </div>
       {showTTSSettings && (
         <TTSSettingsPanel service={textTTSService.current} onClose={() => setShowTTSSettings(false)} />
