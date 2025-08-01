@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -437,16 +437,16 @@ export const ReaderPage = () => {
     setIsGazeActive(false);
   };
 
-  const triggerDistractionDemo = () => {
+  const triggerDistractionDemo = useCallback(() => {
     const sentence = document.querySelector('[id^="sentence-"]');
     if (sentence) {
       const id = sentence.id;
       setDistractionElementId(id);
       setTimeout(() => setDistractionElementId(null), 3000);
     }
-  };
+  }, []);
 
-  const triggerNodDemo = () => {
+  const triggerNodDemo = useCallback(() => {
     setWordPopup({
       visible: true,
       wordId: 'demo',
@@ -454,17 +454,54 @@ export const ReaderPage = () => {
       position: { top: window.innerHeight / 2, left: window.innerWidth / 2 - 120 }
     });
     setNewWords(prev => (prev.includes('example') ? prev : [...prev, 'example']));
-  };
+  }, []);
 
-  const triggerDoubleNodDemo = () => {
+  const triggerDoubleNodDemo = useCallback(() => {
     const word = wordPopup?.word || 'example';
     const settings = ttsService.getSettings();
     if (settings.enabled) {
       ttsService.speak(word, { rate: settings.rate * 0.8 }).catch((e) => console.error('TTS Demo Error:', e));
     }
-  };
+  }, [wordPopup]);
 
-  const triggerShakeDemo = () => setWordPopup(null);
+  const triggerShakeDemo = useCallback(() => setWordPopup(null), []);
+
+  const triggerGrammarDemo = useCallback(() => {
+    setShowGrammarHint(true);
+    setTimeout(() => setShowGrammarHint(false), 3000);
+  }, []);
+
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      switch (e.key) {
+        case '1':
+          triggerDistractionDemo();
+          break;
+        case '2':
+          triggerNodDemo();
+          break;
+        case '3':
+          triggerDoubleNodDemo();
+          break;
+        case '4':
+          triggerShakeDemo();
+          break;
+        case '5':
+          triggerGrammarDemo();
+          break;
+        default:
+          break;
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [
+    triggerDistractionDemo,
+    triggerNodDemo,
+    triggerDoubleNodDemo,
+    triggerShakeDemo,
+    triggerGrammarDemo
+  ]);
 
   const handleFinishReading = async () => {
     setIsGazeActive(false);
@@ -651,8 +688,12 @@ export const ReaderPage = () => {
                 <Button onClick={triggerDistractionDemo}>觸發分心</Button>
                 <Button onClick={triggerNodDemo}>點頭一次</Button>
                 <Button onClick={triggerDoubleNodDemo}>點頭兩次</Button>
-                <Button variant="outline" onClick={triggerShakeDemo}>搖頭</Button>
+                <Button onClick={triggerShakeDemo} variant="outline">搖頭</Button>
+                <Button onClick={triggerGrammarDemo} variant="outline">Grammar Help</Button>
               </div>
+              <p className="mt-2 text-xs text-gray-500">
+                快捷鍵 1-5 可直接觸發以上示範效果
+              </p>
             </CardContent>
           )}
         </Card>
