@@ -20,7 +20,7 @@ function App() {
             <Route path="/reader/:sessionId" element={<ReaderPage />} />
             <Route path="/report/:sessionId" element={<ReportPage />} />
             <Route path="/review" element={<VocabularyReviewPage />} />
-            <Route path="/image-reader" element={<ImageReaderPage />} />
+            <Route path="/image-reader/:sessionId" element={<ImageReaderPage />} />
             <Route path="/schema" element={<MaterialSchemaPage />} />
             <Route path="/404" element={<NotFound />} />
             <Route path="*" element={<Navigate to="/404" replace />} />

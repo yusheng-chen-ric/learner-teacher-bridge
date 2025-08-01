@@ -1,22 +1,20 @@
 import { useState } from 'react';
+import { useParams } from 'react-router-dom';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import ImageDisplay from '@/components/reader/ImageDisplay';
 
+// Load png images from the public/image folder
 const items = [
   {
     id: 'img1',
-    src: '/placeholder.svg',
+    src: '/image/sample.png',
     text: 'Emma has been learning English for two years.'
-  },
-  {
-    id: 'img2',
-    src: '/placeholder.svg',
-    text: 'Her teacher believes consistent practice improves fluency.'
   }
 ];
 
 export const ImageReaderPage = () => {
+  const { sessionId } = useParams<{ sessionId: string }>();
   const [focusId, setFocusId] = useState<string | null>(null);
 
   const speak = (text: string) => {

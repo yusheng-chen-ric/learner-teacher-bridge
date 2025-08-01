@@ -40,36 +40,49 @@ export const ChatInterface = () => {
   const [newMessage, setNewMessage] = useState("");
   const [showInteractiveReading, setShowInteractiveReading] = useState(false);
 
-  const englishLearningResponses = [
-    "這是關於英文學習的好問題。讓我分析學生的語言習得模式並提供目標字彙練習建議。",
-    "建議加入更多互動式聽力活動及發音練習，以提升英文流利度。",
-    "根據學習資料，學生適合進行加強文法與口說練習。",
-    "可以實施循序漸進的閱讀理解課程來增進英文能力。",
-    "以下是提升寫作技巧與句構理解的具體策略。"
-  ];
+  const handleSendMessage = async () => {
+    if (!newMessage.trim()) return;
 
-  const handleSendMessage = () => {
-    if (newMessage.trim()) {
-      const message: Message = {
-        id: Date.now().toString(),
-        sender: "teacher",
-        content: newMessage,
+    const message: Message = {
+      id: Date.now().toString(),
+      sender: 'teacher',
+      content: newMessage,
+      timestamp: new Date()
+    };
+
+    setMessages([...messages, message]);
+    setNewMessage('');
+
+    try {
+      const chatHistory = [...messages, message].map((m) => ({
+        role: m.sender === 'teacher' ? 'user' : 'assistant',
+        content: m.content
+      }));
+
+      const res = await fetch('https://api.openai.com/v1/chat/completions', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${import.meta.env.VITE_OPENAI_API_KEY}`
+        },
+        body: JSON.stringify({
+          model: 'gpt-3.5-turbo',
+          messages: chatHistory
+        })
+      });
+
+      const data = await res.json();
+      const aiText = data.choices?.[0]?.message?.content || '';
+
+      const aiResponse: Message = {
+        id: (Date.now() + 1).toString(),
+        sender: 'agent',
+        content: aiText,
         timestamp: new Date()
       };
-      setMessages([...messages, message]);
-      setNewMessage("");
-      
-      // Simulate AI response after a short delay
-      setTimeout(() => {
-        const randomResponse = englishLearningResponses[Math.floor(Math.random() * englishLearningResponses.length)];
-        const aiResponse: Message = {
-          id: (Date.now() + 1).toString(),
-          sender: "agent",
-          content: randomResponse,
-          timestamp: new Date()
-        };
-        setMessages(prev => [...prev, aiResponse]);
-      }, 1000);
+      setMessages((prev) => [...prev, aiResponse]);
+    } catch (err) {
+      console.error('OpenAI API error', err);
     }
   };
 

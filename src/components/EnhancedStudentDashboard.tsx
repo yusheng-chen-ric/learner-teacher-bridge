@@ -36,7 +36,8 @@ export const EnhancedStudentDashboard = () => {
         title: '每日閱讀練習',
         teacher: 'Smith 老師',
         dueDate: '2024-01-18',
-        status: 'pending'
+        status: 'pending',
+        content: '/image/sample.png'
       },
       {
         id: '3',
@@ -51,9 +52,13 @@ export const EnhancedStudentDashboard = () => {
 
   const handleStartReading = (assignmentId: string) => {
     console.log('Starting reading for assignment:', assignmentId);
-    // Generate a unique session ID and navigate to reader
+    const assignment = assignments.find((a) => a.id === assignmentId);
     const sessionId = `session-${Date.now()}-${assignmentId}`;
-    navigate(`/reader/${sessionId}`);
+    if (assignment?.content) {
+      navigate(`/image-reader/${sessionId}`);
+    } else {
+      navigate(`/reader/${sessionId}`);
+    }
   };
 
   const handleUploadFile = () => {

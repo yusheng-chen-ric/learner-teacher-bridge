@@ -23,9 +23,15 @@ export const ReaderPage = () => {
   const { sessionId } = useParams<{ sessionId: string }>();
   const navigate = useNavigate();
   
-  // Sample text content - in real app, this would come from API
-  // Simple English story for children
-  const textContent = `Emma loves to read books. She visits the library every week. When she finds a fun story, she shares it with her friends. Reading makes Emma smile.`;
+  // Load reading text from the public/text folder
+  const [textContent, setTextContent] = useState('');
+
+  useEffect(() => {
+    fetch('/text/sample.txt')
+      .then((res) => res.text())
+      .then(setTextContent)
+      .catch((err) => console.error('Failed to load text', err));
+  }, []);
 
   // Core state management
   const [isGazeActive, setIsGazeActive] = useState(false);

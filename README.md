@@ -57,3 +57,13 @@ To provide grammar tips when a learner focuses on a sentence, the app can fetch 
 ```
 
 Use `fetchGrammarDemo()` from `src/lib/grammarEndpoint.ts` to retrieve and parse this data on the client.
+
+## Environment setup
+
+Copy `.env.example` to `.env` and add your OpenAI API key:
+
+```bash
+cp .env.example .env
+# edit .env and set VITE_OPENAI_API_KEY
+```
+
