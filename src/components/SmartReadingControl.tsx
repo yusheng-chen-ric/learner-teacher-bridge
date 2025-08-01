@@ -1,7 +1,7 @@
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Eye, EyeOff, Save, Volume2, Square, Settings } from 'lucide-react';
+import { Eye, EyeOff, Save, Volume2, Square, Settings, Play } from 'lucide-react';
 
 interface SmartReadingControlProps {
   isGazeActive: boolean;
@@ -11,6 +11,7 @@ interface SmartReadingControlProps {
   onStopGaze: () => void;
   onShowTTSSettings: () => void;
   onStopTTS: () => void;
+  onPlayTTS: () => void;
   onFinishReading?: () => void;
   showReportButton?: boolean;
 }
@@ -23,6 +24,7 @@ export const SmartReadingControl = ({
   onStopGaze,
   onShowTTSSettings,
   onStopTTS,
+  onPlayTTS,
   onFinishReading,
   showReportButton = true,
 }: SmartReadingControlProps) => (
@@ -71,6 +73,14 @@ export const SmartReadingControl = ({
           </Button>
           <Button variant="outline" size="sm" onClick={onShowTTSSettings}>
             <Settings className="h-4 w-4" />
+          </Button>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={onPlayTTS}
+            disabled={!ttsEnabled}
+          >
+            <Play className="h-4 w-4" />
           </Button>
           <Button
             variant="outline"

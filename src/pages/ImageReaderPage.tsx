@@ -131,6 +131,7 @@ export const ImageReaderPage = () => {
           onStartGaze={() => setIsGazeActive(true)}
           onStopGaze={() => setIsGazeActive(false)}
           onShowTTSSettings={() => setShowTTSSettings(true)}
+          onPlayTTS={() => speak(pages[pageIndex].text)}
           onStopTTS={() => textTTSService.current.stop()}
           showReportButton={false}
         />
