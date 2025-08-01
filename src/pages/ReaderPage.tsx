@@ -1,11 +1,10 @@
-
 import { useState, useEffect, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 
-import { Eye, EyeOff, Save, ArrowLeft, Volume2, Settings, Square } from 'lucide-react';
+import { Eye, EyeOff, Save, ArrowLeft, Volume2, VolumeX, Settings, Square } from 'lucide-react';
 
 import { TextDisplay } from '@/components/reader/TextDisplay';
 import { WordPopup } from '@/components/reader/WordPopup';
@@ -141,6 +140,7 @@ export const ReaderPage = () => {
         position: { top: rect.bottom, left: rect.left }
       });
       setGrammarCard(null);
+      setNewWords(prev => (prev.includes(word) ? prev : [...prev, word]));
     },
     onRegression: ({ sentenceId, element, sentence }) => {
       const rect = element.getBoundingClientRect();
@@ -152,49 +152,16 @@ export const ReaderPage = () => {
       });
       setWordPopup(null);
     },
-    onDistraction: ({ sentenceId }) => {
-      if (sentenceId) {
+    onDistraction: () => {
+      // Set a default distraction behavior when no specific sentence is identified
+      const sentence = document.querySelector('[id^="sentence-"]');
+      if (sentence) {
+        const sentenceId = sentence.id;
         setDistractionElementId(sentenceId);
         setTimeout(() => {
           setDistractionElementId(null);
         }, 3000);
       }
-    },
-    onNodOnce: ({ wordId, element, word }) => {
-      const rect = element.getBoundingClientRect();
-      setWordPopup({
-        visible: true,
-        wordId,
-        word,
-        position: { top: rect.bottom, left: rect.left }
-      });
-      setGrammarCard(null);
-      setNewWords(prev => (prev.includes(word) ? prev : [...prev, word]));
-    },
-    onNodTwice: ({ wordId, element, word }) => {
-      // Show word definition popup above the text
-      const rect = element.getBoundingClientRect();
-      setWordPopup({
-        visible: true,
-        wordId,
-        word,
-        position: { top: rect.bottom, left: rect.left }
-      });
-      setGrammarCard(null);
-
-      // Play pronunciation as additional feedback
-      if ('speechSynthesis' in window) {
-        const utterance = new SpeechSynthesisUtterance(word);
-        utterance.lang = 'en-US';
-        utterance.rate = 0.8;
-        speechSynthesis.speak(utterance);
-      }
-
-      setSessionData(prev => ({ ...prev, nodEvents: prev.nodEvents + 1 }));
-
-    },
-    onShake: () => {
-      setWordPopup(null);
     }
   });
 
@@ -408,10 +375,7 @@ export const ReaderPage = () => {
           processEvent(
             hoveredElement,
             packet.timestamp,
-            packet.gaze_valid === 1,
-            packet.gaze_pos_x,
-            packet.gaze_pos_y,
-            currentNodCount
+            packet.gaze_valid === 1
           );
         } catch (error) {
           console.error('Error processing gaze event:', error);
