@@ -201,25 +201,25 @@ export const useGazeEvents = (handlers: GazeEventHandlers) => {
           fixationRef.current = { wordId: null, startTime: 0 };
         }
       }
+      } else {
+        // Not on a word, reset fixation and nod detection
+        fixationRef.current = { wordId: null, startTime: 0 };
+        nodDetectionRef.current = {
+          ...nodDetectionRef.current,
+          wordId: null,
+          verticalMovements: [],
+          lastMovementTime: 0
+        };
+      }
     } catch (error) {
       console.error('Error in word fixation detection:', error);
       // Reset state on error to prevent stuck states
       fixationRef.current = { wordId: null, startTime: 0 };
-      nodDetectionRef.current = { 
+      nodDetectionRef.current = {
         ...nodDetectionRef.current,
-        wordId: null, 
-        verticalMovements: [], 
-        lastMovementTime: 0 
-      };
-    }
-    } else {
-      // Not on a word, reset fixation and nod detection
-      fixationRef.current = { wordId: null, startTime: 0 };
-      nodDetectionRef.current = { 
-        ...nodDetectionRef.current,
-        wordId: null, 
-        verticalMovements: [], 
-        lastMovementTime: 0 
+        wordId: null,
+        verticalMovements: [],
+        lastMovementTime: 0
       };
     }
 

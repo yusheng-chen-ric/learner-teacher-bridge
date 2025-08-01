@@ -4,20 +4,25 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Eye, EyeOff, Save, ArrowLeft, Settings, Volume2, VolumeX } from 'lucide-react';
+
+import { Eye, EyeOff, Save, ArrowLeft, Volume2, Settings, Square } from 'lucide-react';
+
 import { TextDisplay } from '@/components/reader/TextDisplay';
 import { WordPopup } from '@/components/reader/WordPopup';
 import { GrammarCard } from '@/components/reader/GrammarCard';
 import { FollowAlongWidget } from '@/components/FollowAlongWidget';
 import { PronunciationFeedback } from '@/components/PronunciationFeedback';
 import { TTSSettingsPanel } from '@/components/TTSSettingsPanel';
+
 import { ttsService } from '@/services/TTSService';
+
 import { useGazeEvents } from '@/hooks/useGazeEvents';
 import type { GazePacket, WordPopupData, GrammarCardData } from '@/types';
 import {
   toGazePackets,
   type RealtimeData
 } from '@/lib/realtimeDataTransform';
+import { TextContentTTSService } from '@/services/TextContentTTSService';
 
 type WsStatus = 'connecting' | 'connected' | 'disconnected';
 
@@ -31,7 +36,15 @@ export const ReaderPage = () => {
   useEffect(() => {
     fetch('/text/sample.txt')
       .then((res) => res.text())
-      .then(setTextContent)
+      .then(async (content) => {
+        setTextContent(content);
+        setTimeout(async () => {
+          if (textDisplayRef.current) {
+            await textTTSService.current.load(textDisplayRef.current);
+            setTTSEnabled(textTTSService.current.getSettings().enabled);
+          }
+        }, 300);
+      })
       .catch((err) => console.error('Failed to load text', err));
   }, []);
 
@@ -66,6 +79,11 @@ export const ReaderPage = () => {
   const [usingRealData, setUsingRealData] = useState(false);
   const [lastRealDataTime, setLastRealDataTime] = useState(0);
   const [currentNodCount, setCurrentNodCount] = useState(0);
+  const [showTTSSettings, setShowTTSSettings] = useState(false);
+  const [ttsEnabled, setTTSEnabled] = useState(true);
+
+  const textTTSService = useRef<TextContentTTSService>(new TextContentTTSService());
+  const textDisplayRef = useRef<HTMLDivElement>(null);
 
   const handleRecordingComplete = (audioBlob: Blob) => {
     if (followAlongTarget) {
@@ -90,6 +108,8 @@ export const ReaderPage = () => {
   const fullSessionData = useRef<GazePacket[]>([]);
   const animationFrameRef = useRef<number>();
   const prevGazeRef = useRef<{ x: number; y: number } | null>(null);
+  const fixationTracker = useRef<{ startTime: number; x: number; y: number } | null>(null);
+  const prevNodCountRef = useRef(0);
 
   // Initialize gaze event handlers
   const { processEvent, resetSession, setWordPopupVisible } = useGazeEvents({
@@ -380,7 +400,28 @@ export const ReaderPage = () => {
           console.error('Error processing gaze event:', error);
           // Continue processing other packets even if one fails
         }
-        
+
+        if (packet.gaze_valid === 1) {
+          if (!fixationTracker.current) {
+            fixationTracker.current = { startTime: packet.timestamp, x: packet.gaze_pos_x, y: packet.gaze_pos_y };
+          } else {
+            const dist = Math.hypot(packet.gaze_pos_x - fixationTracker.current.x, packet.gaze_pos_y - fixationTracker.current.y);
+            if (dist > 50) {
+              fixationTracker.current = { startTime: packet.timestamp, x: packet.gaze_pos_x, y: packet.gaze_pos_y };
+            } else {
+              const dur = packet.timestamp - fixationTracker.current.startTime;
+              textTTSService.current.handleGazeFixation(packet.gaze_pos_x, packet.gaze_pos_y, dur);
+            }
+          }
+        } else {
+          fixationTracker.current = null;
+        }
+
+        if (currentNodCount > prevNodCountRef.current) {
+          textTTSService.current.handleNodGesture(packet.gaze_pos_x, packet.gaze_pos_y);
+          prevNodCountRef.current = currentNodCount;
+        }
+
         processed++;
       }
       
@@ -609,12 +650,40 @@ export const ReaderPage = () => {
                   </Button>
                 )}
                 
-                {isGazeActive && (
-                  <Badge className="bg-green-100 text-green-800">
-                    👁️ AI 助理啟動
-                  </Badge>
-                )}
-              </div>
+              {isGazeActive && (
+                <Badge className="bg-green-100 text-green-800">
+                  👁️ AI 助理啟動
+                </Badge>
+              )}
+              <Button
+                variant={ttsEnabled ? 'default' : 'outline'}
+                size="sm"
+                onClick={() => {
+                  const newVal = !ttsEnabled;
+                  textTTSService.current.updateSettings({ enabled: newVal });
+                  setTTSEnabled(newVal);
+                }}
+                className="flex items-center space-x-1"
+              >
+                {ttsEnabled ? <Volume2 className="h-4 w-4" /> : <Square className="h-4 w-4" />}
+                <span>{ttsEnabled ? 'TTS開啟' : 'TTS關閉'}</span>
+              </Button>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setShowTTSSettings(true)}
+              >
+                <Settings className="h-4 w-4" />
+              </Button>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => textTTSService.current.stop()}
+                disabled={!ttsEnabled}
+              >
+                <Square className="h-4 w-4" />
+              </Button>
+            </div>
               
               <Button
                 onClick={handleFinishReading}
@@ -630,11 +699,13 @@ export const ReaderPage = () => {
         {/* Reading Text */}
         <Card>
           <CardContent className="p-8">
-            <TextDisplay
-              textContent={textContent}
-              elementPositionsRef={elementPositionsRef}
-              distractionElementId={distractionElementId}
-            />
+            <div ref={textDisplayRef}>
+              <TextDisplay
+                textContent={textContent}
+                elementPositionsRef={elementPositionsRef}
+                distractionElementId={distractionElementId}
+              />
+            </div>
           </CardContent>
         </Card>
 
@@ -720,6 +791,10 @@ export const ReaderPage = () => {
           originalText={feedbackData.text}
           onClose={() => setFeedbackData(null)}
         />
+      )}
+
+      {showTTSSettings && (
+        <TTSSettingsPanel service={textTTSService.current} onClose={() => setShowTTSSettings(false)} />
       )}
 
       {showGrammarHint && (
