@@ -8,6 +8,8 @@ import { Eye, EyeOff, Save, ArrowLeft } from 'lucide-react';
 import { TextDisplay } from '@/components/reader/TextDisplay';
 import { WordPopup } from '@/components/reader/WordPopup';
 import { GrammarCard } from '@/components/reader/GrammarCard';
+import { FollowAlongWidget } from '@/components/FollowAlongWidget';
+import { PronunciationFeedback } from '@/components/PronunciationFeedback';
 import { useGazeEvents } from '@/hooks/useGazeEvents';
 import type { GazePacket, WordPopupData, GrammarCardData } from '@/types';
 
@@ -34,7 +36,15 @@ export const ReaderPage = () => {
   // Enhanced interaction states
   const [newWords, setNewWords] = useState<string[]>([]);
   const [demoMode, setDemoMode] = useState(false);
+  const [followAlongTarget, setFollowAlongTarget] = useState<{ text: string; position: { x: number; y: number } } | null>(null);
+  const [feedbackData, setFeedbackData] = useState<{ audioBlob: Blob; text: string } | null>(null);
 
+  const handleRecordingComplete = (audioBlob: Blob) => {
+    if (followAlongTarget) {
+      setFeedbackData({ audioBlob, text: followAlongTarget.text });
+      setFollowAlongTarget(null);
+    }
+  };
 
 
 
@@ -404,6 +414,9 @@ export const ReaderPage = () => {
           word={wordPopup.word}
           position={wordPopup.position}
           onClose={() => setWordPopup(null)}
+          onFollowAlong={(text, pos) =>
+            setFollowAlongTarget({ text, position: { x: pos.left, y: pos.top } })
+          }
         />
       )}
 
@@ -412,6 +425,26 @@ export const ReaderPage = () => {
           sentence={grammarCard.sentence}
           position={grammarCard.position}
           onClose={() => setGrammarCard(null)}
+          onFollowAlong={(text, pos) =>
+            setFollowAlongTarget({ text, position: { x: pos.left, y: pos.top } })
+          }
+        />
+      )}
+
+      {followAlongTarget && (
+        <FollowAlongWidget
+          text={followAlongTarget.text}
+          position={followAlongTarget.position}
+          onClose={() => setFollowAlongTarget(null)}
+          onRecordingComplete={handleRecordingComplete}
+        />
+      )}
+
+      {feedbackData && (
+        <PronunciationFeedback
+          audioBlob={feedbackData.audioBlob}
+          originalText={feedbackData.text}
+          onClose={() => setFeedbackData(null)}
         />
       )}
     </div>

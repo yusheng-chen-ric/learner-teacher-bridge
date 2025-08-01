@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { useReviewWords } from '@/hooks/useReviewWords';
+import { splitIntoSyllables } from '@/lib/syllables';
 
 export const VocabularyReviewPage = () => {
   const { words, removeWord } = useReviewWords();
@@ -21,6 +22,7 @@ export const VocabularyReviewPage = () => {
   }
 
   const word = words[index];
+  const syllables = splitIntoSyllables(word);
 
   const handleKnown = () => {
     removeWord(word);
@@ -42,7 +44,16 @@ export const VocabularyReviewPage = () => {
           <CardTitle>單字複習</CardTitle>
         </CardHeader>
         <CardContent className="space-y-4 text-center">
-          <div className="text-3xl font-bold">{word}</div>
+          <div className="text-3xl font-bold flex justify-center space-x-1">
+            {syllables.map((syl, i) => (
+              <span key={i}>
+                {syl}
+                {i < syllables.length - 1 && (
+                  <span className="text-blue-600">•</span>
+                )}
+              </span>
+            ))}
+          </div>
           <div className="flex justify-around">
             <Button onClick={handleKnown} className="bg-green-600 hover:bg-green-700">記得</Button>
             <Button variant="outline" onClick={handleAgain}>再一次</Button>
