@@ -57,6 +57,17 @@ export const ReaderPage = () => {
       .catch((err) => console.error('Failed to load grammar demo', err));
   }, []);
 
+  useEffect(() => {
+    if (!grammarData) return;
+    const initial: Record<string, string> = {};
+    grammarData.sentences.forEach((s) => {
+      initial[s.id] = s.underlines
+        .map((u) => `${u.phrase}: ${u.explanation}`)
+        .join(' | ');
+    });
+    setAnnotations(initial);
+  }, [grammarData]);
+
   // Load vocabulary list for flashcards
   useEffect(() => {
     fetch('/vocab.json')
@@ -89,7 +100,7 @@ export const ReaderPage = () => {
   const [followAlongTarget, setFollowAlongTarget] = useState<{ text: string; position: { x: number; y: number } } | null>(null);
   const [feedbackData, setFeedbackData] = useState<{ audioBlob: Blob; text: string } | null>(null);
   const [wsStatus, setWsStatus] = useState<WsStatus>('connecting');
-  const [showGrammarHint, setShowGrammarHint] = useState(false);
+  const [manualDistraction, setManualDistraction] = useState(false);
   const [showTTSSettings, setShowTTSSettings] = useState(false);
   const [ttsEnabled, setTTSEnabled] = useState(ttsService.getSettings().enabled);
 
@@ -195,12 +206,15 @@ export const ReaderPage = () => {
     },
     onDistraction: () => {
       // Set a default distraction behavior when no specific sentence is identified
+      if (manualDistraction) return;
       const sentence = document.querySelector('[id^="sentence-"]');
       if (sentence) {
         const sentenceId = sentence.id;
         setDistractionElementId(sentenceId);
         setTimeout(() => {
-          setDistractionElementId(null);
+          if (!manualDistraction) {
+            setDistractionElementId(null);
+          }
         }, 3000);
       }
     }
@@ -424,8 +438,7 @@ export const ReaderPage = () => {
             const dy = packet.gaze_pos_y - prevGazeRef.current.y;
             const dist = Math.hypot(dx, dy);
             if (dist > 150) {
-              setShowGrammarHint(true);
-              setTimeout(() => setShowGrammarHint(false), 3000);
+              // previously showed grammar hint overlay
             }
           }
           prevGazeRef.current = { x: packet.gaze_pos_x, y: packet.gaze_pos_y };
@@ -503,9 +516,13 @@ export const ReaderPage = () => {
     const sentences = document.querySelectorAll('[id^="sentence-"]');
     if (sentences.length === 0) return;
     const id = `sentence-${distractionIndexRef.current}`;
+    setManualDistraction(true);
     setDistractionElementId(id);
     distractionIndexRef.current = (distractionIndexRef.current + 1) % sentences.length;
-    setTimeout(() => setDistractionElementId(null), 3000);
+    setTimeout(() => {
+      setDistractionElementId(null);
+      setManualDistraction(false);
+    }, 3000);
   }, []);
 
   const triggerNodDemo = useCallback(() => {
@@ -529,8 +546,7 @@ export const ReaderPage = () => {
   const triggerShakeDemo = useCallback(() => setWordPopup(null), []);
 
   const triggerGrammarDemo = useCallback(() => {
-    setShowGrammarHint(true);
-    setTimeout(() => setShowGrammarHint(false), 3000);
+    // no-op: grammar hints now shown inline
   }, []);
 
   const showVocabCard = useCallback((index: number) => {
@@ -833,18 +849,7 @@ export const ReaderPage = () => {
         <TTSSettingsPanel service={textTTSService.current} onClose={() => setShowTTSSettings(false)} />
       )}
 
-      {showGrammarHint && (
-        <div className="fixed bottom-4 right-4 bg-white border p-3 rounded shadow-lg text-sm" style={{maxWidth: '300px'}}>
-          <p>
-            The system provides{' '}
-            <span style={{ textDecoration: 'underline dotted' }}>real-time feedback</span>{' '}
-            to students.
-          </p>
-          <sub style={{ fontSize: '0.8em', color: '#888' }}>
-            real-time feedback：<strong>複合名詞</strong>，作為動詞 provides 的受詞。real-time 是形容詞，強調「即時」這個特性，用來修飾 feedback（回饋）。
-          </sub>
-        </div>
-      )}
+      {/* Grammar hint overlay removed in favor of inline annotations */}
     </div>
   );
 };

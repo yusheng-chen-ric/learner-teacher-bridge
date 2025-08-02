@@ -2,41 +2,57 @@
   "sentences": [
     {
       "id": "sentence-0",
-      "text": "Emma loves to read books.",
+      "text": "William Shakespeare, often regarded as the greatest playwright in the English language, was a master of both tragedy and comedy.",
       "underlines": [
         {
-          "phrase": "to read",
-          "explanation": "Infinitive phrase acting as the object of loves."
+          "phrase": "often regarded as the greatest playwright in the English language",
+          "explanation": "Participial phrase giving additional information about William Shakespeare."
         }
       ]
     },
     {
       "id": "sentence-1",
-      "text": "She visits the library every week.",
+      "text": "Born in 1564 in Stratford-upon-Avon, his works have transcended time, captivating audiences for centuries with their profound exploration of human nature, love, ambition, and betrayal.",
       "underlines": [
         {
-          "phrase": "every week",
-          "explanation": "Adverb phrase showing how often she visits."
+          "phrase": "Born in 1564 in Stratford-upon-Avon",
+          "explanation": "Introductory past participial phrase modifying Shakespeare."
+        },
+        {
+          "phrase": "captivating audiences for centuries",
+          "explanation": "Present participle phrase describing continual effect."
         }
       ]
     },
     {
       "id": "sentence-2",
-      "text": "When she finds a fun story, she shares it with her friends.",
+      "text": "His plays, such as \"Hamlet,\" \"Romeo and Juliet,\" and \"Macbeth,\" are celebrated for their intricate characters, poetic language, and timeless themes.",
       "underlines": [
         {
-          "phrase": "When she finds a fun story",
-          "explanation": "Adverbial clause telling when she shares the story."
+          "phrase": "such as \"Hamlet,\" \"Romeo and Juliet,\" and \"Macbeth,\"",
+          "explanation": "Example phrase set off by commas."
+        },
+        {
+          "phrase": "are celebrated for",
+          "explanation": "Passive voice construction."
         }
       ]
     },
     {
       "id": "sentence-3",
-      "text": "Reading makes Emma smile.",
+      "text": "Beyond the stage, Shakespeare's sonnets reveal a deep understanding of emotion and beauty, solidifying his legacy as a literary genius whose influence continues to shape literature and the arts worldwide.",
       "underlines": [
         {
-          "phrase": "makes Emma smile",
-          "explanation": "Causative structure: make + object + base verb."
+          "phrase": "Beyond the stage",
+          "explanation": "Prepositional phrase acting as an adverb."
+        },
+        {
+          "phrase": "solidifying his legacy as a literary genius",
+          "explanation": "Present participle phrase giving the result."
+        },
+        {
+          "phrase": "whose influence continues to shape literature and the arts worldwide",
+          "explanation": "Relative clause describing 'genius'."
         }
       ]
     }
