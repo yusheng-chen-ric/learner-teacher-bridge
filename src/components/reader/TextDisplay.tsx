@@ -5,9 +5,10 @@ interface TextDisplayProps {
   textContent: string;
   elementPositionsRef: RefObject<Map<string, DOMRect>>;
   distractionElementId: string | null;
+  annotations?: Record<string, string>;
 }
 
-export const TextDisplay = ({ textContent, elementPositionsRef, distractionElementId }: TextDisplayProps) => {
+export const TextDisplay = ({ textContent, elementPositionsRef, distractionElementId, annotations = {} }: TextDisplayProps) => {
   
   const atomizedText = useMemo(() => {
     // Split text into sentences
@@ -20,29 +21,28 @@ export const TextDisplay = ({ textContent, elementPositionsRef, distractionEleme
       if (/^[.!?]+\s*$/.test(sentence)) {
         return <span key={`punct-${index}`}>{sentence}</span>;
       }
-      
+
       const currentSentenceIndex = sentenceIndex++;
       const words = sentence.trim().split(/(\s+)/);
-      
-      return (
-        <span 
+
+      const sentenceSpan = (
+        <span
           key={`sentence-${currentSentenceIndex}`}
           id={`sentence-${currentSentenceIndex}`}
           className={`inline ${distractionElementId === `sentence-${currentSentenceIndex}` ? 'text-xl font-bold text-blue-600 bg-blue-50 px-1 py-0.5 rounded transition-all duration-300' : ''}`}
         >
           {words.map((word, wIndex) => {
-            // Handle whitespace
             if (/^\s+$/.test(word)) {
               return <span key={`space-${currentSentenceIndex}-${wIndex}`}>{word}</span>;
             }
-            
+
             const currentWordIndex = wordIndex++;
             const cleanWord = word.replace(/[^\w]/g, '');
-            
+
             if (!cleanWord) {
               return <span key={`punct-word-${currentSentenceIndex}-${wIndex}`}>{word}</span>;
             }
-            
+
             return (
               <span
                 key={`word-${currentWordIndex}`}
@@ -56,8 +56,20 @@ export const TextDisplay = ({ textContent, elementPositionsRef, distractionEleme
           })}
         </span>
       );
+
+      const annotation = annotations[`sentence-${currentSentenceIndex}`];
+      if (annotation) {
+        return (
+          <div key={`wrapper-${currentSentenceIndex}`} className="mb-4">
+            {sentenceSpan}
+            <div className="mt-1 text-xs text-gray-600">{annotation}</div>
+          </div>
+        );
+      }
+
+      return <span key={`wrapper-${currentSentenceIndex}`}>{sentenceSpan}</span>;
     });
-  }, [textContent, distractionElementId]);
+  }, [textContent, distractionElementId, annotations]);
 
   // Calculate element positions after render
   useEffect(() => {
@@ -97,7 +109,7 @@ export const TextDisplay = ({ textContent, elementPositionsRef, distractionEleme
       clearTimeout(timer);
       window.removeEventListener('resize', handleResize);
     };
-  }, [atomizedText, elementPositionsRef]);
+  }, [atomizedText, elementPositionsRef, annotations]);
 
   return (
     <div className="text-lg leading-relaxed select-none" style={{ lineHeight: '2.2' }}>

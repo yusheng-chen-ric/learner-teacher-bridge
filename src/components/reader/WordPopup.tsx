@@ -20,31 +20,55 @@ interface WordDefinition {
   examples: string[];
 }
 
+interface VocabEntry {
+  word: string;
+  pronunciation?: string;
+  part_of_speech?: string;
+  definition?: string;
+  examples?: string[];
+}
+
 export const WordPopup = ({ word, position, onClose, onFollowAlong }: WordPopupProps) => {
   const [definition, setDefinition] = useState<WordDefinition | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isFlipped, setIsFlipped] = useState(false);
 
   useEffect(() => {
-    // Simulate API call for word definition
     const fetchDefinition = async () => {
       setIsLoading(true);
-      
-      // Mock data - in real implementation, this would call an API
-      await new Promise(resolve => setTimeout(resolve, 300));
-      
-      const mockDefinition: WordDefinition = {
-        word: word,
-        partOfSpeech: '名詞',
-        definition: `關於 "${word}" 的詳細解釋與用法範例。`,
-        pronunciation: '/wɜːrd/',
-        examples: [
-          `這個單字在英文中相當常見。`,
-          `學生閱讀時常查詢 ${word}。`
-        ]
-      };
-      
-      setDefinition(mockDefinition);
+
+      try {
+        const res = await fetch('/vocab.json');
+        const list: VocabEntry[] = await res.json();
+        const entry = list.find((v) => v.word.toLowerCase() === word.toLowerCase());
+        if (entry) {
+          const def: WordDefinition = {
+            word: entry.word,
+            partOfSpeech: entry.part_of_speech || '',
+            definition: entry.definition || '',
+            pronunciation: entry.pronunciation || '',
+            examples: entry.examples || []
+          };
+          setDefinition(def);
+        } else {
+          setDefinition({
+            word,
+            partOfSpeech: '',
+            definition: 'No definition found.',
+            pronunciation: '',
+            examples: []
+          });
+        }
+      } catch (err) {
+        console.error('Failed to load vocab', err);
+        setDefinition({
+          word,
+          partOfSpeech: '',
+          definition: 'No definition found.',
+          pronunciation: '',
+          examples: []
+        });
+      }
       setIsLoading(false);
     };
 

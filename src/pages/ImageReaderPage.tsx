@@ -159,21 +159,10 @@ export const ImageReaderPage = () => {
           onStartGaze={() => setIsGazeActive(true)}
           onStopGaze={() => setIsGazeActive(false)}
           onShowTTSSettings={() => setShowTTSSettings(true)}
+          onPlayTTS={() => speak(pages[pageIndex].text)}
           onStopTTS={() => textTTSService.current.stop()}
           showReportButton={false}
         />
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-lg">鍵盤快捷鍵</CardTitle>
-          </CardHeader>
-          <CardContent className="text-sm text-gray-600 space-y-1">
-            <p>1：觸發分心並朗讀</p>
-            <p>2：下一頁</p>
-            <p>3：上一頁</p>
-            <p>4：開關 TTS</p>
-            <p>5：TTS 設定</p>
-          </CardContent>
-        </Card>
       </div>
       {showTTSSettings && (
         <TTSSettingsPanel service={textTTSService.current} onClose={() => setShowTTSSettings(false)} />

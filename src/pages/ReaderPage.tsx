@@ -23,6 +23,8 @@ import {
   type RealtimeData
 } from '@/lib/realtimeDataTransform';
 import { TextContentTTSService } from '@/services/TextContentTTSService';
+import { fetchGrammarDemo, type GrammarDemoData } from '@/lib/grammarEndpoint';
+import type { VocabularyItem } from '@/types';
 
 type WsStatus = 'connecting' | 'connected' | 'disconnected';
 
@@ -48,11 +50,42 @@ export const ReaderPage = () => {
       .catch((err) => console.error('Failed to load text', err));
   }, []);
 
+  // Load grammar annotations
+  useEffect(() => {
+    fetchGrammarDemo()
+      .then((data) => setGrammarData(data))
+      .catch((err) => console.error('Failed to load grammar demo', err));
+  }, []);
+
+  useEffect(() => {
+    if (!grammarData) return;
+    const initial: Record<string, string> = {};
+    grammarData.sentences.forEach((s) => {
+      initial[s.id] = s.underlines
+        .map((u) => `${u.phrase}: ${u.explanation}`)
+        .join(' | ');
+    });
+    setAnnotations(initial);
+  }, [grammarData]);
+
+  // Load vocabulary list for flashcards
+  useEffect(() => {
+    fetch('/vocab.json')
+      .then((res) => res.json())
+      .then((data: VocabularyItem[]) => {
+        setVocabList(data);
+        vocabSetRef.current = new Set(data.map((v) => v.word.toLowerCase()));
+      })
+      .catch((err) => console.error('Failed to load vocabulary list', err));
+  }, []);
+
   // Core state management
   const [isGazeActive, setIsGazeActive] = useState(false);
   const [wordPopup, setWordPopup] = useState<WordPopupData | null>(null);
   const [grammarCard, setGrammarCard] = useState<GrammarCardData | null>(null);
   const [distractionElementId, setDistractionElementId] = useState<string | null>(null);
+  const [annotations, setAnnotations] = useState<Record<string, string>>({});
+  const [grammarData, setGrammarData] = useState<GrammarDemoData | null>(null);
   const [sessionData, setSessionData] = useState({
     startTime: Date.now(),
     readingTime: 0,
@@ -67,7 +100,7 @@ export const ReaderPage = () => {
   const [followAlongTarget, setFollowAlongTarget] = useState<{ text: string; position: { x: number; y: number } } | null>(null);
   const [feedbackData, setFeedbackData] = useState<{ audioBlob: Blob; text: string } | null>(null);
   const [wsStatus, setWsStatus] = useState<WsStatus>('connecting');
-  const [showGrammarHint, setShowGrammarHint] = useState(false);
+  const [manualDistraction, setManualDistraction] = useState(false);
   const [showTTSSettings, setShowTTSSettings] = useState(false);
   const [ttsEnabled, setTTSEnabled] = useState(ttsService.getSettings().enabled);
 
@@ -84,6 +117,14 @@ export const ReaderPage = () => {
 
   const textTTSService = useRef<TextContentTTSService>(new TextContentTTSService());
   const textDisplayRef = useRef<HTMLDivElement>(null);
+
+  const speakAll = useCallback(() => {
+    if (textContent) {
+      textTTSService.current
+        .speakText(textContent)
+        .catch((e) => console.error('TTS Error:', e));
+    }
+  }, [textContent]);
 
   const handleRecordingComplete = (audioBlob: Blob) => {
     if (followAlongTarget) {
@@ -153,15 +194,23 @@ export const ReaderPage = () => {
         position: { top: rect.bottom, left: rect.left }
       });
       setWordPopup(null);
+      const annotation = grammarData?.sentences.find(s => s.id === sentenceId);
+      if (annotation) {
+        const text = annotation.underlines.map(u => `${u.phrase}: ${u.explanation}`).join(' \n ');
+        setAnnotations(prev => ({ ...prev, [sentenceId]: text }));
+      }
     },
     onDistraction: () => {
       // Set a default distraction behavior when no specific sentence is identified
+      if (manualDistraction) return;
       const sentence = document.querySelector('[id^="sentence-"]');
       if (sentence) {
         const sentenceId = sentence.id;
         setDistractionElementId(sentenceId);
         setTimeout(() => {
-          setDistractionElementId(null);
+          if (!manualDistraction) {
+            setDistractionElementId(null);
+          }
         }, 3000);
       }
     }
@@ -356,10 +405,27 @@ export const ReaderPage = () => {
       while (gazeDataQueue.current.length > 0 && processed < maxPerFrame) {
         const packet = gazeDataQueue.current.shift()!;
         fullSessionData.current.push(packet);
-        
+
         const hoveredElement = packet.gaze_valid === 1
           ? document.elementFromPoint(packet.gaze_pos_x, packet.gaze_pos_y)
           : null;
+
+        if (
+          hoveredElement &&
+          (hoveredElement as HTMLElement).dataset.word &&
+          vocabSetRef.current.has(
+            ((hoveredElement as HTMLElement).dataset.word || '').toLowerCase()
+          ) &&
+          hoveredElement.id !== wordPopup?.wordId
+        ) {
+          const rect = (hoveredElement as HTMLElement).getBoundingClientRect();
+          setWordPopup({
+            visible: true,
+            wordId: hoveredElement.id,
+            word: (hoveredElement as HTMLElement).dataset.word || '',
+            position: { top: rect.bottom, left: rect.left },
+          });
+        }
 
         // Skip expensive calculations if we're processing too many packets
         if (processed === 0) {
@@ -368,8 +434,7 @@ export const ReaderPage = () => {
             const dy = packet.gaze_pos_y - prevGazeRef.current.y;
             const dist = Math.hypot(dx, dy);
             if (dist > 150) {
-              setShowGrammarHint(true);
-              setTimeout(() => setShowGrammarHint(false), 3000);
+              // previously showed grammar hint overlay
             }
           }
           prevGazeRef.current = { x: packet.gaze_pos_x, y: packet.gaze_pos_y };
@@ -429,7 +494,7 @@ export const ReaderPage = () => {
         cancelAnimationFrame(animationFrameRef.current);
       }
     };
-  }, [isGazeActive, processEvent, currentNodCount]);
+  }, [isGazeActive, processEvent, currentNodCount, wordPopup]);
 
   const handleStartGazeTracking = () => {
     setIsGazeActive(true);
@@ -450,6 +515,7 @@ export const ReaderPage = () => {
     setDistractionElementId(id);
     distractionIndexRef.current = (distractionIndexRef.current + 1) % sentences.length;
     setTimeout(() => setDistractionElementId(null), 3000);
+
   }, []);
 
   const triggerNodDemo = useCallback(() => {
@@ -473,9 +539,24 @@ export const ReaderPage = () => {
   const triggerShakeDemo = useCallback(() => setWordPopup(null), []);
 
   const triggerGrammarDemo = useCallback(() => {
-    setShowGrammarHint(true);
-    setTimeout(() => setShowGrammarHint(false), 3000);
+    // no-op: grammar hints now shown inline
   }, []);
+
+  const showVocabCard = useCallback((index: number) => {
+    if (vocabList.length === 0) return;
+    const vocab = vocabList[index % vocabList.length];
+    const element = document.querySelector(`[data-word="${vocab.word}"]`) as HTMLElement | null;
+    const rect = element?.getBoundingClientRect();
+    const position = rect
+      ? { top: rect.bottom, left: rect.left }
+      : { top: window.innerHeight / 2, left: window.innerWidth / 2 - 120 };
+    setWordPopup({
+      visible: true,
+      wordId: element?.id || `vocab-${index}`,
+      word: vocab.word,
+      position,
+    });
+  }, [vocabList]);
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -484,7 +565,11 @@ export const ReaderPage = () => {
           triggerDistractionDemo();
           break;
         case '2':
-          triggerNodDemo();
+          setVocabIndex((prev) => {
+            const next = (prev + 1) % (vocabList.length || 1);
+            showVocabCard(next);
+            return next;
+          });
           break;
         case '3':
           triggerDoubleNodDemo();
@@ -495,6 +580,10 @@ export const ReaderPage = () => {
         case '5':
           triggerGrammarDemo();
           break;
+        case 'Escape':
+          setWordPopup(null);
+          setGrammarCard(null);
+          break;
         default:
           break;
       }
@@ -503,10 +592,11 @@ export const ReaderPage = () => {
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [
     triggerDistractionDemo,
-    triggerNodDemo,
     triggerDoubleNodDemo,
     triggerShakeDemo,
-    triggerGrammarDemo
+    triggerGrammarDemo,
+    showVocabCard,
+    vocabList
   ]);
 
   const handleFinishReading = async () => {
@@ -636,6 +726,7 @@ export const ReaderPage = () => {
           onStartGaze={handleStartGazeTracking}
           onStopGaze={handleStopGazeTracking}
           onShowTTSSettings={() => setShowTTSSettings(true)}
+          onPlayTTS={speakAll}
           onStopTTS={() => textTTSService.current.stop()}
           onFinishReading={handleFinishReading}
         />
@@ -648,6 +739,7 @@ export const ReaderPage = () => {
                 textContent={textContent}
                 elementPositionsRef={elementPositionsRef}
                 distractionElementId={distractionElementId}
+                annotations={annotations}
               />
             </div>
           </CardContent>
@@ -750,18 +842,7 @@ export const ReaderPage = () => {
         <TTSSettingsPanel service={textTTSService.current} onClose={() => setShowTTSSettings(false)} />
       )}
 
-      {showGrammarHint && (
-        <div className="fixed bottom-4 right-4 bg-white border p-3 rounded shadow-lg text-sm" style={{maxWidth: '300px'}}>
-          <p>
-            The system provides{' '}
-            <span style={{ textDecoration: 'underline dotted' }}>real-time feedback</span>{' '}
-            to students.
-          </p>
-          <sub style={{ fontSize: '0.8em', color: '#888' }}>
-            real-time feedback：<strong>複合名詞</strong>，作為動詞 provides 的受詞。real-time 是形容詞，強調「即時」這個特性，用來修飾 feedback（回饋）。
-          </sub>
-        </div>
-      )}
+      {/* Grammar hint overlay removed in favor of inline annotations */}
     </div>
   );
 };
