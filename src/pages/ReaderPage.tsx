@@ -115,10 +115,6 @@ export const ReaderPage = () => {
   const [currentNodCount, setCurrentNodCount] = useState(0);
   const noDataWarnedRef = useRef(false);
 
-  const [vocabList, setVocabList] = useState<VocabularyItem[]>([]);
-  const [vocabIndex, setVocabIndex] = useState(0);
-  const vocabSetRef = useRef<Set<string>>(new Set());
-
   const textTTSService = useRef<TextContentTTSService>(new TextContentTTSService());
   const textDisplayRef = useRef<HTMLDivElement>(null);
 
@@ -516,13 +512,10 @@ export const ReaderPage = () => {
     const sentences = document.querySelectorAll('[id^="sentence-"]');
     if (sentences.length === 0) return;
     const id = `sentence-${distractionIndexRef.current}`;
-    setManualDistraction(true);
     setDistractionElementId(id);
     distractionIndexRef.current = (distractionIndexRef.current + 1) % sentences.length;
-    setTimeout(() => {
-      setDistractionElementId(null);
-      setManualDistraction(false);
-    }, 3000);
+    setTimeout(() => setDistractionElementId(null), 3000);
+
   }, []);
 
   const triggerNodDemo = useCallback(() => {

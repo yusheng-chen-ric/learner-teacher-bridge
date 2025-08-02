@@ -163,7 +163,6 @@ export const ImageReaderPage = () => {
           onStopTTS={() => textTTSService.current.stop()}
           showReportButton={false}
         />
-      
       </div>
       {showTTSSettings && (
         <TTSSettingsPanel service={textTTSService.current} onClose={() => setShowTTSSettings(false)} />
