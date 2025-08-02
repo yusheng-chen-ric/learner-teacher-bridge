@@ -35,6 +35,10 @@ export const ReaderPage = () => {
   // Load reading text from the public/text folder
   const [textContent, setTextContent] = useState('');
   const [vocabList, setVocabList] = useState<VocabularyItem[]>([]);
+
+  
+  const [vocabIndex, setVocabIndex] = useState(0);
+
   const vocabSetRef = useRef<Set<string>>(new Set());
 
   useEffect(() => {
@@ -846,7 +850,6 @@ export const ReaderPage = () => {
       {showTTSSettings && (
         <TTSSettingsPanel service={textTTSService.current} onClose={() => setShowTTSSettings(false)} />
       )}
-
       {/* Grammar hint overlay removed in favor of inline annotations */}
     </div>
   );

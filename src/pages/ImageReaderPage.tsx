@@ -115,7 +115,7 @@ export const ImageReaderPage = () => {
               return (
                 <div key={page.id} className="space-y-2 text-center">
                   <ImageDisplay id={page.id} src={page.src} text={page.text} isHighlighted={focusId === page.id} />
-                <p className="text-sm">{page.text}</p>
+                <p className="text-large">{page.text}</p>
                 <Button size="sm" onClick={() => speak(page.text)}>
                   朗讀
                 </Button>
@@ -130,9 +130,7 @@ export const ImageReaderPage = () => {
               下一頁
             </Button>
           </div>
-          <Button variant="outline" onClick={() => triggerDistraction(pages[pageIndex].id)}>
-            模擬分心
-          </Button>
+          
           <div className="pt-4 space-y-2">
             <input
               type="file"
