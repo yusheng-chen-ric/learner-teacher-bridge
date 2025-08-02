@@ -34,8 +34,9 @@ export const ReaderPage = () => {
   
   // Load reading text from the public/text folder
   const [textContent, setTextContent] = useState('');
-  const [vocabList, setVocabList] = useState<VocabularyItem[]>([]);
+  
   const [vocabIndex, setVocabIndex] = useState(0);
+
   const vocabSetRef = useRef<Set<string>>(new Set());
 
   useEffect(() => {
@@ -806,6 +807,9 @@ export const ReaderPage = () => {
         <WordPopup
           word={wordPopup.word}
           position={wordPopup.position}
+          entry={vocabList.find(
+            (v) => v.word.toLowerCase() === wordPopup.word.toLowerCase()
+          )}
           onClose={() => setWordPopup(null)}
           onFollowAlong={(text, pos) =>
             setFollowAlongTarget({ text, position: { x: pos.left, y: pos.top } })
@@ -844,7 +848,6 @@ export const ReaderPage = () => {
       {showTTSSettings && (
         <TTSSettingsPanel service={textTTSService.current} onClose={() => setShowTTSSettings(false)} />
       )}
-
       {/* Grammar hint overlay removed in favor of inline annotations */}
     </div>
   );
