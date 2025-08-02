@@ -34,6 +34,9 @@ export const ReaderPage = () => {
   
   // Load reading text from the public/text folder
   const [textContent, setTextContent] = useState('');
+  const [vocabList, setVocabList] = useState<VocabularyItem[]>([]);
+  const [vocabIndex, setVocabIndex] = useState(0);
+  const vocabSetRef = useRef<Set<string>>(new Set());
 
   useEffect(() => {
     fetch('/text/sample.txt')
