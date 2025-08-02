@@ -130,9 +130,7 @@ export const ImageReaderPage = () => {
               下一頁
             </Button>
           </div>
-          <Button variant="outline" onClick={() => triggerDistraction(pages[pageIndex].id)}>
-            模擬分心
-          </Button>
+          
           <div className="pt-4 space-y-2">
             <input
               type="file"
