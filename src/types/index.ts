@@ -85,7 +85,11 @@ export interface Paragraph {
 
 export interface VocabularyItem {
   word: string;
-  explanation: string;
+  pronunciation?: string;
+  part_of_speech?: string;
+  definition?: string;
+  examples?: string[];
+  explanation?: string;
 }
 
 export interface ReadingMaterial {
