@@ -34,6 +34,8 @@ export const ReaderPage = () => {
   
   // Load reading text from the public/text folder
   const [textContent, setTextContent] = useState('');
+  const [vocabList, setVocabList] = useState<VocabularyItem[]>([]);
+  const vocabSetRef = useRef<Set<string>>(new Set());
 
   useEffect(() => {
     fetch('/text/sample.txt')
@@ -803,6 +805,9 @@ export const ReaderPage = () => {
         <WordPopup
           word={wordPopup.word}
           position={wordPopup.position}
+          entry={vocabList.find(
+            (v) => v.word.toLowerCase() === wordPopup.word.toLowerCase()
+          )}
           onClose={() => setWordPopup(null)}
           onFollowAlong={(text, pos) =>
             setFollowAlongTarget({ text, position: { x: pos.left, y: pos.top } })
