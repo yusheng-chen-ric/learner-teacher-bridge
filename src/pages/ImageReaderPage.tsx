@@ -115,7 +115,7 @@ export const ImageReaderPage = () => {
               return (
                 <div key={page.id} className="space-y-2 text-center">
                   <ImageDisplay id={page.id} src={page.src} text={page.text} isHighlighted={focusId === page.id} />
-                <p className="text-sm">{page.text}</p>
+                <p className="text-large">{page.text}</p>
                 <Button size="sm" onClick={() => speak(page.text)}>
                   朗讀
                 </Button>
