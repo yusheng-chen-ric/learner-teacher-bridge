@@ -62,7 +62,7 @@ export const TextDisplay = ({ textContent, elementPositionsRef, distractionEleme
         return (
           <div key={`wrapper-${currentSentenceIndex}`} className="mb-4">
             {sentenceSpan}
-            <div className="mt-1 text-sm text-gray-600">{annotation}</div>
+            <div className="mt-1 text-xs text-gray-600">{annotation}</div>
           </div>
         );
       }
