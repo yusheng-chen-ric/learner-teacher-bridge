@@ -32,12 +32,27 @@ export const ReaderPage = () => {
   const { sessionId } = useParams<{ sessionId: string }>();
   const navigate = useNavigate();
   
+  // Core state management - moved up before useEffects that depend on them
+  const [isGazeActive, setIsGazeActive] = useState(false);
+  const [wordPopup, setWordPopup] = useState<WordPopupData | null>(null);
+  const [grammarCard, setGrammarCard] = useState<GrammarCardData | null>(null);
+  const [distractionElementId, setDistractionElementId] = useState<string | null>(null);
+  const [annotations, setAnnotations] = useState<Record<string, string>>({});
+  const [grammarData, setGrammarData] = useState<GrammarDemoData | null>(null);
+  const [sessionData, setSessionData] = useState({
+    startTime: Date.now(),
+    readingTime: 0,
+    gazeEvents: 0,
+    nodEvents: 0
+  });
+
   // Load reading text from the public/text folder
   const [textContent, setTextContent] = useState('');
   const [vocabList, setVocabList] = useState<VocabularyItem[]>([]);
 
   
   const [vocabIndex, setVocabIndex] = useState(0);
+  const [grammarIndex, setGrammarIndex] = useState(0); // 新增語法卡片索引
 
   const vocabSetRef = useRef<Set<string>>(new Set());
 
@@ -85,20 +100,6 @@ export const ReaderPage = () => {
       .catch((err) => console.error('Failed to load vocabulary list', err));
   }, []);
 
-  // Core state management
-  const [isGazeActive, setIsGazeActive] = useState(false);
-  const [wordPopup, setWordPopup] = useState<WordPopupData | null>(null);
-  const [grammarCard, setGrammarCard] = useState<GrammarCardData | null>(null);
-  const [distractionElementId, setDistractionElementId] = useState<string | null>(null);
-  const [annotations, setAnnotations] = useState<Record<string, string>>({});
-  const [grammarData, setGrammarData] = useState<GrammarDemoData | null>(null);
-  const [sessionData, setSessionData] = useState({
-    startTime: Date.now(),
-    readingTime: 0,
-    gazeEvents: 0,
-    nodEvents: 0
-  });
-
   // Enhanced interaction states
   const [newWords, setNewWords] = useState<string[]>([]);
   const [demoMode, setDemoMode] = useState(false);
@@ -109,6 +110,7 @@ export const ReaderPage = () => {
   const [manualDistraction, setManualDistraction] = useState(false);
   const [showTTSSettings, setShowTTSSettings] = useState(false);
   const [ttsEnabled, setTTSEnabled] = useState(ttsService.getSettings().enabled);
+  const [readingIndicator, setReadingIndicator] = useState<{ x: number; y: number; visible: boolean }>({ x: 0, y: 0, visible: false });
 
   const toggleTTS = () => {
     const newEnabled = !ttsEnabled;
@@ -125,10 +127,89 @@ export const ReaderPage = () => {
   const textDisplayRef = useRef<HTMLDivElement>(null);
 
   const speakAll = useCallback(() => {
-    if (textContent) {
+    if (textContent && textDisplayRef.current) {
+      // 計算每個字詞的位置
+      const calculateWordPositions = (container: HTMLElement) => {
+        const positions: { x: number; y: number; word: string; charStart: number; charEnd: number }[] = [];
+        const containerRect = container.getBoundingClientRect();
+        let globalCharIndex = 0;
+
+        // 遍歷容器中的所有文字節點
+        const walker = document.createTreeWalker(
+          container,
+          NodeFilter.SHOW_TEXT,
+          null
+        );
+
+        let node;
+        while ((node = walker.nextNode())) {
+          const textNode = node as Text;
+          const nodeText = textNode.textContent || '';
+          
+          // 將文字分割成字詞
+          const words = nodeText.split(/(\s+)/);
+          let nodeCharIndex = 0;
+          
+          words.forEach((word) => {
+            if (word.trim()) { // 只處理非空白的字詞
+              const range = document.createRange();
+              try {
+                range.setStart(textNode, nodeCharIndex);
+                range.setEnd(textNode, nodeCharIndex + word.length);
+                const rect = range.getBoundingClientRect();
+                
+                positions.push({
+                  x: rect.left - containerRect.left + rect.width / 2,
+                  y: rect.bottom - containerRect.top + 8, // 文字下方 8px
+                  word: word.trim(),
+                  charStart: globalCharIndex + nodeCharIndex,
+                  charEnd: globalCharIndex + nodeCharIndex + word.length
+                });
+              } catch (error) {
+                console.warn(`無法測量字詞 "${word}" 的位置:`, error);
+              }
+            }
+            nodeCharIndex += word.length;
+          });
+          
+          globalCharIndex += nodeText.length;
+        }
+        
+        return positions;
+      };
+
+      const wordPositions = calculateWordPositions(textDisplayRef.current);
+      console.log('計算出的字詞位置:', wordPositions);
+      
       textTTSService.current
-        .speakText(textContent)
-        .catch((e) => console.error('TTS Error:', e));
+        .speakText(textContent, undefined, {
+          onBoundary: (charIndex: number, charLength: number) => {
+            // 找到當前字符位置對應的字詞
+            const currentWord = wordPositions.find(pos => 
+              charIndex >= pos.charStart && charIndex < pos.charEnd
+            );
+            
+            if (currentWord) {
+              const containerRect = textDisplayRef.current?.getBoundingClientRect();
+              if (containerRect) {
+                setReadingIndicator({
+                  x: currentWord.x + containerRect.left,
+                  y: currentWord.y + containerRect.top,
+                  visible: true
+                });
+                console.log(`朗讀字詞: "${currentWord.word}" 在位置: (${currentWord.x + containerRect.left}, ${currentWord.y + containerRect.top})`);
+              }
+            }
+          }
+        })
+        .then(() => {
+          setReadingIndicator(prev => ({ ...prev, visible: false }));
+          console.log('朗讀完成');
+        })
+        .catch((e) => {
+          console.error('TTS Error:', e);
+          setReadingIndicator(prev => ({ ...prev, visible: false }));
+        });
     }
   }, [textContent]);
 
@@ -147,25 +228,7 @@ export const ReaderPage = () => {
     return () => clearInterval(interval);
   }, []);
 
-  useEffect(() => {
-    if (demoContent) {
-      setWordPopup({
-        visible: true,
-        wordId: 'demo-word',
-        word: 'example',
-        position: { top: window.innerHeight / 2 - 40, left: window.innerWidth / 2 - 120 }
-      });
-      setGrammarCard({
-        visible: true,
-        sentenceId: 'demo-sentence',
-        sentence: 'This is a sample sentence used to demonstrate the interface.',
-        position: { top: window.innerHeight / 2 + 40, left: window.innerWidth / 2 - 160 }
-      });
-    } else {
-      setWordPopup(null);
-      setGrammarCard(null);
-    }
-  }, [demoContent]);
+  // 移除了 demoContent 的 useEffect，改為手動觸發
 
 
 
@@ -538,15 +601,54 @@ export const ReaderPage = () => {
     const word = wordPopup?.word || 'example';
     const settings = ttsService.getSettings();
     if (settings.enabled) {
-      ttsService.speak(word, { rate: settings.rate * 0.8 }).catch((e) => console.error('TTS Demo Error:', e));
+      ttsService.speak(word, { rate: settings.rate * 0.8 }, undefined).catch((e) => console.error('TTS Demo Error:', e));
     }
   }, [wordPopup]);
 
   const triggerShakeDemo = useCallback(() => setWordPopup(null), []);
 
   const triggerGrammarDemo = useCallback(() => {
-    // no-op: grammar hints now shown inline
-  }, []);
+    // 獲取所有句子元素
+    const sentences = document.querySelectorAll('[id^="sentence-"]');
+    if (sentences.length === 0 || !grammarData?.sentences) return;
+
+    // 使用 grammarData 中的句子信息
+    const availableGrammarSentences = grammarData.sentences;
+    if (availableGrammarSentences.length === 0) return;
+
+    // 獲取當前語法句子
+    const currentGrammarSentence = availableGrammarSentences[grammarIndex % availableGrammarSentences.length];
+    
+    // 嘗試找到對應的 DOM 元素，如果找不到就使用默認位置
+    const targetElement = document.getElementById(currentGrammarSentence.id);
+    const position = targetElement 
+      ? (() => {
+          const rect = targetElement.getBoundingClientRect();
+          return { top: rect.bottom + 10, left: rect.left };
+        })()
+      : { top: window.innerHeight / 2 + 40, left: window.innerWidth / 2 - 160 };
+
+    // 顯示語法卡片
+    setGrammarCard({
+      visible: true,
+      sentenceId: currentGrammarSentence.id,
+      sentence: currentGrammarSentence.text || `Sentence ${grammarIndex + 1}`,
+      position
+    });
+
+    // 更新註釋
+    const annotation = currentGrammarSentence.underlines
+      .map(u => `${u.phrase}: ${u.explanation}`)
+      .join(' | ');
+    
+    setAnnotations(prev => ({ 
+      ...prev, 
+      [currentGrammarSentence.id]: annotation 
+    }));
+
+    // 移動到下一個語法句子索引
+    setGrammarIndex(prev => (prev + 1) % availableGrammarSentences.length);
+  }, [grammarIndex, grammarData]);
 
   const showVocabCard = useCallback((index: number) => {
     if (vocabList.length === 0) return;
@@ -584,6 +686,10 @@ export const ReaderPage = () => {
           triggerShakeDemo();
           break;
         case '5':
+          triggerGrammarDemo();
+          break;
+        case '7':
+          // 按鍵 7：顯示語法卡片
           triggerGrammarDemo();
           break;
         case 'Escape':
@@ -796,7 +902,7 @@ export const ReaderPage = () => {
                 <Button onClick={triggerGrammarDemo} variant="outline">Grammar Help</Button>
               </div>
               <p className="mt-2 text-xs text-gray-500">
-                快捷鍵 1-5 可直接觸發以上示範效果
+                快捷鍵：1-分心 | 2-單字 | 3-點頭兩次 | 4-搖頭 | 5-語法 | 7-循環語法卡片
               </p>
             </CardContent>
           )}
@@ -849,6 +955,22 @@ export const ReaderPage = () => {
 
       {showTTSSettings && (
         <TTSSettingsPanel service={textTTSService.current} onClose={() => setShowTTSSettings(false)} />
+      )}
+
+      {/* 朗讀進度紅點指示器 */}
+      {readingIndicator.visible && (
+        <div
+          className="fixed w-4 h-4 bg-red-500 rounded-full pointer-events-none z-50 animate-bounce shadow-lg border-2 border-white"
+          style={{
+            left: `${readingIndicator.x}px`,
+            top: `${readingIndicator.y}px`,
+            transform: 'translate(-50%, -50%)',
+            boxShadow: '0 2px 8px rgba(239, 68, 68, 0.6)'
+          }}
+        >
+          {/* 內圈光暈效果 */}
+          <div className="absolute inset-0 bg-red-400 rounded-full animate-ping opacity-75"></div>
+        </div>
       )}
       {/* Grammar hint overlay removed in favor of inline annotations */}
     </div>

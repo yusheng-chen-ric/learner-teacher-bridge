@@ -8,6 +8,11 @@ export interface TTSSettings {
   language: string;
 }
 
+export interface TTSProgressCallback {
+  onWordStart?: (word: string, charIndex: number) => void;
+  onBoundary?: (charIndex: number, charLength: number) => void;
+}
+
 export class TTSService {
   private synthesis: SpeechSynthesis;
   private settings: TTSSettings;
@@ -22,7 +27,7 @@ export class TTSService {
   }
 
   private loadSettings(): TTSSettings {
-    const saved = localStorage.getItem('tts-settings');
+    const saved = localStorage.getItem("tts-settings");
     return saved
       ? JSON.parse(saved)
       : {
@@ -31,13 +36,13 @@ export class TTSService {
           rate: 1,
           pitch: 1,
           volume: 0.8,
-          voice: '',
-          language: 'en-US',
+          voice: "",
+          language: "en-US",
         };
   }
 
   private saveSettings(): void {
-    localStorage.setItem('tts-settings', JSON.stringify(this.settings));
+    localStorage.setItem("tts-settings", JSON.stringify(this.settings));
   }
 
   private initializeVoices(): void {
@@ -45,8 +50,9 @@ export class TTSService {
       this.availableVoices = this.synthesis.getVoices();
       if (!this.settings.voice && this.availableVoices.length > 0) {
         const defaultVoice =
-          this.availableVoices.find((v) => v.lang.startsWith(this.settings.language)) ||
-          this.availableVoices[0];
+          this.availableVoices.find((v) =>
+            v.lang.startsWith(this.settings.language)
+          ) || this.availableVoices[0];
         this.settings.voice = defaultVoice.name;
         this.saveSettings();
       }
@@ -56,34 +62,59 @@ export class TTSService {
     this.synthesis.onvoiceschanged = loadVoices;
   }
 
-  public async speak(text: string, options?: Partial<TTSSettings>): Promise<void> {
+  public async speak(
+    text: string,
+    options?: Partial<TTSSettings>,
+    progressCallback?: TTSProgressCallback
+  ): Promise<void> {
     if (!this.settings.enabled) return;
     this.stop();
+
     return new Promise((resolve, reject) => {
       const utterance = new SpeechSynthesisUtterance(text);
       const finalSettings = { ...this.settings, ...options };
+
       utterance.rate = finalSettings.rate;
       utterance.pitch = finalSettings.pitch;
       utterance.volume = finalSettings.volume;
       utterance.lang = finalSettings.language;
-      const voice = this.availableVoices.find((v) => v.name === finalSettings.voice);
+
+      const voice = this.availableVoices.find(
+        (v) => v.name === finalSettings.voice
+      );
       if (voice) {
         utterance.voice = voice;
       }
+
+      // 設置進度回調
+      if (progressCallback?.onBoundary) {
+        utterance.onboundary = (event) => {
+          if (event.name === "word") {
+            progressCallback.onBoundary!(
+              event.charIndex,
+              event.charLength || 1
+            );
+          }
+        };
+      }
+
       utterance.onstart = () => {
         this.isPlaying = true;
         this.currentUtterance = utterance;
       };
+
       utterance.onend = () => {
         this.isPlaying = false;
         this.currentUtterance = null;
         resolve();
       };
+
       utterance.onerror = (e) => {
         this.isPlaying = false;
         this.currentUtterance = null;
         reject(new Error(`TTS Error: ${e.error}`));
       };
+
       this.synthesis.speak(utterance);
     });
   }

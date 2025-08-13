@@ -47,7 +47,7 @@ export const WordPopup = ({ word, position, entry, onClose, onFollowAlong }: Wor
     const settings = ttsService.getSettings();
     if (settings.enabled) {
       ttsService
-        .speak(definition.word, { rate: settings.rate * 0.8 })
+        .speak(definition.word, { rate: settings.rate * 0.8 }, undefined)
         .catch((e) => console.error('TTS Error:', e));
     }
   };

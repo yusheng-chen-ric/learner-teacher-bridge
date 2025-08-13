@@ -1,9 +1,9 @@
-import { TTSService, TTSSettings } from './TTSService';
+import { TTSService, TTSSettings, TTSProgressCallback } from "./TTSService";
 
 interface TextRegion {
   id: string;
   text: string;
-  type: 'word' | 'sentence';
+  type: "word" | "sentence";
   bounds: { x: number; y: number; width: number; height: number };
 }
 
@@ -27,8 +27,8 @@ export class TextContentTTSService {
       const rect = el.getBoundingClientRect();
       this.regions.set(el.id, {
         id: el.id,
-        text: el.textContent || '',
-        type: 'word',
+        text: el.textContent || "",
+        type: "word",
         bounds: {
           x: rect.left - containerRect.left,
           y: rect.top - containerRect.top,
@@ -42,8 +42,8 @@ export class TextContentTTSService {
       const rect = el.getBoundingClientRect();
       this.regions.set(el.id, {
         id: el.id,
-        text: el.textContent || '',
-        type: 'sentence',
+        text: el.textContent || "",
+        type: "sentence",
         bounds: {
           x: rect.left - containerRect.left,
           y: rect.top - containerRect.top,
@@ -61,37 +61,54 @@ export class TextContentTTSService {
     const relY = y - containerRect.top;
     for (const region of this.regions.values()) {
       const b = region.bounds;
-      if (relX >= b.x && relX <= b.x + b.width && relY >= b.y && relY <= b.y + b.height) {
+      if (
+        relX >= b.x &&
+        relX <= b.x + b.width &&
+        relY >= b.y &&
+        relY <= b.y + b.height
+      ) {
         return region;
       }
     }
     return null;
   }
 
-  public async handleGazeFixation(x: number, y: number, duration: number): Promise<TextRegion | null> {
+  public async handleGazeFixation(
+    x: number,
+    y: number,
+    duration: number
+  ): Promise<TextRegion | null> {
     const region = this.regionAt(x, y);
     if (!region) return null;
     const s = this.tts.getSettings();
     if (!s.enabled || !s.autoSpeak) return region;
-    if (region.type === 'word' && duration > 800 && duration < 2000) {
+    if (region.type === "word" && duration > 800 && duration < 2000) {
       await this.tts.speak(region.text, { rate: s.rate * 1.2, pitch: s.pitch });
-    } else if (region.type === 'sentence' && duration >= 2000) {
+    } else if (region.type === "sentence" && duration >= 2000) {
       await this.tts.speak(region.text, { rate: s.rate, pitch: s.pitch });
     }
     return region;
   }
 
-  public async handleNodGesture(x: number, y: number, type: 'single' | 'double' = 'single'): Promise<TextRegion | null> {
+  public async handleNodGesture(
+    x: number,
+    y: number,
+    type: "single" | "double" = "single"
+  ): Promise<TextRegion | null> {
     const region = this.regionAt(x, y);
     if (!region || !this.tts.getSettings().enabled) return null;
     const settings = this.tts.getSettings();
-    const rate = type === 'double' ? settings.rate * 0.7 : settings.rate;
+    const rate = type === "double" ? settings.rate * 0.7 : settings.rate;
     await this.tts.speak(region.text, { rate, pitch: settings.pitch });
     return region;
   }
 
-  public speakText(text: string, opts?: Partial<TTSSettings>): Promise<void> {
-    return this.tts.speak(text, opts);
+  public speakText(
+    text: string,
+    opts?: Partial<TTSSettings>,
+    progressCallback?: TTSProgressCallback
+  ): Promise<void> {
+    return this.tts.speak(text, opts, progressCallback);
   }
 
   public stop(): void {
